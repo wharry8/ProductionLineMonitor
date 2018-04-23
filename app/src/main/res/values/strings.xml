@@ -1,8 +1,13 @@
 <resources>
-    <string name="app_name">ProductionLineMonitor</string>
+    <string name="app_name">智能生产线监控</string>
 
     <string name="main">主界面</string>
     <string name="productionLine">生产线</string>
     <string name="workers">工作站</string>
     <string name="navigationDrawerHeader">智能生产线监控</string>
+
+    <string name="cncNormal">正常</string>
+    <string name="cncStopped">关机</string>
+    <string name="cncError">异常</string>
+
 </resources>
