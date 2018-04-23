@@ -9,10 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ProductionLineActivity">
 
         </activity>
-        <activity android:name=".ProductionLineActivity">
+        <activity android:name=".WorkStationActivity" />
+        <activity android:name=".WorkStationListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

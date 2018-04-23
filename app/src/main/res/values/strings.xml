@@ -10,4 +10,8 @@
     <string name="cncStopped">关机</string>
     <string name="cncError">异常</string>
 
+    <string name="workStationNormal">正常</string>
+    <string name="workStationStopped">关机</string>
+    <string name="workStationError">异常</string>
+
 </resources>
