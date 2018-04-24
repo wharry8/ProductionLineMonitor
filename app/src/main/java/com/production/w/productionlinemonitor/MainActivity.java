@@ -24,9 +24,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // hide action bar.
-//        getSupportActionBar().hide();
-
         setContentView(R.layout.activity_main);
         initNavigationDrawer();
 
