@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
         tv_speed = findViewById(R.id.pl_tv_speed);
         tv_system_running_time = findViewById(R.id.tv_system_running_time);
         tv_machine_running_time = findViewById(R.id.tv_machine_running_time);
-        tv_target = findViewById(R.id.tv_target);
-        tv_current = findViewById(R.id.tv_current);
+        tv_target = findViewById(R.id.ws_tv_target);
+        tv_current = findViewById(R.id.ws_tv_current);
         tv_up = findViewById(R.id.tv_up);
-        tv_percent = findViewById(R.id.tv_percent);
+        tv_percent = findViewById(R.id.ws_tv_percent);
     }
 
     public void updateView() {

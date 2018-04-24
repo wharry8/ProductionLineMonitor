@@ -18,7 +18,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/name"
+                android:id="@+id/ws_tv_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="1号工作站"
@@ -65,7 +65,7 @@
                             android:textAlignment="center" />
 
                         <TextView
-                            android:id="@+id/tv_statsu"
+                            android:id="@+id/ws_tv_status"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -92,7 +92,7 @@
                             android:textAlignment="center" />
 
                         <TextView
-                            android:id="@+id/tv_up_time"
+                            android:id="@+id/ws_tv_up_time"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -127,7 +127,7 @@
                             app:layout_constraintTop_toTopOf="@+id/textView11" />
 
                         <TextView
-                            android:id="@+id/tv_run_time"
+                            android:id="@+id/ws_tv_run_time"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -159,7 +159,7 @@
                             android:textAlignment="center" />
 
                         <TextView
-                            android:id="@+id/tv_target"
+                            android:id="@+id/ws_tv_target"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -186,7 +186,7 @@
                             android:textAlignment="center" />
 
                         <TextView
-                            android:id="@+id/tv_current"
+                            android:id="@+id/ws_tv_current"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -213,7 +213,7 @@
                             android:textAlignment="center" />
 
                         <TextView
-                            android:id="@+id/tv_percent"
+                            android:id="@+id/ws_tv_percent"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -249,7 +249,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tv_cnc_left_status"
+                    android:id="@+id/ws_tv_cnc_left_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
@@ -280,7 +280,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/tv_cnc_right_status"
+                    android:id="@+id/ws_tv_cnc_right_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"

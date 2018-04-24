@@ -116,7 +116,7 @@
                         android:layout_weight="1">
 
                         <TextView
-                            android:id="@+id/tv_target"
+                            android:id="@+id/ws_tv_target"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -136,7 +136,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBottom="@+id/iv_product"
-                            android:layout_alignStart="@+id/tv_target"
+                            android:layout_alignStart="@+id/ws_tv_target"
                             android:layout_marginBottom="14dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
@@ -286,7 +286,7 @@
                         android:layout_weight="1">
 
                         <TextView
-                            android:id="@+id/tv_current"
+                            android:id="@+id/ws_tv_current"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -306,7 +306,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBottom="@+id/iv_product_filled"
-                            android:layout_alignStart="@+id/tv_current"
+                            android:layout_alignStart="@+id/ws_tv_current"
                             android:layout_marginBottom="14dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
@@ -327,7 +327,7 @@
                         android:layout_weight="1">
 
                         <TextView
-                            android:id="@+id/tv_percent"
+                            android:id="@+id/ws_tv_percent"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -348,7 +348,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBottom="@+id/iv_percent"
-                            android:layout_alignStart="@+id/tv_percent"
+                            android:layout_alignStart="@+id/ws_tv_percent"
                             android:layout_marginBottom="14dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
