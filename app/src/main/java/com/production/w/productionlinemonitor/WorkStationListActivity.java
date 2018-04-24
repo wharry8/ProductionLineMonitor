@@ -16,7 +16,11 @@ public class WorkStationListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_station_list);
 
+        initNavigationDrawer();
         init();
+    }
+    public void initNavigationDrawer () {
+
     }
     public void init () {
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
