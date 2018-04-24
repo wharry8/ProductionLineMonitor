@@ -9,8 +9,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import static android.support.constraint.Constraints.TAG;
 
 /**
@@ -60,7 +58,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // - replace the contents of the view with that element
 //        holder.mTextView.setText(mDataset[position]);
         TextView tv_name =  holder.mLinearLayout.findViewById(R.id.tv_name);
-        TextView tv_status = holder.mLinearLayout.findViewById(R.id.tv_status);
+        TextView tv_status = holder.mLinearLayout.findViewById(R.id.pl_tv_status);
         ImageButton ib_watch = holder.mLinearLayout.findViewById(R.id.ib_watch);
 
         tv_name.setText(mDataset[position]);

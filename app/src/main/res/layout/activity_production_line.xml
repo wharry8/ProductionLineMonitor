@@ -17,15 +17,15 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_name"
+                android:id="@+id/pl_tv_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAlignment="center"
-                android:text="TextView" />
+                android:text="TextView"
+                android:textAlignment="center" />
 
             <TextView
-                android:id="@+id/tv_status"
+                android:id="@+id/pl_tv_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -39,15 +39,15 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_time"
+                android:id="@+id/pl_tv_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAlignment="center"
-                android:text="TextView" />
+                android:text="TextView"
+                android:textAlignment="center" />
 
             <TextView
-                android:id="@+id/tv_speed"
+                android:id="@+id/pl_tv_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -110,7 +110,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/tv_cnc1_left"
+                        android:id="@+id/pl_tv_cnc1_left"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -118,7 +118,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc2_left"
+                        android:id="@+id/pl_tv_cnc2_left"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -126,7 +126,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc3_left"
+                        android:id="@+id/pl_tv_cnc3_left"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -134,7 +134,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc4_left"
+                        android:id="@+id/pl_tv_cnc4_left"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -142,7 +142,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc5_left"
+                        android:id="@+id/pl_tv_cnc5_left"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -156,7 +156,7 @@
                     android:layout_height="match_parent" >
 
                     <TextView
-                        android:id="@+id/tv_cnc1_right"
+                        android:id="@+id/pl_tv_cnc1_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -164,7 +164,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc2_right"
+                        android:id="@+id/pl_tv_cnc2_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -172,7 +172,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc3_right"
+                        android:id="@+id/pl_tv_cnc3_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -180,7 +180,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc4_right"
+                        android:id="@+id/pl_tv_cnc4_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -188,7 +188,7 @@
                         android:textAlignment="center" />
 
                     <TextView
-                        android:id="@+id/tv_cnc5_right"
+                        android:id="@+id/pl_tv_cnc5_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"

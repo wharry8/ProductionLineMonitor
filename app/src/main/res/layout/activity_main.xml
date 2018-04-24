@@ -25,6 +25,48 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:background="@android:color/holo_blue_light">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/iv_monitor"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_weight="1"
+                            app:srcCompat="@drawable/system_monitor" />
+
+                        <TextView
+                            android:id="@+id/pl_tv_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:text="TextView" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/iv_monitor"
+                            android:layout_alignStart="@+id/pl_tv_status"
+                            android:layout_marginBottom="14dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="生产线状态" />
+
+                    </RelativeLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:background="@android:color/holo_blue_dark">
 
                     <RelativeLayout
@@ -58,48 +100,6 @@
                             android:layout_weight="1"
                             android:gravity="center_vertical"
                             android:text="系统运行时间" />
-                    </RelativeLayout>
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:color/holo_blue_light">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <ImageView
-                            android:id="@+id/iv_monitor"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentTop="true"
-                            android:layout_weight="1"
-                            app:srcCompat="@drawable/system_monitor" />
-
-                        <TextView
-                            android:id="@+id/tv_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:text="TextView" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBottom="@+id/iv_monitor"
-                            android:layout_alignStart="@+id/tv_status"
-                            android:layout_marginBottom="14dp"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:text="生产线状态" />
-
                     </RelativeLayout>
 
                 </TableRow>
@@ -196,6 +196,47 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:background="@android:color/holo_blue_dark">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/pl_tv_speed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:text="TextView" />
+
+                        <ImageView
+                            android:id="@+id/iv_speed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_weight="1"
+                            app:srcCompat="@drawable/speed" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@+id/iv_speed"
+                            android:layout_alignStart="@+id/pl_tv_speed"
+                            android:layout_marginBottom="14dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="生产速度" />
+                    </RelativeLayout>
+
+                </TableRow>
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:background="@android:color/holo_blue_light">
 
                     <RelativeLayout
@@ -229,47 +270,6 @@
                             android:layout_weight="1"
                             android:gravity="center_vertical"
                             android:text="整机运行时间" />
-                    </RelativeLayout>
-
-                </TableRow>
-
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@android:color/holo_blue_dark">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:id="@+id/tv_speed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:layout_centerVertical="true"
-                            android:text="TextView" />
-
-                        <ImageView
-                            android:id="@+id/iv_speed"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_alignParentTop="true"
-                            android:layout_weight="1"
-                            app:srcCompat="@drawable/speed" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBottom="@+id/iv_speed"
-                            android:layout_alignStart="@+id/tv_speed"
-                            android:layout_marginBottom="14dp"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:text="生产速度" />
                     </RelativeLayout>
 
                 </TableRow>
