@@ -1,9 +1,11 @@
 package com.production.w.productionlinemonitor;
 
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductionLineActivity extends AppCompatActivity {
@@ -17,6 +19,7 @@ public class ProductionLineActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_production_line);
 
@@ -50,6 +53,9 @@ public class ProductionLineActivity extends AppCompatActivity {
         tv_status = findViewById(R.id.pl_tv_status);
         tv_time = findViewById(R.id.pl_tv_time);
         tv_speed = findViewById(R.id.pl_tv_speed);
+
+        leftCncList = new ArrayList<>();
+        rightCncList = new ArrayList<>();
 
         TextView tv_cnc = findViewById(R.id.pl_tv_cnc1_left);
         leftCncList.add(tv_cnc);

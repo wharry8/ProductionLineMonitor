@@ -1,13 +1,18 @@
 package com.production.w.productionlinemonitor;
 
+import android.content.Intent;
+import android.icu.text.TimeZoneFormat;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private DrawerLayout mDrawerLayout;
     private TextView tv_status;
@@ -128,6 +133,22 @@ public class MainActivity extends AppCompatActivity {
                         menuItem.setChecked(true);
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
+                        String selectedTitle = (String) menuItem.getTitle();
+                        Intent intent;
+
+                        if (selectedTitle == getString(R.string.main)) {
+
+                        } else if (selectedTitle == getString(R.string.productionLine)) {
+                            intent = new Intent(getApplicationContext(), ProductionLineActivity.class);
+                            startActivity(intent);
+
+                        } else if (selectedTitle == getString(R.string.workers)) {
+                            intent = new Intent(getApplicationContext(), WorkStationListActivity.class);
+                            startActivity(intent);
+
+                        } else {
+
+                        }
 
                         // Add code here to update the UI based on the item selected
                         // For example, swap UI fragments here

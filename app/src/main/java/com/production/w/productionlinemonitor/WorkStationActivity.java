@@ -29,7 +29,7 @@ public class WorkStationActivity extends AppCompatActivity {
         tv_name = findViewById(R.id.ws_tv_name);
         tv_status = findViewById(R.id.ws_tv_status);
         tv_up_time = findViewById(R.id.ws_tv_up_time);
-        tv_run_time = findViewById(R.id.tv_run_time);
+        tv_run_time = findViewById(R.id.ws_tv_run_time);
         tv_target = findViewById(R.id.ws_tv_target);
         tv_current = findViewById(R.id.ws_tv_current);
         tv_percent = findViewById(R.id.ws_tv_percent);
