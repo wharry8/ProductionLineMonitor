@@ -76,7 +76,7 @@ public class WorkStationListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(new String[]{"winter", "autumn", "summer", "spring"});
+        mAdapter = new MyAdapter(new String[]{"winter", "autumn", "summer", "spring"}, getApplicationContext());
         mRecyclerView.setAdapter(mAdapter);
     }
 }
