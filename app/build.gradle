@@ -29,4 +29,5 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support:cardview-v7:26.1.0'
     implementation files('libs/modbus4Android-1.2.jar')
+    compile 'com.github.smart-fun:smartGL:1.1.7'
 }
