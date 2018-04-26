@@ -9,6 +9,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.production.w.productionlinemonitor.Helper.Coil;
+import com.production.w.productionlinemonitor.Helper.Register;
+import com.zgkxzx.modbus4And.requset.ModbusReq;
+import com.zgkxzx.modbus4And.requset.OnRequestBack;
+
+import java.util.Arrays;
+
 public class WorkStationActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
@@ -82,33 +89,80 @@ public class WorkStationActivity extends AppCompatActivity {
     }
 
     public void updateView () {
+
+        ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+            @Override
+            public void onSuccess(boolean[] booleen) {
+                Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleen));
+                updateStatus(booleen);
+                updateLeftCncStatus(booleen);
+                updateRightCncStatus(booleen);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readCoil onFailed " + msg);
+            }
+        }, 1, 0, 10000);
+
+        ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                Log.d(TAG, "readHoldingRegisters onSuccess " + Arrays.toString(data));
+                updateTarget(data);
+                updateCurrent(data);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readHoldingRegisters onFailed " + msg);
+            }
+        }, 1, 0, 10000);
         updateName();
-        updateStatus();
         updateUpTime();
         updateRunTime();
-        updateTarget();
-        updateCurrent();
         updatePercent();
-        updateLeftCncStatus();
-        updateRightCncStatus();
     }
 
     public void updateName () {
     }
-    public void updateStatus () {
+    public void updateStatus (boolean[] booleen) {
+        // todo
+        // 根据传入的工站号选择对应的状态
+        boolean running = booleen[Coil.station1Running];
+        boolean stopped = booleen[Coil.station1Stopped];
+        boolean error = booleen[Coil.station1Error];
+
+        if (running) {
+            tv_status.setText(R.string.workStationNormal);
+        } else if (stopped) {
+            tv_status.setText(R.string.workStationStopped);
+        } else if (error) {
+            tv_status.setText(R.string.workStationError);
+        } else {
+            tv_status.setText(R.string.unknown);
+        }
     }
     public void updateUpTime () {
     }
     public void updateRunTime () {
     }
-    public void updateTarget () {
+    public void updateTarget (short[] data) {
+        // todo
+        // 根据传入的工站号选择对应的数据
+        short target = data[Register.station1TargetOutput];
+        tv_target.setText(Integer.toString(target));
     }
-    public void updateCurrent () {
+    public void updateCurrent (short[] data) {
+        // todo
+        // 根据传入的工站号选择对应的数据
+        short current = data[Register.station1ActualOutput];
+        tv_current.setText(Integer.toString(current));
     }
     public void updatePercent () {
     }
-    public void updateLeftCncStatus () {
+    public void updateLeftCncStatus (boolean[] booleans) {
     }
-    public void updateRightCncStatus () {
+    public void updateRightCncStatus (boolean[] booleans) {
     }
 }

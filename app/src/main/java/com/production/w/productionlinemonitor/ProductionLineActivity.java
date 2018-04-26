@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.production.w.productionlinemonitor.Helper.Coil;
 import com.production.w.productionlinemonitor.Model.Area;
 import com.production.w.productionlinemonitor.Model.AssemblyLine;
 import com.production.w.productionlinemonitor.Model.Body;
@@ -18,8 +19,11 @@ import com.production.w.productionlinemonitor.Model.Box;
 import com.production.w.productionlinemonitor.Model.Car;
 import com.production.w.productionlinemonitor.Model.Hand;
 import com.production.w.productionlinemonitor.Model.Platform;
+import com.zgkxzx.modbus4And.requset.ModbusReq;
+import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import fr.arnaudguyon.smartgl.opengl.RenderPassSprite;
@@ -80,6 +84,123 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         run();
     }
 
+    public void initNavigationDrawer () {
+
+        mDrawerLayout = findViewById(R.id.pl_drawer_layout);
+
+        NavigationView navigationView = findViewById(R.id.pl_nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+                        String selectedTitle = (String) menuItem.getTitle();
+                        Log.e(TAG, "onNavigationItemSelected: " + selectedTitle);
+                        Intent intent;
+
+                        if (selectedTitle == getString(R.string.main)) {
+                            intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
+                        } else if (selectedTitle == getString(R.string.productionLine)) {
+
+                        } else if (selectedTitle == getString(R.string.workers)) {
+                            intent = new Intent(getApplicationContext(), WorkStationListActivity.class);
+                            startActivity(intent);
+
+                        } else {
+
+                        }
+
+                        // Add code here to update the UI based on the item selected
+                        // For example, swap UI fragments here
+                        return true;
+                    }
+                });
+    }
+    public void initSmartGL () {
+        mSmartGLView = (SmartGLView) findViewById(R.id.smartGLView);
+        mSmartGLView.setDefaultRenderer(this);
+        mSmartGLView.setController(this);
+    }
+
+    public void updateView () {
+        ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+            @Override
+            public void onSuccess(boolean[] booleen) {
+                Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleen));
+                updateStatus(booleen);
+                updateCncStatus(booleen);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+                Log.e(TAG, "readCoil onFailed " + msg);
+            }
+        }, 1, 0, 10000);
+        updateTime();
+        updateSpeed();
+    }
+    public void updateStatus (boolean[] booleen) {
+        boolean running = booleen[Coil.systemRunning];
+        boolean stopped = booleen[Coil.systemError];
+        boolean error = booleen[Coil.systemError];
+
+        if (running) {
+            tv_status.setText(R.string.normal);
+        } else if (stopped) {
+            tv_status.setText(R.string.stopped);
+        } else if (error) {
+            tv_status.setText(R.string.error);
+        } else {
+            tv_status.setText(R.string.unknown);
+        }
+    }
+    public void updateCncStatus (boolean[] booleans) {
+        // todo
+        // 1. find mappings.
+        // 2. read status and display.
+    }
+    public void updateTime () {
+
+    }
+    public void updateSpeed () {
+
+    }
+    public void bind() {
+        tv_name = findViewById(R.id.pl_tv_name);
+        tv_status = findViewById(R.id.pl_tv_status);
+        tv_time = findViewById(R.id.pl_tv_time);
+        tv_speed = findViewById(R.id.pl_tv_speed);
+
+        leftCncList = new ArrayList<>();
+        rightCncList = new ArrayList<>();
+
+        TextView tv_cnc = findViewById(R.id.pl_tv_cnc1_left);
+        leftCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc2_left);
+        leftCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc3_left);
+        leftCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc4_left);
+        leftCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc5_left);
+        leftCncList.add(tv_cnc);
+
+        tv_cnc = findViewById(R.id.pl_tv_cnc1_right);
+        rightCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc2_right);
+        rightCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc3_right);
+        rightCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc4_right);
+        rightCncList.add(tv_cnc);
+        tv_cnc = findViewById(R.id.pl_tv_cnc5_right);
+        rightCncList.add(tv_cnc);
+    }
+
     @Override
     public void onTick(SmartGLView smartGLView) {
         updateAnimation();
@@ -100,7 +221,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // animation of hand.
 
     }
-
     public void run() {
         previousReachIndex = 0;
         final Handler handler = new Handler();
@@ -239,13 +359,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         previousReachIndex = reachIndex;
     }
 
-    public void initSmartGL () {
-        mSmartGLView = (SmartGLView) findViewById(R.id.smartGLView);
-        mSmartGLView.setDefaultRenderer(this);
-        mSmartGLView.setController(this);
-    }
     // SmartGL callbacks.
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -387,101 +501,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     }
 
-
     @Override
     public void onTouchEvent(SmartGLView smartGLView, TouchHelperEvent touchHelperEvent) {
 
     }
 
-    public void initNavigationDrawer () {
 
-        mDrawerLayout = findViewById(R.id.pl_drawer_layout);
-
-        NavigationView navigationView = findViewById(R.id.pl_nav_view);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        // set item as selected to persist highlight
-                        menuItem.setChecked(true);
-                        // close drawer when item is tapped
-                        mDrawerLayout.closeDrawers();
-                        String selectedTitle = (String) menuItem.getTitle();
-                        Log.e(TAG, "onNavigationItemSelected: " + selectedTitle);
-                        Intent intent;
-
-                        if (selectedTitle == getString(R.string.main)) {
-                            intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                        } else if (selectedTitle == getString(R.string.productionLine)) {
-
-                        } else if (selectedTitle == getString(R.string.workers)) {
-                            intent = new Intent(getApplicationContext(), WorkStationListActivity.class);
-                            startActivity(intent);
-
-                        } else {
-
-                        }
-
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
-                        return true;
-                    }
-                });
-    }
-    public void updateView () {
-        updateStatus();
-        updateTime();
-        updateSpeed();
-        updateCncStatus();
-
-        // update animations.
-    }
-    public void updateStatus () {
-
-    }
-    public void updateTime () {
-
-    }
-    public void updateCncStatus () {
-
-    }
-    public void updateSpeed () {
-
-    }
-    public void bind() {
-        tv_name = findViewById(R.id.pl_tv_name);
-        tv_status = findViewById(R.id.pl_tv_status);
-        tv_time = findViewById(R.id.pl_tv_time);
-        tv_speed = findViewById(R.id.pl_tv_speed);
-
-        leftCncList = new ArrayList<>();
-        rightCncList = new ArrayList<>();
-
-        TextView tv_cnc = findViewById(R.id.pl_tv_cnc1_left);
-        leftCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc2_left);
-        leftCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc3_left);
-        leftCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc4_left);
-        leftCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc5_left);
-        leftCncList.add(tv_cnc);
-
-        tv_cnc = findViewById(R.id.pl_tv_cnc1_right);
-        rightCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc2_right);
-        rightCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc3_right);
-        rightCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc4_right);
-        rightCncList.add(tv_cnc);
-        tv_cnc = findViewById(R.id.pl_tv_cnc5_right);
-        rightCncList.add(tv_cnc);
-    }
-    public void init () {
-
-    }
 }
 
