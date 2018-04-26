@@ -74,6 +74,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, WorkStationActivity.class);
+                intent.putExtra(WorkStationListActivity.EXTRA_ID, position + 1);
                 mContext.startActivity(intent);
             }
         });

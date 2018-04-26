@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.production.w.productionlinemonitor.Helper.Coil;
+import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.Model.Area;
 import com.production.w.productionlinemonitor.Model.AssemblyLine;
 import com.production.w.productionlinemonitor.Model.Body;
@@ -139,7 +140,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             public void onFailed(String msg) {
                 Log.e(TAG, "readCoil onFailed " + msg);
             }
-        }, 1, 0, 10000);
+        }, 1, Constants.CoilStart, Constants.CoilLen);
         updateTime();
         updateSpeed();
     }

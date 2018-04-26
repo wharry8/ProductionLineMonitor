@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.production.w.productionlinemonitor.Helper.Coil;
+import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.Helper.Register;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
@@ -30,10 +31,15 @@ public class WorkStationActivity extends AppCompatActivity {
     private TextView tv_cnc_left_status;
     private TextView tv_cnc_right_status;
 
+    private int stationId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_work_station);
+
+        Intent intent = getIntent();
+        stationId = intent.getIntExtra(WorkStationListActivity.EXTRA_ID, 1);
 
         initNavigationDrawer();
         bind();
@@ -103,7 +109,7 @@ public class WorkStationActivity extends AppCompatActivity {
             public void onFailed(String msg) {
                 Log.e(TAG, "readCoil onFailed " + msg);
             }
-        }, 1, 0, 10000);
+        }, 1, Constants.CoilStart, Constants.CoilLen);
 
         ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
             @Override
@@ -117,7 +123,7 @@ public class WorkStationActivity extends AppCompatActivity {
             public void onFailed(String msg) {
                 Log.e(TAG, "readHoldingRegisters onFailed " + msg);
             }
-        }, 1, 0, 10000);
+        }, 1, Constants.RegisterStart, Constants.RegisterLen);
         updateName();
         updateUpTime();
         updateRunTime();
@@ -126,13 +132,38 @@ public class WorkStationActivity extends AppCompatActivity {
 
     public void updateName () {
     }
-    public void updateStatus (boolean[] booleen) {
-        // todo
-        // 根据传入的工站号选择对应的状态
-        boolean running = booleen[Coil.station1Running];
-        boolean stopped = booleen[Coil.station1Stopped];
-        boolean error = booleen[Coil.station1Error];
+    public void updateStatus (boolean[] booleans) {
+        boolean running = false;
+        boolean stopped = false;
+        boolean error = false;
 
+        switch (stationId) {
+            case 1:
+                running = booleans[Coil.station1Running];
+                stopped = booleans[Coil.station1Stopped];
+                error = booleans[Coil.station1Error];
+                break;
+            case 2:
+                running = booleans[Coil.station2Running];
+                stopped = booleans[Coil.station2Stopped];
+                error = booleans[Coil.station2Error];
+                break;
+            case 3:
+                running = booleans[Coil.station3Running];
+                stopped = booleans[Coil.station3Stopped];
+                error = booleans[Coil.station3Error];
+                break;
+            case 4:
+                running = booleans[Coil.station4Running];
+                stopped = booleans[Coil.station4Stopped];
+                error = booleans[Coil.station4Error];
+                break;
+            case 5:
+                running = booleans[Coil.station5Running];
+                stopped = booleans[Coil.station5Stopped];
+                error = booleans[Coil.station5Error];
+                break;
+        }
         if (running) {
             tv_status.setText(R.string.workStationNormal);
         } else if (stopped) {
@@ -148,21 +179,60 @@ public class WorkStationActivity extends AppCompatActivity {
     public void updateRunTime () {
     }
     public void updateTarget (short[] data) {
-        // todo
-        // 根据传入的工站号选择对应的数据
-        short target = data[Register.station1TargetOutput];
+        int target = 0;
+        switch (stationId) {
+            case 1:
+                target = data[Register.station1TargetOutput];
+                break;
+            case 2:
+                target = data[Register.station2TargetOutput];
+                break;
+            case 3:
+                target = data[Register.station3TargetOutput];
+                break;
+            case 4:
+                target = data[Register.station4TargetOutput];
+                break;
+            case 5:
+                target = data[Register.station5TargetOutput];
+                break;
+            default:
+                break;
+        }
         tv_target.setText(Integer.toString(target));
     }
     public void updateCurrent (short[] data) {
-        // todo
-        // 根据传入的工站号选择对应的数据
-        short current = data[Register.station1ActualOutput];
+        short current = 0;
+
+        switch (stationId) {
+            case 1:
+                current = data[Register.station1ActualOutput];
+                break;
+            case 2:
+                current = data[Register.station2ActualOutput];
+                break;
+            case 3:
+                current = data[Register.station3ActualOutput];
+                break;
+            case 4:
+                current = data[Register.station4ActualOutput];
+                break;
+            case 5:
+                current = data[Register.station5ActualOutput];
+                break;
+            default:
+                break;
+        }
+        current = data[Register.station1ActualOutput];
         tv_current.setText(Integer.toString(current));
     }
+
     public void updatePercent () {
     }
+
     public void updateLeftCncStatus (boolean[] booleans) {
     }
+
     public void updateRightCncStatus (boolean[] booleans) {
     }
 }

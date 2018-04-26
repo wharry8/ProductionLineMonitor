@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.production.w.productionlinemonitor.Helper.Coil;
+import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.Helper.Register;
 import com.zgkxzx.modbus4And.requset.ModbusParam;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
@@ -188,7 +189,8 @@ public class MainActivity extends AppCompatActivity {
             public void onFailed(String msg) {
                 Log.e(TAG, "readCoil onFailed " + msg);
             }
-        }, 1, 0, 10000);
+        }, 1, Constants.CoilStart, Constants.CoilLen);
+
         ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
@@ -200,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailed(String msg) {
                 Log.e(TAG, "readHoldingRegisters onFailed " + msg);
             }
-        }, 1, 0, 10000);
+        }, 1, Constants.RegisterStart, Constants.RegisterLen);
     }
 
     public void updateStatus (boolean[] booleen) {

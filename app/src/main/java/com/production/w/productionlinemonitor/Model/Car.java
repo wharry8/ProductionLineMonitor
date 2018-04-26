@@ -2,7 +2,7 @@ package com.production.w.productionlinemonitor.Model;
 
 import android.util.Log;
 
-import com.production.w.productionlinemonitor.Constants;
+import com.production.w.productionlinemonitor.Helper.Constants;
 
 import static android.content.ContentValues.TAG;
 

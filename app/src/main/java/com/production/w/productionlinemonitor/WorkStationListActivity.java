@@ -12,10 +12,11 @@ import android.view.MenuItem;
 
 public class WorkStationListActivity extends AppCompatActivity {
 
+    public static final String EXTRA_ID = "extra_id";
+
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
     private DrawerLayout mDrawerLayout;
 
     private static final String TAG = "WorkStationListActivity";
