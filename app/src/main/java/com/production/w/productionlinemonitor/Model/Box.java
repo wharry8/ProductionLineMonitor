@@ -12,4 +12,8 @@ public class Box extends BaseModel {
    public Box (float x, float y, float width, float height, Texture texture, Sprite sprite) {
        super(x, y, width, height, texture, sprite);
    }
+
+   public void update () {
+       sprite.setPos(super.getX(), super.getY());
+   }
 }

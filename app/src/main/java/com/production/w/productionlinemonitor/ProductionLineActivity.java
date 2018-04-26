@@ -2,6 +2,7 @@ package com.production.w.productionlinemonitor;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -10,9 +11,11 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.production.w.productionlinemonitor.Model.Area;
 import com.production.w.productionlinemonitor.Model.AssemblyLine;
 import com.production.w.productionlinemonitor.Model.Body;
 import com.production.w.productionlinemonitor.Model.Box;
+import com.production.w.productionlinemonitor.Model.Car;
 import com.production.w.productionlinemonitor.Model.Hand;
 import com.production.w.productionlinemonitor.Model.Platform;
 
@@ -40,11 +43,27 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     // SmartGL
     private SmartGLView mSmartGLView;
+    private RenderPassSprite renderPassSprite;
+    private SmartGLRenderer renderer;
+
     private float glHeight;
     private float glWidth;
     private float unitHeight;
     private float unitWidth;
 
+    Area preparationArea;
+    Area station1PreparationArea;
+    Area station1WorkingArea;
+    Area station1CompletionArea;
+
+    Car car1;
+    Car car2;
+    int previousReachIndex;
+    float blockX;
+
+    int index = 0;
+    int currentStatus[];
+    int previousStatus[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +76,169 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         bind();
         initNavigationDrawer();
         updateView();
+
+        run();
     }
+
+    @Override
+    public void onTick(SmartGLView smartGLView) {
+        updateAnimation();
+    }
+
+    public void updateAnimation () {
+        float deltaTime = renderer.getFrameDuration();
+
+//        Log.e(TAG, "updateAnimation: car1: " + car1.getX() + "," + car1.getSpeed() + "," + car1.getDirection());
+
+        // animation of cars.
+        car1.move(deltaTime, blockX);
+
+//        car2.move(deltaTime);
+
+        // animation of box up and down.
+
+        // animation of hand.
+
+    }
+
+    public void run() {
+        previousReachIndex = 0;
+        final Handler handler = new Handler();
+        blockX = 2000;
+        final int delay = 2000;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentStatus = Signal.status[index];
+                Log.e(TAG, "run: " + (index - 1) + " -> " + index);
+                Log.e(TAG, "run: speed: " + car1.getSpeed());
+                Log.e(TAG, "run: car1x: " + car1.getX());
+                Log.e(TAG, "run: blockx: " + blockX);
+                boolean hasBox = car1.getBox() != null;
+                if (hasBox) {
+                    Log.e(TAG, "run: has box");
+                } else {
+                    Log.e(TAG, "run: no box");
+                }
+                if (index < 24) {
+                    ++index;
+                }
+                int n = currentStatus.length;
+                for (int i = 0; i < n; ++i) {
+                    Log.e(TAG, "run: " + i + "," + car1.getSpeed());
+                    if (previousStatus == null || previousStatus[i] != currentStatus[i]) {
+                        switch (i) {
+                            case 0:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达上料挡停位
+                                break;
+                            case 1:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达站1储备位
+                                break;
+                            case 2:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达站1加工位
+                                break;
+                            case 3:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达站1完成位
+                                break;
+                            case 4:
+                                if (currentStatus[i] == 1) {
+                                    blockX = station1WorkingArea.x;
+                                }
+                                // 站1加工位挡停到位
+                                break;
+                            case 5:
+                                // 站1加工位挡停回到原位
+                                break;
+                            case 6:
+                                if (currentStatus[i] == 1) {
+                                    blockX = station1PreparationArea.x;
+                                }
+                                // 站1储备位挡停到位
+                                break;
+                            case 7:
+                                // 站1储备位回到原位
+                                break;
+                            case 8:
+                                // 站1加工位上料盒到位
+                                break;
+                            case 9:
+                                // 站1加工位下料盒到位
+                                break;
+                            case 10:
+                                // 站1储备位上料盒到位
+                                break;
+                            case 11:
+                                // 站1储备位下料盒到位
+                                break;
+                            case 12:
+                                // 小车1出钩
+                                if (currentStatus[i] == 1) {
+                                    float boxX=  car1.getX();
+                                    float boxY = car1.getY();
+                                    float boxWidth = car1.getWidth();
+                                    float boxHeight = car1.getHeight();
+                                    Texture texture = new Texture(getApplicationContext(), R.drawable.box);
+                                    Sprite sprite = new Sprite((int)boxWidth, (int)boxHeight);
+                                    sprite.setPos(boxX, boxY);
+                                    sprite.setTexture(texture);
+                                    Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
+                                    b.render(renderPassSprite);
+                                    car1.setBox(b);
+                                }
+                                break;
+                            case 13:
+                                // 小车1回钩
+                                if (currentStatus[i] == 1) {
+                                    car1.setBox(null);
+                                }
+                                break;
+                            case 14:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                    blockX = glWidth;
+                                }
+                                break;
+                            case 15:
+                                if (currentStatus[i] == 1) {
+                                    blockX = 0;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                previousStatus = currentStatus;
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
+    }
+    public void changeDirection (int reachIndex) {
+        if (reachIndex > previousReachIndex) {
+            car1.setDirection(Constants.RIGHT);
+            car1.setSpeed(600);
+            Log.e(TAG, "changeDirection: " + reachIndex);
+        } else if (reachIndex < previousReachIndex) {
+            car1.setDirection(Constants.LEFT);
+            car1.setSpeed(600);
+        } else {
+            car1.setSpeed(0);
+        }
+        previousReachIndex = reachIndex;
+    }
+
     public void initSmartGL () {
         mSmartGLView = (SmartGLView) findViewById(R.id.smartGLView);
         mSmartGLView.setDefaultRenderer(this);
@@ -87,6 +268,20 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         glWidth = mSmartGLView.getWidth();
         unitHeight = glHeight / 2 / 18;
         unitWidth = glWidth / 11 / 4;
+
+        preparationArea = new Area();
+        station1PreparationArea = new Area();
+        station1WorkingArea = new Area();
+        station1CompletionArea = new Area();
+
+        preparationArea.x = 0;
+        preparationArea.width = unitWidth;
+
+
+        // prepare car.
+        car1 = new Car(0, glHeight / 2, unitWidth, unitHeight * 2);
+        car1.setSpeed(0);
+
         Log.e(TAG, "initSmartGL: " + glHeight + "," + glWidth);
         Log.e(TAG, "initSmartGL: " + unitWidth + "," + unitHeight);
 
@@ -120,8 +315,20 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         int bodyPriority = 0;
         int handPriority = 0;
 
-        SmartGLRenderer renderer = smartGLView.getSmartGLRenderer();
-        RenderPassSprite renderPassSprite = new RenderPassSprite();
+        station1PreparationArea.x = bodyX - unitWidth - unitWidth;
+        station1PreparationArea.width = unitWidth;
+        Log.e(TAG, "onPrepareView: station1 preparation area: " + station1PreparationArea.x);
+
+        station1WorkingArea.x = bodyX - unitWidth;
+        station1WorkingArea.width = unitWidth;
+        Log.e(TAG, "onPrepareView: station1 working area: " + station1WorkingArea.x);
+
+        station1CompletionArea.x = bodyX + unitWidth;
+        station1CompletionArea.width = unitWidth;
+        Log.e(TAG, "onPrepareView: station1 completion area: " + station1CompletionArea.x);
+
+        renderer = smartGLView.getSmartGLRenderer();
+        renderPassSprite = new RenderPassSprite();
         renderer.addRenderPass(renderPassSprite);  // add it only once for all Sprites
 
         Texture texture = new Texture(getApplicationContext(), R.drawable.assembly_line);
@@ -168,7 +375,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         sprite.setTexture(texture);
         Hand hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
         hand.render(renderPassSprite);
-
     }
 
     @Override
@@ -181,10 +387,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     }
 
-    @Override
-    public void onTick(SmartGLView smartGLView) {
-
-    }
 
     @Override
     public void onTouchEvent(SmartGLView smartGLView, TouchHelperEvent touchHelperEvent) {

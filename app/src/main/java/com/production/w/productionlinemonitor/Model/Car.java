@@ -1,5 +1,11 @@
 package com.production.w.productionlinemonitor.Model;
 
+import android.util.Log;
+
+import com.production.w.productionlinemonitor.Constants;
+
+import static android.content.ContentValues.TAG;
+
 /**
  * Created by w on 4/25/2018.
  */
@@ -13,6 +19,9 @@ public class Car {
     boolean hookOut;
     boolean hookIn;
 
+    int direction;
+    int speed;
+
     Box box;
 
     public Car(float x, float y, float width, float height) {
@@ -21,6 +30,52 @@ public class Car {
         this.width = width;
         this.height = height;
     }
+
+    public void move (float deltaTime, float blockX) {
+//        Log.e(TAG, "move: anyway: " + x);
+        if (speed == 0) {
+            return;
+        }
+        float newX = x + deltaTime * direction * speed;
+        Log.e(TAG, "move: " + newX + "," + blockX);
+        if (direction == Constants.LEFT) {
+            if (x <= blockX) {
+                x = blockX;
+                this.speed = 0;
+            } else {
+                x = newX;
+            }
+        } else if (direction == Constants.RIGHT) {
+            if (x >= blockX) {
+                x = blockX;
+                this.speed = 0;
+            } else {
+                x = newX;
+            }
+        }
+        if (box != null) {
+            Log.e(TAG, "move: " + box.getX());
+            box.setX(newX);
+            box.update();
+        }
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
 
     public float getX() {
         return x;
