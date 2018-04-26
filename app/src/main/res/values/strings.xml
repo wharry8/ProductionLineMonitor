@@ -10,6 +10,9 @@
     <string name="normal">正常</string>
     <string name="stopped">关机</string>
     <string name="error">异常</string>
+    <string name="unknown">未知</string>
+
+
     <string name="defaultSpeed">0.0/min</string>
     <string name="defaultTime">0天0小时0分</string>
     <string name="defaultTarget">0</string>
