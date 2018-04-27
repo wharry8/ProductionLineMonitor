@@ -7,4 +7,13 @@ package com.production.w.productionlinemonitor.Model;
 public class Area {
     public float x;
     public float width;
+    Box box;
+
+    public Box getBox() {
+        return box;
+    }
+
+    public void setBox(Box box) {
+        this.box = box;
+    }
 }

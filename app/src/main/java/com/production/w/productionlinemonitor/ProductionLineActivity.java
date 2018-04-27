@@ -77,11 +77,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_production_line);
 
-        initSmartGL();
-        bind();
         initNavigationDrawer();
+        bind();
         updateView();
 
+        initSmartGL();
         run();
     }
 
@@ -214,6 +214,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // animation of cars.
         car1.move(deltaTime, blockX);
+        if (station1WorkingArea.getBox() != null) {
+            station1WorkingArea.getBox().update(deltaTime);
+        }
+        if (station1PreparationArea.getBox() != null) {
+            station1PreparationArea.getBox().update(deltaTime);
+        }
 
 //        car2.move(deltaTime);
 
@@ -232,21 +238,21 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             public void run() {
                 currentStatus = Signal.status[index];
                 Log.e(TAG, "run: " + (index - 1) + " -> " + index);
-                Log.e(TAG, "run: speed: " + car1.getSpeed());
-                Log.e(TAG, "run: car1x: " + car1.getX());
-                Log.e(TAG, "run: blockx: " + blockX);
-                boolean hasBox = car1.getBox() != null;
-                if (hasBox) {
-                    Log.e(TAG, "run: has box");
-                } else {
-                    Log.e(TAG, "run: no box");
-                }
+//                Log.e(TAG, "run: speed: " + car1.getSpeed());
+//                Log.e(TAG, "run: car1x: " + car1.getX());
+//                Log.e(TAG, "run: blockx: " + blockX);
+//                boolean hasBox = car1.getBox() != null;
+//                if (hasBox) {
+//                    Log.e(TAG, "run: has box");
+//                } else {
+//                    Log.e(TAG, "run: no box");
+//                }
                 if (index < 24) {
                     ++index;
                 }
                 int n = currentStatus.length;
                 for (int i = 0; i < n; ++i) {
-                    Log.e(TAG, "run: " + i + "," + car1.getSpeed());
+//                    Log.e(TAG, "run: " + i + "," + car1.getSpeed());
                     if (previousStatus == null || previousStatus[i] != currentStatus[i]) {
                         switch (i) {
                             case 0:
@@ -258,12 +264,28 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             case 1:
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
+                                    if (currentStatus[6] == 1 && car1.getBox() != null) {
+                                        station1PreparationArea.setBox(car1.getBox());
+                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && station1PreparationArea.getBox() != null) {
+                                        if (currentStatus[12] == 1) {
+                                            car1.setBox(station1PreparationArea.getBox());
+                                            station1PreparationArea.setBox(null);
+                                        }
+                                    }
                                 }
                                 // 到达站1储备位
                                 break;
                             case 2:
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
+                                    if (currentStatus[4] == 1 && car1.getBox() != null) {
+                                        station1WorkingArea.setBox(car1.getBox());
+                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && station1WorkingArea.getBox() != null) {
+//                                        if (currentStatus[12] == 1) {
+//                                            car1.setBox(station1WorkingArea.getBox());
+//                                            station1WorkingArea.setBox(null);
+//                                        }
+                                    }
                                 }
                                 // 到达站1加工位
                                 break;
@@ -292,31 +314,57 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 // 站1储备位回到原位
                                 break;
                             case 8:
+                                if (currentStatus[i] == 1) {
+                                    if (station1WorkingArea.getBox() != null) {
+                                        station1WorkingArea.getBox().setStatus(Constants.BOX_RISING);
+                                    }
+                                }
                                 // 站1加工位上料盒到位
                                 break;
                             case 9:
+                                if (currentStatus[i] == 1) {
+                                    if (station1WorkingArea.getBox() != null) {
+                                        station1WorkingArea.getBox().setStatus(Constants.BOX_DECLING);
+                                    }
+                                }
                                 // 站1加工位下料盒到位
                                 break;
                             case 10:
+                                if (currentStatus[i] == 1) {
+                                    if (station1PreparationArea.getBox() != null) {
+                                        station1PreparationArea.getBox().setStatus(Constants.BOX_RISING);
+                                    }
+                                }
                                 // 站1储备位上料盒到位
                                 break;
                             case 11:
+                                if (currentStatus[i] == 1) {
+                                    if (station1PreparationArea.getBox() != null) {
+                                        station1PreparationArea.getBox().setStatus(Constants.BOX_DECLING);
+                                    }
+                                }
                                 // 站1储备位下料盒到位
                                 break;
                             case 12:
                                 // 小车1出钩
                                 if (currentStatus[i] == 1) {
-                                    float boxX=  car1.getX();
-                                    float boxY = car1.getY();
-                                    float boxWidth = car1.getWidth();
-                                    float boxHeight = car1.getHeight();
-                                    Texture texture = new Texture(getApplicationContext(), R.drawable.box);
-                                    Sprite sprite = new Sprite((int)boxWidth, (int)boxHeight);
-                                    sprite.setPos(boxX, boxY);
-                                    sprite.setTexture(texture);
-                                    Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
-                                    b.render(renderPassSprite);
-                                    car1.setBox(b);
+                                    if (currentStatus[2] == 1 &&  currentStatus[4] == 1 && station1WorkingArea.getBox() != null && car1.getBox() == null) {
+                                        car1.setBox(station1WorkingArea.getBox());
+                                        station1WorkingArea.setBox(null);
+                                    } else {
+                                        float boxX=  car1.getX();
+                                        float boxY = car1.getY();
+                                        float boxWidth = car1.getWidth();
+                                        float boxHeight = car1.getHeight();
+                                        Texture texture = new Texture(getApplicationContext(), R.drawable.box);
+                                        Sprite sprite = new Sprite((int)boxWidth, (int)boxHeight);
+                                        sprite.setPos(boxX, boxY);
+                                        sprite.setTexture(texture);
+                                        Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
+                                        b.render(renderPassSprite);
+                                        car1.setBox(b);
+                                        Log.e(TAG, "run: carno. mark");
+                                    }
                                 }
                                 break;
                             case 13:
@@ -383,6 +431,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         glWidth = mSmartGLView.getWidth();
         unitHeight = glHeight / 2 / 18;
         unitWidth = glWidth / 11 / 4;
+        unitWidth += 10;
+        unitWidth += 10;
 
         preparationArea = new Area();
         station1PreparationArea = new Area();
@@ -430,13 +480,14 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         int bodyPriority = 0;
         int handPriority = 0;
 
-        station1PreparationArea.x = bodyX - unitWidth - unitWidth;
-        station1PreparationArea.width = unitWidth;
-        Log.e(TAG, "onPrepareView: station1 preparation area: " + station1PreparationArea.x);
 
-        station1WorkingArea.x = bodyX - unitWidth;
+        station1WorkingArea.x = handX - handWidth / 2 - unitWidth / 2;
         station1WorkingArea.width = unitWidth;
         Log.e(TAG, "onPrepareView: station1 working area: " + station1WorkingArea.x);
+
+        station1PreparationArea.x = station1WorkingArea.x - unitWidth;
+        station1PreparationArea.width = unitWidth;
+        Log.e(TAG, "onPrepareView: station1 preparation area: " + station1PreparationArea.x);
 
         station1CompletionArea.x = bodyX + unitWidth;
         station1CompletionArea.width = unitWidth;

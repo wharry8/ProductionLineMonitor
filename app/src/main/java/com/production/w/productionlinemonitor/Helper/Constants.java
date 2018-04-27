@@ -13,4 +13,9 @@ public class Constants {
     public static final int RegisterStart = 0;
     public static final int RegisterLen = 10000;
 
+    public static final int BOX_RISING = 1;
+    public static final int BOX_RISED = 2;
+    public static final int BOX_DECLING = 3;
+    public static final int BOX_DECLINED = 4;
+
 }

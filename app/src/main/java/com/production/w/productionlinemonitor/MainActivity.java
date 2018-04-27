@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_up;
     private TextView tv_percent;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
