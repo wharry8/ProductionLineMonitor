@@ -46,14 +46,18 @@ public class WorkStationListActivity extends AppCompatActivity {
                         Log.e(TAG, "onNavigationItemSelected: " + selectedTitle);
                         Intent intent;
 
-                        if (selectedTitle == getString(R.string.main)) {
+                        if (selectedTitle.equals(getString(R.string.main))) {
                             intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
-                        } else if (selectedTitle == getString(R.string.productionLine)) {
+                        } else if (selectedTitle.equals(getString(R.string.productionLine))) {
                             intent = new Intent(getApplicationContext(), ProductionLineActivity.class);
                             startActivity(intent);
-                        } else if (selectedTitle == getString(R.string.workers)) {
+                        } else if (selectedTitle.equals(getString(R.string.workers))) {
 
+                        } else if (selectedTitle.equals(getString(R.string.logout))) {
+                            intent = new Intent(getApplicationContext(), LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
                         } else {
 
                         }

@@ -4,6 +4,8 @@
     <string name="main">主界面</string>
     <string name="productionLine">生产线</string>
     <string name="workers">工作站</string>
+    <string name="logout">退出</string>
+
     <string name="navigationDrawerHeader">智能生产线监控</string>
 
     <!--MainActivity-->

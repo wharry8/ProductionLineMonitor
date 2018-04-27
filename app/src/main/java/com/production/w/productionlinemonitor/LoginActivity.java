@@ -49,15 +49,15 @@ public class LoginActivity extends AppCompatActivity {
                 // 3. 尝试连接
                 // 4. 成功则进入，失败则返回
 
-                if (input_host != getString(R.string.host)) {
+                Log.e(TAG, "onClick: 1");
+                if (!input_host.equals(getString(R.string.host))) {
                     Toast.makeText(getApplicationContext(), "请输入正确的服务器地址", Toast.LENGTH_LONG);
-                    return;
                 }
-                if (input_port != getString(R.string.port)) {
+                if (!input_port.equals(getString(R.string.port))) {
                     Toast.makeText(getApplicationContext(), "请输入正确的端口", Toast.LENGTH_LONG);
                     return;
                 }
-                if (input_password != getString(R.string.password)) {
+                if (!input_password.equals(getString(R.string.password))) {
                     Toast.makeText(getApplicationContext(), "请输入正确的密码", Toast.LENGTH_LONG);
                     return;
                 }

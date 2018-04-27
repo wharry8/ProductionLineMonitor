@@ -13,5 +13,6 @@ public class Todos {
     // 4. make animation better.
     // 4.1 add up and down effect.
     // 4.2 disappear box when add to car.
+    // 5. alter menu, clear activity when start log out.
 
 }
