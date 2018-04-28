@@ -1,8 +1,14 @@
 package com.production.w.productionlinemonitor.Model;
 
 import android.util.Log;
+import android.widget.Spinner;
 
 import com.production.w.productionlinemonitor.Helper.Constants;
+
+import org.w3c.dom.Text;
+
+import fr.arnaudguyon.smartgl.opengl.Sprite;
+import fr.arnaudguyon.smartgl.opengl.Texture;
 
 import static android.content.ContentValues.TAG;
 
@@ -19,16 +25,21 @@ public class Car {
     boolean hookOut;
     boolean hookIn;
 
+    Texture texture;
+    Sprite sprite;
+
     int direction;
     int speed;
 
     Box box;
 
-    public Car(float x, float y, float width, float height) {
+    public Car(float x, float y, float width, float height, Texture texture, Sprite sprite) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.texture = texture;
+        this.sprite = sprite;
     }
 
     public void move (float deltaTime, float blockX) {
@@ -45,6 +56,7 @@ public class Car {
             } else {
                 x = newX;
             }
+            sprite.setPos(x, y);
         } else if (direction == Constants.RIGHT) {
             if (x >= blockX) {
                 x = blockX;
@@ -52,12 +64,29 @@ public class Car {
             } else {
                 x = newX;
             }
+            sprite.setPos(x, y);
         }
         if (box != null) {
             Log.e(TAG, "move: " + box.getX());
             box.setX(newX);
             box.update();
         }
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(Sprite sprite) {
+        this.sprite = sprite;
     }
 
     public int getSpeed() {
@@ -75,7 +104,6 @@ public class Car {
     public void setDirection(int direction) {
         this.direction = direction;
     }
-
 
     public float getX() {
         return x;

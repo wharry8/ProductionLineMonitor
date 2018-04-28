@@ -23,6 +23,8 @@ import com.production.w.productionlinemonitor.Model.Platform;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,10 +53,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     private RenderPassSprite renderPassSprite;
     private SmartGLRenderer renderer;
 
-    private float glHeight;
-    private float glWidth;
-    private float unitHeight;
-    private float unitWidth;
+    public static float glHeight;
+    public static float glWidth;
+    public static float unitHeight;
+    public static float unitWidth;
 
     Area preparationArea;
     Area station1PreparationArea;
@@ -251,7 +253,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //                } else {
 //                    Log.e(TAG, "run: no box");
 //                }
-                if (index < 24) {
+                if (index < 26) {
                     ++index;
                 }
                 int n = currentStatus.length;
@@ -359,9 +361,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                         float boxX=  car1.getX();
                                         float boxY = car1.getY();
                                         float boxWidth = car1.getWidth();
-                                        float boxHeight = car1.getHeight();
+                                        float boxHeight = car1.getHeight() - 20;
                                         Texture texture = new Texture(getApplicationContext(), R.drawable.box);
                                         Sprite sprite = new Sprite((int)boxWidth, (int)boxHeight);
+                                        sprite.setPivot(0.5f, 0.5f);
                                         sprite.setPos(boxX, boxY);
                                         sprite.setTexture(texture);
                                         Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
@@ -430,13 +433,18 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     @Override
     public void onPrepareView(SmartGLView smartGLView) {
+
+        renderer = smartGLView.getSmartGLRenderer();
+        renderPassSprite = new RenderPassSprite();
+        renderer.addRenderPass(renderPassSprite);  // add it only once for all Sprites
+
         // load resources.
         glHeight  = mSmartGLView.getHeight();
         glWidth = mSmartGLView.getWidth();
         unitHeight = glHeight / 2 / 18;
         unitWidth = glWidth / 11 / 4;
         unitWidth += 10;
-        unitWidth += 10;
+        unitHeight += 10;
 
         preparationArea = new Area();
         station1PreparationArea = new Area();
@@ -446,9 +454,20 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         preparationArea.x = 0;
         preparationArea.width = unitWidth;
 
-
         // prepare car.
-        car1 = new Car(0, glHeight / 2, unitWidth, unitHeight * 2);
+        float carX = 0;
+        float carY = glHeight / 2;
+        float carWidth = unitWidth;
+        float carHeight = unitHeight * 2 + 20;
+
+        Texture carTexture = new Texture(getApplicationContext(), R.drawable.car);
+        Sprite carSprite = new Sprite((int)carWidth, (int)carHeight);
+        carSprite.setPivot(0.5f, 0.5f);
+        carSprite.setPos(0, glHeight / 2);
+        carSprite.setTexture(carTexture);
+        carSprite.setDisplayPriority(100);
+        renderPassSprite.addSprite(carSprite);
+        car1 = new Car(carX, carY, carWidth, carHeight, carTexture, carSprite);
         car1.setSpeed(0);
 
         Log.e(TAG, "initSmartGL: " + glHeight + "," + glWidth);
@@ -497,9 +516,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         station1CompletionArea.width = unitWidth;
         Log.e(TAG, "onPrepareView: station1 completion area: " + station1CompletionArea.x);
 
-        renderer = smartGLView.getSmartGLRenderer();
-        renderPassSprite = new RenderPassSprite();
-        renderer.addRenderPass(renderPassSprite);  // add it only once for all Sprites
 
         Texture texture = new Texture(getApplicationContext(), R.drawable.assembly_line);
         Sprite sprite = new Sprite((int)assemblyLineWidth, (int)assemblyLineHeight);
