@@ -45,7 +45,7 @@ public class Box extends BaseModel {
 
    public void update () {
        sprite.setPos(super.getX(), super.getY());
-       if (getY() >= ProductionLineActivity.glWidth) {
+       if (getX() >= ProductionLineActivity.glWidth - ProductionLineActivity.unitWidth / 2) {
            sprite.releaseResources();
        }
    }

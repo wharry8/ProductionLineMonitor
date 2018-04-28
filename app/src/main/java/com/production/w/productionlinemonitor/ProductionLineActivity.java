@@ -57,6 +57,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public static float glWidth;
     public static float unitHeight;
     public static float unitWidth;
+    public static float bodyHeight;
 
     Area preparationArea;
     Area station1PreparationArea;
@@ -65,6 +66,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     Car car1;
     Car car2;
+    Hand hand;
     int previousReachIndex;
     float blockX;
 
@@ -226,6 +228,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (station1PreparationArea.getBox() != null) {
             station1PreparationArea.getBox().update(deltaTime);
         }
+        hand.update(deltaTime);
 
 //        car2.move(deltaTime);
 
@@ -391,6 +394,50 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                     blockX = 0;
                                 }
                                 break;
+                            case 16:
+                                break;
+
+                            case 17:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handRising);
+                                }
+                                break;
+                            case 18:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 19:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 20:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 21:
+                                if (currentStatus[i] == 1) {
+                                    if (hand.getInitY() == hand.getLeftEndY()) {
+                                       hand.setStatus(Constants.handRightShifting);
+                                    } else if (hand.getInitY() == hand.getRightEndY()) {
+                                        hand.setStatus(Constants.handLeftShifting);
+                                    } else {
+
+                                    }
+                                }
+                                break;
+                            case 22:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handLeftShifting);
+                                }
+                                break;
+                            case 23:
+                                if (currentStatus[i] == 1) {
+                                    hand.setStatus(Constants.handRightShifting);
+                                }
+                                break;
                             default:
                                 break;
                         }
@@ -481,7 +528,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         float bodyX = glWidth / 2;
         float bodyY = glHeight / 2;
         float bodyWidth = unitWidth;
-        float bodyHeight = unitHeight * 12;
+        bodyHeight = unitHeight * 12;
 
         float platformTopWidth = unitWidth * 2;
         float platformTopHeight = unitHeight * 3;
@@ -559,7 +606,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         sprite.setPos(handX, handY);
         sprite.setDisplayPriority(handPriority);
         sprite.setTexture(texture);
-        Hand hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
+        hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
         hand.render(renderPassSprite);
     }
 
