@@ -20,6 +20,7 @@ import com.production.w.productionlinemonitor.Model.Box;
 import com.production.w.productionlinemonitor.Model.Car;
 import com.production.w.productionlinemonitor.Model.Hand;
 import com.production.w.productionlinemonitor.Model.Platform;
+import com.production.w.productionlinemonitor.Model.WorkStation;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
@@ -59,6 +60,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public static float unitWidth;
     public static float bodyHeight;
 
+
     Area preparationArea;
     Area station1PreparationArea;
     Area station1WorkingArea;
@@ -66,6 +68,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     Car car1;
     Car car2;
+    WorkStation ws;
     Hand hand;
     int previousReachIndex;
     float blockX;
@@ -222,13 +225,13 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // animation of cars.
         car1.move(deltaTime, blockX);
-        if (station1WorkingArea.getBox() != null) {
-            station1WorkingArea.getBox().update(deltaTime);
+        if (ws.getWorkingArea().getBox() != null) {
+            ws.getWorkingArea().getBox().update(deltaTime);
         }
-        if (station1PreparationArea.getBox() != null) {
-            station1PreparationArea.getBox().update(deltaTime);
+        if (ws.getPreparationArea().getBox() != null) {
+            ws.getPreparationArea().getBox().update(deltaTime);
         }
-        hand.update(deltaTime);
+        ws.getHand().update(deltaTime);
 
 //        car2.move(deltaTime);
 
@@ -274,11 +277,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
                                     if (currentStatus[6] == 1 && car1.getBox() != null) {
-                                        station1PreparationArea.setBox(car1.getBox());
-                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && station1PreparationArea.getBox() != null) {
+                                        ws.getPreparationArea().setBox(car1.getBox());
+                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && ws.getPreparationArea().getBox() != null) {
                                         if (currentStatus[12] == 1) {
-                                            car1.setBox(station1PreparationArea.getBox());
-                                            station1PreparationArea.setBox(null);
+                                            car1.setBox(ws.getPreparationArea().getBox());
+                                            ws.getPreparationArea().setBox(null);
                                         }
                                     }
                                 }
@@ -288,8 +291,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
                                     if (currentStatus[4] == 1 && car1.getBox() != null) {
-                                        station1WorkingArea.setBox(car1.getBox());
-                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && station1WorkingArea.getBox() != null) {
+                                        ws.getWorkingArea().setBox(car1.getBox());
+                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && ws.getWorkingArea().getBox() != null) {
 //                                        if (currentStatus[12] == 1) {
 //                                            car1.setBox(station1WorkingArea.getBox());
 //                                            station1WorkingArea.setBox(null);
@@ -306,7 +309,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 4:
                                 if (currentStatus[i] == 1) {
-                                    blockX = station1WorkingArea.x;
+                                    blockX = ws.getWorkingArea().x;
                                 }
                                 // 站1加工位挡停到位
                                 break;
@@ -315,7 +318,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 6:
                                 if (currentStatus[i] == 1) {
-                                    blockX = station1PreparationArea.x;
+                                    blockX = ws.getPreparationArea().x;
                                 }
                                 // 站1储备位挡停到位
                                 break;
@@ -324,32 +327,32 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 8:
                                 if (currentStatus[i] == 1) {
-                                    if (station1WorkingArea.getBox() != null) {
-                                        station1WorkingArea.getBox().setStatus(Constants.BOX_RISING);
+                                    if (ws.getWorkingArea().getBox() != null) {
+                                        ws.getWorkingArea().getBox().setStatus(Constants.BOX_RISING);
                                     }
                                 }
                                 // 站1加工位上料盒到位
                                 break;
                             case 9:
                                 if (currentStatus[i] == 1) {
-                                    if (station1WorkingArea.getBox() != null) {
-                                        station1WorkingArea.getBox().setStatus(Constants.BOX_DECLING);
+                                    if (ws.getWorkingArea().getBox() != null) {
+                                        ws.getWorkingArea().getBox().setStatus(Constants.BOX_DECLING);
                                     }
                                 }
                                 // 站1加工位下料盒到位
                                 break;
                             case 10:
                                 if (currentStatus[i] == 1) {
-                                    if (station1PreparationArea.getBox() != null) {
-                                        station1PreparationArea.getBox().setStatus(Constants.BOX_RISING);
+                                    if (ws.getPreparationArea().getBox() != null) {
+                                        ws.getPreparationArea().getBox().setStatus(Constants.BOX_RISING);
                                     }
                                 }
                                 // 站1储备位上料盒到位
                                 break;
                             case 11:
                                 if (currentStatus[i] == 1) {
-                                    if (station1PreparationArea.getBox() != null) {
-                                        station1PreparationArea.getBox().setStatus(Constants.BOX_DECLING);
+                                    if (ws.getPreparationArea().getBox() != null) {
+                                        ws.getPreparationArea().getBox().setStatus(Constants.BOX_DECLING);
                                     }
                                 }
                                 // 站1储备位下料盒到位
@@ -357,9 +360,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             case 12:
                                 // 小车1出钩
                                 if (currentStatus[i] == 1) {
-                                    if (currentStatus[2] == 1 &&  currentStatus[4] == 1 && station1WorkingArea.getBox() != null && car1.getBox() == null) {
-                                        car1.setBox(station1WorkingArea.getBox());
-                                        station1WorkingArea.setBox(null);
+                                    if (currentStatus[2] == 1 &&  currentStatus[4] == 1 && ws.getWorkingArea().getBox() != null && car1.getBox() == null) {
+                                        car1.setBox(ws.getWorkingArea().getBox());
+                                        ws.getWorkingArea().setBox(null);
                                     } else {
                                         float boxX=  car1.getX();
                                         float boxY = car1.getY();
@@ -399,30 +402,30 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
                             case 17:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handRising);
+                                    ws.getHand().setStatus(Constants.handRising);
                                 }
                                 break;
                             case 18:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handDeclining);
+                                    ws.getHand().setStatus(Constants.handDeclining);
                                 }
                                 break;
                             case 19:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handDeclining);
+                                    ws.getHand().setStatus(Constants.handDeclining);
                                 }
                                 break;
                             case 20:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handDeclining);
+                                    ws.getHand().setStatus(Constants.handDeclining);
                                 }
                                 break;
                             case 21:
                                 if (currentStatus[i] == 1) {
-                                    if (hand.getInitY() == hand.getLeftEndY()) {
-                                       hand.setStatus(Constants.handRightShifting);
-                                    } else if (hand.getInitY() == hand.getRightEndY()) {
-                                        hand.setStatus(Constants.handLeftShifting);
+                                    if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                                       ws.getHand().setStatus(Constants.handRightShifting);
+                                    } else if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                                        ws.getHand().setStatus(Constants.handLeftShifting);
                                     } else {
 
                                     }
@@ -430,12 +433,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 22:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handLeftShifting);
+                                    ws.getHand().setStatus(Constants.handLeftShifting);
                                 }
                                 break;
                             case 23:
                                 if (currentStatus[i] == 1) {
-                                    hand.setStatus(Constants.handRightShifting);
+                                    ws.getHand().setStatus(Constants.handRightShifting);
                                 }
                                 break;
                             default:
@@ -493,11 +496,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         unitWidth += 10;
         unitHeight += 10;
 
-        preparationArea = new Area();
-        station1PreparationArea = new Area();
-        station1WorkingArea = new Area();
-        station1CompletionArea = new Area();
+        ws = new WorkStation(getApplicationContext() ,glWidth/ 4, glHeight / 2);
+        ws.init(glWidth, glHeight, unitWidth, unitHeight);
+        ws.render(renderPassSprite);
 
+        preparationArea = new Area();
         preparationArea.x = 0;
         preparationArea.width = unitWidth;
 
@@ -513,56 +516,23 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         carSprite.setPos(0, glHeight / 2);
         carSprite.setTexture(carTexture);
         carSprite.setDisplayPriority(100);
-        renderPassSprite.addSprite(carSprite);
         car1 = new Car(carX, carY, carWidth, carHeight, carTexture, carSprite);
         car1.setSpeed(0);
+        renderPassSprite.addSprite(carSprite);
 
         Log.e(TAG, "initSmartGL: " + glHeight + "," + glWidth);
         Log.e(TAG, "initSmartGL: " + unitWidth + "," + unitHeight);
+
 
         float assemblyLineX = glWidth / 2;
         float assemblyLineY = glHeight / 2;
         float assemblyLineWidth = glWidth;
         float assemblyLineHeight = unitHeight * 2;
 
-        float bodyX = glWidth / 2;
-        float bodyY = glHeight / 2;
-        float bodyWidth = unitWidth;
-        bodyHeight = unitHeight * 12;
-
-        float platformTopWidth = unitWidth * 2;
-        float platformTopHeight = unitHeight * 3;
-        float platformTopX = bodyX ;
-        float platformTopY = bodyY - bodyHeight / 2 - platformTopHeight / 2 + unitHeight / 2;
-
-        float platformBottomWidth = platformTopWidth;
-        float platformBottomHeight = platformTopHeight;
-        float platformBottomX = bodyX;
-        float platformBottomY = bodyY + bodyHeight / 2 + platformBottomHeight / 2 - unitHeight / 2;
-
-        float handWidth = unitWidth * 1;
-        float handHeight = unitHeight * 2;
-        float handX = bodyX - bodyWidth / 2 - handWidth / 2;
-        float handY = bodyY;
-
         int assemblyLinePriority = 10;
         int platformPriority = 5;
         int bodyPriority = 0;
         int handPriority = 0;
-
-
-        station1WorkingArea.x = handX - handWidth / 2 - unitWidth / 2;
-        station1WorkingArea.width = unitWidth;
-        Log.e(TAG, "onPrepareView: station1 working area: " + station1WorkingArea.x);
-
-        station1PreparationArea.x = station1WorkingArea.x - unitWidth;
-        station1PreparationArea.width = unitWidth;
-        Log.e(TAG, "onPrepareView: station1 preparation area: " + station1PreparationArea.x);
-
-        station1CompletionArea.x = bodyX + unitWidth;
-        station1CompletionArea.width = unitWidth;
-        Log.e(TAG, "onPrepareView: station1 completion area: " + station1CompletionArea.x);
-
 
         Texture texture = new Texture(getApplicationContext(), R.drawable.assembly_line);
         Sprite sprite = new Sprite((int)assemblyLineWidth, (int)assemblyLineHeight);
@@ -572,42 +542,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         sprite.setTexture(texture);
         AssemblyLine assemblyLine = new AssemblyLine(assemblyLineX, assemblyLineY, assemblyLineWidth, assemblyLineHeight, texture, sprite);
         assemblyLine.render(renderPassSprite);
-
-        texture = new Texture(getApplicationContext(), R.drawable.body);
-        sprite = new Sprite((int)bodyWidth, (int)bodyHeight);
-        sprite.setPivot(0.5f, 0.5f);
-        sprite.setPos(bodyX, bodyY);
-        sprite.setDisplayPriority(bodyPriority);
-        sprite.setTexture(texture);
-        Body body = new Body(bodyX, bodyY, bodyWidth, bodyHeight, texture, sprite);
-        body.render(renderPassSprite);
-
-        texture = new Texture(getApplicationContext(), R.drawable.platform);
-        sprite = new Sprite((int)platformTopWidth, (int) platformTopHeight);
-        sprite.setPivot(0.5f, 0.5f);
-        sprite.setPos(platformTopX, platformTopY);
-        sprite.setDisplayPriority(platformPriority);
-        sprite.setTexture(texture);
-        Platform platformTop = new Platform(platformTopX, platformTopY, platformTopWidth, platformTopHeight, texture, sprite);
-        platformTop.render(renderPassSprite);
-
-        texture = new Texture(getApplicationContext(), R.drawable.platform_inverse);
-        sprite = new Sprite((int)platformBottomWidth, (int)platformBottomHeight);
-        sprite.setPivot(0.5f, 0.5f);
-        sprite.setPos(platformBottomX, platformBottomY);
-        sprite.setDisplayPriority(platformPriority);
-        sprite.setTexture(texture);
-        Platform paltformBottom = new Platform(platformBottomX, platformBottomY, platformBottomWidth, platformBottomHeight, texture, sprite);
-        paltformBottom.render(renderPassSprite);
-
-        texture = new Texture(getApplicationContext(), R.drawable.hand);
-        sprite = new Sprite((int)handWidth, (int)handHeight);
-        sprite.setPivot(0.5f, 0.5f);
-        sprite.setPos(handX, handY);
-        sprite.setDisplayPriority(handPriority);
-        sprite.setTexture(texture);
-        hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
-        hand.render(renderPassSprite);
     }
 
     @Override
