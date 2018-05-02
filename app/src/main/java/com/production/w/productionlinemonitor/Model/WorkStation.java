@@ -129,6 +129,8 @@ public class WorkStation {
         sprite.setDisplayPriority(handPriority);
         sprite.setTexture(texture);
         hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
+
+        hand.setHorizontalDistance(unitHeight * 12 / 2);
     }
 
     public Area getPreparationArea() {

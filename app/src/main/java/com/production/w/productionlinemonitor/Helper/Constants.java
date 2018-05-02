@@ -25,4 +25,8 @@ public class Constants {
     public static final int BOX_DECLING = 3;
     public static final int BOX_DECLINED = 4;
 
+    public static float glWidth;
+    public static float glHeight;
+    public static float unitWidth;
+    public static float unitHeight;
 }

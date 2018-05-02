@@ -32,9 +32,6 @@ public class Hand extends BaseModel {
         this.initY = y;
         this.speed = 100;
         this.status = Constants.handStatic;
-        this.horizontalDistance = ProductionLineActivity.bodyHeight / 2;
-        leftEndY = initY - horizontalDistance;
-        rightEndY = initY + horizontalDistance;
     }
     public void update (float deltaTime) {
         switch (status) {
@@ -175,5 +172,7 @@ public class Hand extends BaseModel {
 
     public void setHorizontalDistance(float horizontalDistance) {
         this.horizontalDistance = horizontalDistance;
+        leftEndY = initY - horizontalDistance;
+        rightEndY = initY + horizontalDistance;
     }
 }
