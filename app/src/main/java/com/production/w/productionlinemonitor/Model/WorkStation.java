@@ -1,14 +1,18 @@
 package com.production.w.productionlinemonitor.Model;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Spinner;
 
+import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.MainActivity;
 import com.production.w.productionlinemonitor.R;
 
 import fr.arnaudguyon.smartgl.opengl.RenderPassSprite;
 import fr.arnaudguyon.smartgl.opengl.Sprite;
 import fr.arnaudguyon.smartgl.opengl.Texture;
+
+import static android.support.constraint.Constraints.TAG;
 
 /**
  * Created by w on 2018/5/2.
@@ -22,6 +26,7 @@ public class WorkStation {
     private Body body;
     private Hand hand;
     private Platform platformTop, platformBottom;
+    private Light lightTop, lightMiddle, lightBottom;
 
     private Context context;
 
@@ -45,6 +50,37 @@ public class WorkStation {
         initBody(glWidth, glHeight, unitWidth, unitHeight);
         initPlatform(glWidth, glHeight, unitWidth, unitHeight);
         initHand(glWidth, glHeight, unitWidth, unitHeight);
+        initLight(glWidth, glHeight, unitWidth, unitHeight);
+    }
+
+    private void initLight (float glWidth, float glHeight, float unitWidth, float unitHeight) {
+        float lightWidth = 25;
+        float lightHeight = 25;
+        float lightTopX = x;
+        float lightTopY = getPlatformTopY(glWidth, glHeight, unitWidth, unitHeight) - getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 - lightHeight / 2;
+        lightTop = new Light(lightTopX, lightTopY, lightWidth, lightHeight);
+        lightTop.init(context, Constants.STOPPED);
+
+        float lighMiddleX = x;
+        float lightMiddleY = glHeight / 2;
+        lightMiddle = new Light(lighMiddleX, lightMiddleY, lightWidth, lightHeight);
+        lightMiddle.init(context, Constants.STOPPED);
+
+
+        float lightBottomX = x;
+        float lightBottomY = getPlatformBottomY(glWidth, glHeight, unitWidth, unitHeight) + getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 + lightHeight / 2;
+        lightBottom = new Light(lightBottomX, lightBottomY, lightWidth, lightHeight);
+        lightBottom.init(context, Constants.STOPPED);
+        Log.e(TAG, "initLight: light!");
+    }
+    private float getPlatformTopY (float glWidth, float glHeight, float unitWidth, float unitHeight) {
+        return glHeight / 2 -  unitHeight * 12 / 2 - getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 + unitHeight / 2;
+    }
+    private float getPlatformHeight (float glWidth, float glHeight, float unitWidth, float unitHeight) {
+        return unitHeight * 3;
+    }
+    private float getPlatformBottomY (float glWidth, float glHeight, float unitWidth, float unitHeight) {
+        return  glHeight / 2 + unitHeight * 12 / 2 + getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 - unitHeight / 2;
     }
 
     private void initArea (float unitWidth, float unitHeight) {
@@ -67,6 +103,9 @@ public class WorkStation {
         platformTop.render(renderPassSprite);
         platformBottom.render(renderPassSprite);
         hand.render(renderPassSprite);
+        lightMiddle.render(renderPassSprite);
+        lightTop.render(renderPassSprite);
+        lightBottom.render(renderPassSprite);
     }
     private void initBody (float glWidth, float glHeight, float unitWidth, float unitHeight) {
 
@@ -114,6 +153,7 @@ public class WorkStation {
         platformBottom = new Platform(platformBottomX, platformBottomY, platformBottomWidth, platformBottomHeight, texture, sprite);
 
     }
+
     private void initHand (float glWidth, float glHeight, float unitWidth, float unitHeight) {
 
         float handWidth = unitWidth * 1;

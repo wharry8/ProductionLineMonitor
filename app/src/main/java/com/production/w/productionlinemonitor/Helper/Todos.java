@@ -7,12 +7,8 @@ package com.production.w.productionlinemonitor.Helper;
 public class Todos {
 
     // todo
-    // 1. 找出表示 cnc 状态的地址
-    // 2. fake hand move data
-    // 3. move hand
-    // 4. make animation better.
-    // 4.1 add up and down effect.
-    // 4.2 disappear box when add to car.
-    // 5. alter menu, clear activity when start log out.
+    // 1. make size consistent.
+    // 2. add car2
+    // 3. improve interface, prepare to read from read production line.
 
 }

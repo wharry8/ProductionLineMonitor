@@ -29,4 +29,9 @@ public class Constants {
     public static float glHeight;
     public static float unitWidth;
     public static float unitHeight;
+
+    public static final int SUCCESS = 1;
+    public static final int WARNING = 2;
+    public static final int DANGER = 3;
+    public static final int STOPPED = 4;
 }

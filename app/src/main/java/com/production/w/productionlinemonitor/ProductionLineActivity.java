@@ -455,11 +455,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public void changeDirection (int reachIndex) {
         if (reachIndex > previousReachIndex) {
             car1.setDirection(Constants.RIGHT);
-            car1.setSpeed(1000);
+            car1.setSpeed(800);
             Log.e(TAG, "changeDirection: " + reachIndex);
         } else if (reachIndex < previousReachIndex) {
             car1.setDirection(Constants.LEFT);
-            car1.setSpeed(1000);
+            car1.setSpeed(800);
         } else {
             car1.setSpeed(0);
         }
@@ -520,13 +520,14 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         float carY = glHeight / 2;
         float carWidth = unitWidth;
         float carHeight = unitHeight * 2 + 20;
+        int carPriority = 100;
 
         Texture carTexture = new Texture(getApplicationContext(), R.drawable.car);
         Sprite carSprite = new Sprite((int)carWidth, (int)carHeight);
         carSprite.setPivot(0.5f, 0.5f);
         carSprite.setPos(0, glHeight / 2);
         carSprite.setTexture(carTexture);
-        carSprite.setDisplayPriority(100);
+    carSprite.setDisplayPriority(carPriority);
         car1 = new Car(carX, carY, carWidth, carHeight, carTexture, carSprite);
         car1.setSpeed(0);
         renderPassSprite.addSprite(carSprite);
