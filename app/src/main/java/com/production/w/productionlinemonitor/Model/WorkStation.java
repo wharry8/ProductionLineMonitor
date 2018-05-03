@@ -2,10 +2,8 @@ package com.production.w.productionlinemonitor.Model;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Spinner;
 
 import com.production.w.productionlinemonitor.Helper.Constants;
-import com.production.w.productionlinemonitor.MainActivity;
 import com.production.w.productionlinemonitor.R;
 
 import fr.arnaudguyon.smartgl.opengl.RenderPassSprite;
@@ -19,8 +17,8 @@ import static android.support.constraint.Constraints.TAG;
  */
 
 public class WorkStation {
-    private Area preparationArea;
-    private Area workingArea;
+    private Area storageArea;
+    private Area processingArea;
     private Area completionArea;
 
     private Body body;
@@ -84,15 +82,15 @@ public class WorkStation {
     }
 
     private void initArea (float unitWidth, float unitHeight) {
-        preparationArea = new Area();
-        workingArea = new Area();
+        storageArea = new Area();
+        processingArea = new Area();
         completionArea = new Area();
 
-        preparationArea.x = x - unitWidth / 2 - unitWidth * 2;
-        preparationArea.width = unitWidth;
+        storageArea.x = x - unitWidth / 2 - unitWidth * 2;
+        storageArea.width = unitWidth;
 
-        workingArea.x = x - unitWidth / 2 - unitWidth;
-        workingArea.width = unitWidth;
+        processingArea.x = x - unitWidth / 2 - unitWidth;
+        processingArea.width = unitWidth;
 
         completionArea.x = x + unitWidth / 2 + unitWidth;
         completionArea.width = unitWidth;
@@ -173,20 +171,24 @@ public class WorkStation {
         hand.setHorizontalDistance(unitHeight * 12 / 2);
     }
 
-    public Area getPreparationArea() {
-        return preparationArea;
+    public void updateLight (int status) {
+        lightMiddle.update(status);
     }
 
-    public void setPreparationArea(Area preparationArea) {
-        this.preparationArea = preparationArea;
+    public Area getStorageArea() {
+        return storageArea;
     }
 
-    public Area getWorkingArea() {
-        return workingArea;
+    public void setStorageArea(Area storageArea) {
+        this.storageArea = storageArea;
     }
 
-    public void setWorkingArea(Area workingArea) {
-        this.workingArea = workingArea;
+    public Area getProcessingArea() {
+        return processingArea;
+    }
+
+    public void setProcessingArea(Area processingArea) {
+        this.processingArea = processingArea;
     }
 
     public Area getCompletionArea() {

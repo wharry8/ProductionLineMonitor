@@ -2,7 +2,9 @@ package com.production.w.productionlinemonitor;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,16 +17,11 @@ import com.production.w.productionlinemonitor.Helper.Coil;
 import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.Model.Area;
 import com.production.w.productionlinemonitor.Model.AssemblyLine;
-import com.production.w.productionlinemonitor.Model.Body;
 import com.production.w.productionlinemonitor.Model.Box;
 import com.production.w.productionlinemonitor.Model.Car;
-import com.production.w.productionlinemonitor.Model.Hand;
-import com.production.w.productionlinemonitor.Model.Platform;
 import com.production.w.productionlinemonitor.Model.WorkStation;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +57,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public static float unitWidth;
     public static float bodyHeight;
 
-
     Area preparationArea;
     Area station1PreparationArea;
     Area station1WorkingArea;
@@ -71,12 +67,20 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     WorkStation ws;
     List<WorkStation> workStationList;
 
+    // used by run()
     int previousReachIndex;
     float blockX;
 
     int index = 0;
     int currentStatus[];
     int previousStatus[];
+
+    // used by run1();
+    int previousPosition;
+    int car2PreviousPosition;
+    int car1PreviousPosition;
+    boolean currentState[];
+    boolean previousState[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,11 +230,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // animation of cars.
         car1.move(deltaTime, blockX);
-        if (workStationList.size() > 0 && workStationList.get(0).getWorkingArea().getBox() != null) {
-            workStationList.get(0).getWorkingArea().getBox().update(deltaTime);
+        if (workStationList.size() > 0 && workStationList.get(0).getProcessingArea().getBox() != null) {
+            workStationList.get(0).getProcessingArea().getBox().update(deltaTime);
         }
-        if (workStationList.size() > 0 && workStationList.get(0).getPreparationArea().getBox() != null) {
-            workStationList.get(0).getPreparationArea().getBox().update(deltaTime);
+        if (workStationList.size() > 0 && workStationList.get(0).getStorageArea().getBox() != null) {
+            workStationList.get(0).getStorageArea().getBox().update(deltaTime);
         }
         workStationList.get(0).getHand().update(deltaTime);
 
@@ -278,11 +282,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
                                     if (currentStatus[6] == 1 && car1.getBox() != null) {
-                                        workStationList.get(0).getPreparationArea().setBox(car1.getBox());
-                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && workStationList.get(0).getPreparationArea().getBox() != null) {
+                                        workStationList.get(0).getStorageArea().setBox(car1.getBox());
+                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && workStationList.get(0).getStorageArea().getBox() != null) {
                                         if (currentStatus[12] == 1) {
-                                            car1.setBox(workStationList.get(0).getPreparationArea().getBox());
-                                            workStationList.get(0).getPreparationArea().setBox(null);
+                                            car1.setBox(workStationList.get(0).getStorageArea().getBox());
+                                            workStationList.get(0).getStorageArea().setBox(null);
                                         }
                                     }
                                 }
@@ -292,8 +296,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 if (currentStatus[i] == 1) {
                                     changeDirection(i);
                                     if (currentStatus[4] == 1 && car1.getBox() != null) {
-                                        workStationList.get(0).getWorkingArea().setBox(car1.getBox());
-                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && workStationList.get(0).getWorkingArea().getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().setBox(car1.getBox());
+                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && workStationList.get(0).getProcessingArea().getBox() != null) {
 //                                        if (currentStatus[12] == 1) {
 //                                            car1.setBox(station1WorkingArea.getBox());
 //                                            station1WorkingArea.setBox(null);
@@ -310,7 +314,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 4:
                                 if (currentStatus[i] == 1) {
-                                    blockX = workStationList.get(0).getWorkingArea().x;
+                                    blockX = workStationList.get(0).getProcessingArea().x;
                                 }
                                 // 站1加工位挡停到位
                                 break;
@@ -319,7 +323,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 6:
                                 if (currentStatus[i] == 1) {
-                                    blockX = workStationList.get(0).getPreparationArea().x;
+                                    blockX = workStationList.get(0).getStorageArea().x;
                                 }
                                 // 站1储备位挡停到位
                                 break;
@@ -328,32 +332,32 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 break;
                             case 8:
                                 if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getWorkingArea().getBox() != null) {
-                                        workStationList.get(0).getWorkingArea().getBox().setStatus(Constants.BOX_RISING);
+                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
                                     }
                                 }
                                 // 站1加工位上料盒到位
                                 break;
                             case 9:
                                 if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getWorkingArea().getBox() != null) {
-                                        workStationList.get(0).getWorkingArea().getBox().setStatus(Constants.BOX_DECLING);
+                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
                                     }
                                 }
                                 // 站1加工位下料盒到位
                                 break;
                             case 10:
                                 if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getPreparationArea().getBox() != null) {
-                                        workStationList.get(0).getPreparationArea().getBox().setStatus(Constants.BOX_RISING);
+                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
+                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_RISING);
                                     }
                                 }
                                 // 站1储备位上料盒到位
                                 break;
                             case 11:
                                 if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getPreparationArea().getBox() != null) {
-                                        workStationList.get(0).getPreparationArea().getBox().setStatus(Constants.BOX_DECLING);
+                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
+                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
                                     }
                                 }
                                 // 站1储备位下料盒到位
@@ -361,9 +365,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             case 12:
                                 // 小车1出钩
                                 if (currentStatus[i] == 1) {
-                                    if (currentStatus[2] == 1 &&  currentStatus[4] == 1 && workStationList.get(0).getWorkingArea().getBox() != null && car1.getBox() == null) {
-                                        car1.setBox(workStationList.get(0).getWorkingArea().getBox());
-                                        workStationList.get(0).getWorkingArea().setBox(null);
+                                    if (currentStatus[2] == 1 &&  currentStatus[4] == 1 && workStationList.get(0).getProcessingArea().getBox() != null && car1.getBox() == null) {
+                                        car1.setBox(workStationList.get(0).getProcessingArea().getBox());
+                                        workStationList.get(0).getProcessingArea().setBox(null);
                                     } else {
                                         float boxX=  car1.getX();
                                         float boxY = car1.getY();
@@ -452,6 +456,842 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }, delay);
     }
+    public void run2() {
+        previousReachIndex = 0;
+        final Handler handler = new Handler();
+        blockX = 2000;
+        final int delay = 2000;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                     ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+                        @Override
+                        public void onSuccess(boolean[] booleans) {
+                            Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
+//                            updateLight(booleans);
+//                            updateHand(booleans);
+                            updateStation1 (booleans);
+                            updateStation2 (booleans);
+                            updateStation3 (booleans);
+                            updateStation4 (booleans);
+                            updateStation5 (booleans);
+                            updateCar1(booleans);
+                            updateCar2(booleans);
+                            // hand
+
+                            // cars
+                        }
+                        @Override
+                        public void onFailed(String msg) {
+                            Log.e(TAG, "readCoil onFailed " + msg);
+                        }
+                    }, 1, Constants.CoilStart, Constants.CoilLen);
+            }
+        }, delay);
+    }
+    private void updateCar1 (boolean[] booleans) {
+        currentState = booleans;
+        if (previousState == null) {
+            previousState = currentState;
+            return;
+        }
+        // 更新方向和速度
+        // 经过站1
+        // 储料位
+        if (currentState[Coil.car1AtStation1StoragePosition]) {
+            updateDirection (1, Coil.car1AtStation1StoragePosition);
+        }
+        // 加工位
+        if (currentState[Coil.car1AtStation1ProcessingPosition]) {
+            updateDirection (1, Coil.car1AtStation1ProcessingPosition);
+        }
+        // 完成位
+        if (currentState[Coil.car1AtStation1CompletionPosition]) {
+            updateDirection (1, Coil.car1AtStation1CompletionPosition);
+        }
+        // 经过站2
+        // 储料位
+        if (currentState[Coil.car1AtStation2StoragePosition]) {
+            updateDirection (1, Coil.car1AtStation2StoragePosition);
+        }
+        // 加工位
+        if (currentState[Coil.car1AtStation2ProcessingPosition]) {
+            updateDirection (1, Coil.car1AtStation2ProcessingPosition);
+        }
+        // 完成位
+        if (currentState[Coil.car1AtStation2CompletionPosition]) {
+            updateDirection (1, Coil.car1AtStation2CompletionPosition);
+        }
+        // 经过站3
+        // 储料位
+        if (currentState[Coil.car1AtStation3StoragePosition]) {
+            updateDirection (1, Coil.car1AtStation3StoragePosition);
+        }
+        // 加工位
+        if (currentState[Coil.car1AtStation3ProcessingPosition]) {
+            updateDirection (1, Coil.car1AtStation3ProcessingPosition);
+        }
+        
+        // 出钩
+        // 上一次状态是回钩，当前状态是出钩
+        if (currentState[Coil.car1HookOut] && previousState[Coil.car1HookIn]) {
+            // 小车1此时应该没有箱子
+            if (car1.getBox() != null) {
+                Log.e(TAG, "updateCar1: 小车1应该没有箱子，但有");
+            }
+            // 取箱的位置应该有挡板升起，所以判断小车1的当前位置是否在挡板升起处。
+            // 如果是，该区域应该有一个箱子，小车1获得该箱子。
+            // 如果不是，小车1继续移动。
+            
+            // 站1储备位
+            if (currentState[Coil.car1AtStation1StoragePosition] && currentState[Coil.station1StoragePositionBlocked]) {
+                if (workStationList.get(0).getStorageArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站1储备位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(0).getStorageArea().getBox());
+                workStationList.get(0).getStorageArea().setBox(null);
+            }
+            
+            // 站1加工位
+            if (currentState[Coil.car1AtStation1ProcessingPosition] && currentState[Coil.station1ProcessingPositionBlocked]) {
+                if (workStationList.get(0).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站1加工位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(0).getProcessingArea().getBox());
+                workStationList.get(0).getProcessingArea().setBox(null);
+            }
+
+            // 站2储备位
+            if (currentState[Coil.car1AtStation2StoragePosition] && currentState[Coil.station2StoragePositionBlocked]) {
+                if (workStationList.get(1).getStorageArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站2储备位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(1).getStorageArea().getBox());
+                workStationList.get(1).getStorageArea().setBox(null);
+            }
+
+            // 站2加工位
+            if (currentState[Coil.car1AtStation2ProcessingPosition] && currentState[Coil.station2ProcessingPositionBlocked]) {
+                if (workStationList.get(1).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站2加工位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(1).getProcessingArea().getBox());
+                workStationList.get(1).getProcessingArea().setBox(null);
+            }
+
+            // 站3储备位
+            if (currentState[Coil.car1AtStation3StoragePosition] && currentState[Coil.station3StoragePositionBlocked]) {
+                if (workStationList.get(2).getStorageArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站3储备位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(2).getStorageArea().getBox());
+                workStationList.get(2).getStorageArea().setBox(null);
+            }
+            // 站3加工位
+            if (currentState[Coil.car1AtStation3ProcessingPosition] && currentState[Coil.station3ProcessingPositionBlocked]) {
+                if (workStationList.get(2).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar1: 工站3加工位应该有箱子，但没有");
+                }
+                car1.setBox(workStationList.get(2).getProcessingArea().getBox());
+                workStationList.get(2).getProcessingArea().setBox(null);
+            }
+        }
+        
+        // 回钩
+        // 上一次状态是出钩，当前状态是回钩，
+        if (currentState[Coil.car1HookIn] &&  previousState[Coil.car1HookOut]) {
+            // 小车1此时应该有箱子
+            if (car1.getBox() == null) {
+                Log.e(TAG, "updateCar1: 小车1应该有箱子，但没有。");
+            }
+            // 小车1经过站1储备区
+            if (currentState[Coil.car1AtStation1StoragePosition]) {
+                workStationList.get(0).getStorageArea().setBox(car1.getBox());
+            }
+            // 小车1经过站1加工区
+            if (currentState[Coil.car1AtStation1ProcessingPosition]) {
+                workStationList.get(0).getProcessingArea().setBox(car1.getBox());
+            }
+            // 小车1经过站2储备区
+            if (currentState[Coil.car1AtStation2StoragePosition]) {
+                workStationList.get(1).getStorageArea().setBox(car1.getBox());
+            }
+            // 小车1经过站2加工区
+            if (currentState[Coil.car1AtStation2ProcessingPosition]) {
+                workStationList.get(1).getProcessingArea().setBox(car1.getBox());
+            }
+            // 小车1经过站3储备区
+            if (currentState[Coil.car1AtStation3StoragePosition]) {
+                workStationList.get(2).getStorageArea().setBox(car1.getBox());
+            }
+            // 小车1经过站3加工区
+            if (currentState[Coil.car1AtStation3ProcessingPosition]) {
+                workStationList.get(2).getProcessingArea().setBox(car1.getBox());
+            }
+            car1.setBox(null);
+        }
+        
+    }
+    // 用于 run2() 函数, 更新小车的方向和速度.
+    private void updateDirection (int index, int flag) {
+        // 如果小车没有移动, 调整速度为 0.
+        if (index == 1) {
+            if (previousPosition == car1GetPosition(flag)) {
+                // car1 didn't move
+                if (car1.getSpeed() != 0) {
+                    car1.setSpeed(0);
+                }
+                return;
+            }
+
+            // car1 move to right
+            if (previousPosition < car1GetPosition(flag)) {
+                car1.setDirection(Constants.RIGHT);
+            }
+            // car1 move to left
+            if (previousPosition > car1GetPosition(flag)) {
+                car1.setDirection(Constants.LEFT);
+            }
+            // should have speed
+            if (car1.getSpeed() == 0) {
+                car1.setSpeed(100);
+            }
+            previousPosition = car1GetPosition(flag);
+        }
+        if (index == 2) {
+            if (car2PreviousPosition == car2GetPosition(flag)) {
+                if (car2.getSpeed() != 0) {
+                    car2.setSpeed(0);
+                }
+                return;
+            }
+            if (car2PreviousPosition < car2GetPosition(flag)) {
+                car2.setDirection(Constants.RIGHT);
+            }
+            if (car2PreviousPosition > car2GetPosition(flag)) {
+                car2.setDirection(Constants.LEFT);
+            }
+            car2.setSpeed(100);
+        }
+    }
+    private int car2GetPosition (int flag) {
+        int pos = 0;
+        switch (flag) {
+            case Coil.car2AtStation3ProcessingPosition:
+                pos = 10;
+                break;
+            case Coil.car2AtStation3CompletionPosition:
+                pos = 11;
+                break;
+            case Coil.car2AtStation4StoragePosition:
+                pos = 12;
+                break;
+            case Coil.car2AtStation4ProcessingPosition:
+                pos = 13;
+                break;
+            case Coil.car2AtStation4CompletionPosition:
+                pos = 15;
+                break;
+            case Coil.car2AtStation5StoragePosition:
+                pos = 16;
+                break;
+            case Coil.car2AtStation5ProcessingPosition:
+                pos = 17;
+                break;
+            default:
+                break;
+        }
+        return pos;
+    }
+    private int car1GetPosition (int flag) {
+        int pos = 0;
+        switch (flag) {
+            case Coil.car1AtStation1StoragePosition:
+                pos = 10;
+                break;
+            case Coil.car1AtStation1ProcessingPosition:
+                pos = 11;
+                break;
+            case Coil.car1AtStation1CompletionPosition:
+                pos = 12;
+                break;
+            case Coil.car1AtStation2StoragePosition:
+                pos = 13;
+                break;
+            case Coil.car1AtStation2ProcessingPosition:
+                pos = 14;
+                break;
+            case Coil.car1AtStation2CompletionPosition:
+                pos = 15;
+                break;
+            case Coil.car1AtStation3StoragePosition:
+                pos = 16;
+                break;
+            case Coil.car1AtStation3ProcessingPosition:
+                pos = 17;
+                break;
+            // to be continue
+            default:
+                break;
+        }
+        return pos;
+    }
+    private void updateCar2 (boolean[] booleans) {
+        // 经过某地
+        if (currentState[Coil.car2AtStation3ProcessingPosition]) {
+            updateDirection(2, Coil.car2AtStation3ProcessingPosition);
+        }
+        if (currentState[Coil.car2AtStation3CompletionPosition]) {
+            updateDirection(2, Coil.car2AtStation3CompletionPosition);
+        }
+        if (currentState[Coil.car2AtStation4StoragePosition]) {
+            updateDirection(2, Coil.car2AtStation4StoragePosition);
+        }
+        if (currentState[Coil.car2AtStation4ProcessingPosition]) {
+            updateDirection(2, Coil.car2AtStation4ProcessingPosition);
+        }
+        if (currentState[Coil.car2AtStation4CompletionPosition]) {
+            updateDirection(2, Coil.car2AtStation4CompletionPosition);
+        }
+        if (currentState[Coil.car2AtStation5StoragePosition]) {
+            updateDirection(2, Coil.car2AtStation5StoragePosition);
+        }
+        if (currentState[Coil.car2AtStation5ProcessingPosition]) {
+            updateDirection(2, Coil.car2AtStation5ProcessingPosition);
+        }
+        // 出钩
+        // 上一个状态是回钩，当前状态是出钩，小车获得箱子
+        if (currentState[Coil.car2HookOut] && previousState[Coil.car2HookIn]) {
+            // 小车2此时应该没有箱子
+            if (car2.getBox() != null) {
+                Log.e(TAG, "updateCar2: 小车2此时应该没有箱子，但有");
+            }
+            // 判断小车2在哪里获得箱子
+            // 站3加工位
+            if (currentState[Coil.car2AtStation3ProcessingPosition] && currentState[Coil.station3ProcessingPositionBlocked]) {
+                // 工站3加工位应该有箱子
+                if (workStationList.get(2).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar2: 工站3加工位此时应该有箱子，但没有");
+                }
+                car2.setBox(workStationList.get(2).getProcessingArea().getBox());
+                workStationList.get(2).getProcessingArea().setBox(null);
+            }
+            // 站4储备位
+            if (currentState[Coil.car2AtStation4StoragePosition] && currentState[Coil.station3StoragePositionBlocked]) {
+                if (workStationList.get(3).getStorageArea().getBox() == null) {
+                    Log.e(TAG, "updateCar2: 工站4储备位此时应该有箱子，但没有");
+                }
+                car2.setBox(workStationList.get(3).getStorageArea().getBox());
+                workStationList.get(3).getStorageArea().setBox(null);
+            }
+            // 站4加工位
+            if (currentState[Coil.car2AtStation4ProcessingPosition] && currentState[Coil.station4ProcessingPositionBlocked]) {
+                if (workStationList.get(3).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar2: 工站4储备位此时应该有箱子，但没有");
+                }
+                car2.setBox(workStationList.get(3).getProcessingArea().getBox());
+                workStationList.get(3).getProcessingArea().setBox(null);
+            }
+            // 站5储备位
+            if (currentState[Coil.car2AtStation5StoragePosition] && currentState[Coil.station5StoragePositionBlocked]) {
+                if (workStationList.get(4).getStorageArea().getBox() == null) {
+                    Log.e(TAG, "updateCar2: 工站5储备位此时应该有箱子，但没有");
+                }
+                car2.setBox(workStationList.get(4).getStorageArea().getBox());
+                workStationList.get(4).getStorageArea().setBox(null);
+            }
+            // 站5加工位
+            if (currentState[Coil.car2AtStation5ProcessingPosition] && currentState[Coil.station5ProcessingPositionBlocked]) {
+                if (workStationList.get(4).getProcessingArea().getBox() == null) {
+                    Log.e(TAG, "updateCar2: 工站5加工位此时应该有箱子，但没有");
+                }
+                car2.setBox(workStationList.get(4).getProcessingArea().getBox());
+                workStationList.get(4).getProcessingArea().setBox(null);
+            }
+
+        }
+
+        // 回钩
+        // 上一个状态是出钩，当前状态是回钩，小车放下箱子
+        // 可能的位置：
+        // 1. 各工站的储备位、加工位
+        // 2. 下料位
+        if (currentState[Coil.car2HookIn] && previousState[Coil.car2HookOut]) {
+            // 小车此时应该有箱子
+            if (car2.getBox() == null) {
+                Log.e(TAG, "updateCar2: 小车2此时应该有箱子，但没有, 判定条件:上一个状态出钩，当前状态回钩");
+            }
+            // 判断小车在哪里放下箱子
+            // 站3加工位
+            if (currentState[Coil.car2AtStation3ProcessingPosition] && currentState[Coil.station3ProcessingPositionBlocked]) {
+                // 站3加工位挡停到位, 小车2经过站3加工位, 此时站3加工位应该没有箱子
+                if (workStationList.get(2).getProcessingArea().getBox() != null) {
+                    Log.e(TAG, "updateCar2: 站3加工位此时应该没有箱子，但有");
+                }
+                workStationList.get(2).getProcessingArea().setBox(car2.getBox());
+            }
+            // 站4储备位
+            if (currentState[Coil.car2AtStation4StoragePosition] && currentState[Coil.station4StoragePositionBlocked]) {
+                // 站4储备位挡停到位, 小车2经过站4储备位, 站4储备位此时应该没有箱子
+                if (workStationList.get(3).getStorageArea().getBox() != null ) {
+                    Log.e(TAG, "updateCar2: 站4储备位此时应该没有箱子，但有");
+                }
+                workStationList.get(3).getStorageArea().setBox(car2.getBox());
+            }
+            // 站4加工位
+            if (currentState[Coil.car2AtStation4ProcessingPosition] && currentState[Coil.station4ProcessingPositionBlocked]) {
+                // 站4加工位挡停到位，小车2经过站4加工位，站4加工位此时应该没有箱子
+                if (workStationList.get(3).getProcessingArea().getBox() != null) {
+                    Log.e(TAG, "updateCar2: 站4加工位此时应该没有箱子，但有");
+                }
+                workStationList.get(3).getProcessingArea().setBox(car2.getBox());
+            }
+            // 站5储备位
+            if (currentState[Coil.car2AtStation5StoragePosition] && currentState[Coil.station5StoragePositionBlocked]) {
+                // 站5储备位挡停到位，小车2经过站5储备位，站5储备位此时应该没有箱子，小车2将箱子放在此处
+                if (workStationList.get(4).getStorageArea().getBox() != null) {
+                    Log.e(TAG, "updateCar2: 站5储备位此时应该没有箱子，但有");
+                }
+                workStationList.get(4).getStorageArea().setBox(car2.getBox());
+            }
+            // 站5加工位
+            if (currentState[Coil.car2AtStation5ProcessingPosition] && currentState[Coil.station5ProcessingPositionBlocked]) {
+                // 站5加工位挡停到位，小车2经过站5加工位，站5加工位此时应该没有箱子，小车2将箱子放在此处
+                if (workStationList.get(5).getProcessingArea().getBox() != null) {
+                    Log.e(TAG, "updateCar2: 站5加工位此时应该没有箱子，但有");
+                }
+                workStationList.get(4).getProcessingArea().setBox(car2.getBox());
+            }
+            car2.setBox(null);
+        }
+    }
+    private void updateStation2 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(1);
+        // update light
+        if (booleans[Coil.station2Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station2Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station2Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (booleans[Coil.station2VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (booleans[Coil.station2VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (booleans[Coil.station2VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (booleans[Coil.station2VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (booleans[Coil.station2HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (booleans[Coil.station2HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (booleans[Coil.station2HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (booleans[Coil.station2ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (booleans[Coil.station2ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (booleans[Coil.station2StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (booleans[Coil.station2StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation3 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(2);
+        // update light
+        if (booleans[Coil.station3Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station3Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station3Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (booleans[Coil.station3VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (booleans[Coil.station3VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (booleans[Coil.station3VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (booleans[Coil.station3VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (booleans[Coil.station3HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (booleans[Coil.station3HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (booleans[Coil.station3HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (booleans[Coil.station3ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (booleans[Coil.station3ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (booleans[Coil.station3StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (booleans[Coil.station3StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation4 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(3);
+        // update light
+        if (booleans[Coil.station4Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station4Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station4Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (booleans[Coil.station4VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (booleans[Coil.station4VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (booleans[Coil.station4VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (booleans[Coil.station4VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (booleans[Coil.station4HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (booleans[Coil.station4HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (booleans[Coil.station4HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (booleans[Coil.station4ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (booleans[Coil.station4ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (booleans[Coil.station4StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (booleans[Coil.station4StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation5 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(4);
+        // update light
+        if (booleans[Coil.station3Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station3Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station3Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (booleans[Coil.station3VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (booleans[Coil.station3VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (booleans[Coil.station3VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (booleans[Coil.station3VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (booleans[Coil.station3HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (booleans[Coil.station3HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (booleans[Coil.station3HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (booleans[Coil.station3ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (booleans[Coil.station3ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (booleans[Coil.station3StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (booleans[Coil.station3StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation1 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(0);
+        // update light
+        if (booleans[Coil.station1Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station1Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station1Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (booleans[Coil.station1VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (booleans[Coil.station1VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (booleans[Coil.station1VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (booleans[Coil.station1VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (booleans[Coil.station1HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (booleans[Coil.station1HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (booleans[Coil.station1HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (booleans[Coil.station1ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (booleans[Coil.station1ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (booleans[Coil.station1StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (booleans[Coil.station1StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateHand (boolean[] booleans) {
+
+    }
+    private void updateLight (boolean[] booleans) {
+        // 1st station
+        // 2nd station
+        if (booleans[Coil.station2Error]) {
+            workStationList.get(1).updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station2Stopped]) {
+            workStationList.get(1).updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station2Running]) {
+            workStationList.get(1).updateLight(Constants.SUCCESS);
+        }
+        // 3rd station
+        if (booleans[Coil.station3Error]) {
+            workStationList.get(2).updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station3Stopped]) {
+            workStationList.get(2).updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station3Running]) {
+            workStationList.get(2).updateLight(Constants.SUCCESS);
+        }
+        // 4th station
+        if (booleans[Coil.station4Error]) {
+            workStationList.get(3).updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station4Stopped]) {
+            workStationList.get(3).updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station4Running]) {
+            workStationList.get(3).updateLight(Constants.SUCCESS);
+        }
+        // 5th station
+        if (booleans[Coil.station5Error]) {
+            workStationList.get(4).updateLight(Constants.DANGER);
+        }
+        if (booleans[Coil.station5Stopped]) {
+            workStationList.get(4).updateLight(Constants.WARNING);
+        }
+        if (booleans[Coil.station5Running]) {
+            workStationList.get(4).updateLight(Constants.SUCCESS);
+        }
+    }
+
     public void changeDirection (int reachIndex) {
         if (reachIndex > previousReachIndex) {
             car1.setDirection(Constants.RIGHT);
@@ -516,21 +1356,33 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         preparationArea.width = unitWidth;
 
         // prepare car.
-        float carX = 0;
-        float carY = glHeight / 2;
+        float car1X = 0;
+        float car1Y = glHeight / 2;
         float carWidth = unitWidth;
         float carHeight = unitHeight * 2 + 20;
         int carPriority = 100;
 
         Texture carTexture = new Texture(getApplicationContext(), R.drawable.car);
-        Sprite carSprite = new Sprite((int)carWidth, (int)carHeight);
-        carSprite.setPivot(0.5f, 0.5f);
-        carSprite.setPos(0, glHeight / 2);
-        carSprite.setTexture(carTexture);
-    carSprite.setDisplayPriority(carPriority);
-        car1 = new Car(carX, carY, carWidth, carHeight, carTexture, carSprite);
+        Sprite car1Sprite = new Sprite((int)carWidth, (int)carHeight);
+        car1Sprite.setPivot(0.5f, 0.5f);
+        car1Sprite.setPos(car1X, car1Y);
+        car1Sprite.setTexture(carTexture);
+        car1Sprite.setDisplayPriority(carPriority);
+
+        car1 = new Car(car1X, car1Y, carWidth, carHeight, carTexture, car1Sprite);
         car1.setSpeed(0);
-        renderPassSprite.addSprite(carSprite);
+        renderPassSprite.addSprite(car1Sprite);
+
+        float car2X = 900;
+        float car2Y = glHeight / 2;
+        Sprite car2Sprite = new Sprite((int)carWidth, (int)carHeight);
+        car2Sprite.setPivot(0.5f, 0.5f);
+        car2Sprite.setPos(car2X, car2Y);
+        car2Sprite.setTexture(carTexture);
+        car2Sprite.setDisplayPriority(carPriority);
+        car2 = new Car(car2X, car2Y, carWidth, carHeight, carTexture, car2Sprite);
+        car2.setSpeed(0);
+        renderPassSprite.addSprite(car2Sprite);
 
         Log.e(TAG, "initSmartGL: " + glHeight + "," + glWidth);
         Log.e(TAG, "initSmartGL: " + unitWidth + "," + unitHeight);

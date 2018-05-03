@@ -135,12 +135,47 @@ public class Coil {
 
     public static final int station1VerticallyToWaitPosition = 7000;
     public static final int station1VerticallyToFetchPosition = 7001;
-
     public static final int station1VerticallyToLeftPutPosition = 7002;
     public static final int station1VerticallyToRightPutPosition = 7003;
 
     public static final int station1HorizontallyToFetchPosition = 7004;
     public static final int station1HorizontallyToLeftPutPosition = 7005;
-    public static final int station1HorizontallyToRightPutPosition = 7005;
+    public static final int station1HorizontallyToRightPutPosition = 7006;
+
+    public static final int station2VerticallyToWaitPosition = 8000;
+    public static final int station2VerticallyToFetchPosition = 8001;
+    public static final int station2VerticallyToLeftPutPosition = 8002;
+    public static final int station2VerticallyToRightPutPosition = 8003;
+
+    public static final int station2HorizontallyToFetchPosition = 8004;
+    public static final int station2HorizontallyToLeftPutPosition = 8005;
+    public static final int station2HorizontallyToRightPutPosition = 8006;
+
+    public static final int station3VerticallyToWaitPosition = 8040;
+    public static final int station3VerticallyToFetchPosition = 8041;
+    public static final int station3VerticallyToLeftPutPosition = 8042;
+    public static final int station3VerticallyToRightPutPosition = 8043;
+
+    public static final int station3HorizontallyToFetchPosition = 8044;
+    public static final int station3HorizontallyToLeftPutPosition = 8045;
+    public static final int station3HorizontallyToRightPutPosition = 8046;
+
+    public static final int station4VerticallyToWaitPosition = 8080;
+    public static final int station4VerticallyToFetchPosition = 8081;
+    public static final int station4VerticallyToLeftPutPosition = 8082;
+    public static final int station4VerticallyToRightPutPosition = 8083;
+
+    public static final int station4HorizontallyToFetchPosition = 8084;
+    public static final int station4HorizontallyToLeftPutPosition = 8085;
+    public static final int station4HorizontallyToRightPutPosition = 8086;
+
+    public static final int station5VerticallyToWaitPosition = 8120;
+    public static final int station5VerticallyToFetchPosition = 8121;
+    public static final int station5VerticallyToLeftPutPosition = 8122;
+    public static final int station5VerticallyToRightPutPosition = 8123;
+
+    public static final int station5HorizontallyToFetchPosition = 8124;
+    public static final int station5HorizontallyToLeftPutPosition = 8125;
+    public static final int station5HorizontallyToRightPutPosition = 8126;
 }
 

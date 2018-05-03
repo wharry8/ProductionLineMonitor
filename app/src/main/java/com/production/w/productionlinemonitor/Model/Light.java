@@ -69,4 +69,22 @@ public class Light {
     public void render (RenderPassSprite renderPassSprite) {
         renderPassSprite.addSprite(sprite);
     }
+    public void update (int status) {
+         switch (status) {
+            case Constants.SUCCESS:
+                sprite.setTexture(greenTexture);
+                break;
+            case Constants.WARNING:
+                sprite.setTexture(yellowTexture);
+                break;
+            case Constants.DANGER:
+                sprite.setTexture(redTexture);
+                break;
+            case Constants.STOPPED:
+                sprite.setTexture(grayTexture);
+                break;
+            default:
+                break;
+        }
+    }
 }
