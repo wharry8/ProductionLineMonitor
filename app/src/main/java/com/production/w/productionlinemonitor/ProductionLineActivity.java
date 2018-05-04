@@ -458,9 +458,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 目前的时间间隔是 0.2 秒
     public void run2()
     {
-        previousReachIndex = 0;
         final Handler handler = new Handler();
-        blockX = 2000;
         final int delay = 200;
         handler.postDelayed(new Runnable() {
             @Override
@@ -471,18 +469,20 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
 //                            updateLight(booleans);
 //                            updateHand(booleans);
-                            currentState = booleans;
-                            updateStation1 (booleans);
-                            updateStation2 (booleans);
-                            updateStation3 (booleans);
-                            updateStation4 (booleans);
-                            updateStation5 (booleans);
-                            updateCar1(booleans);
-                            updateCar2(booleans);
+                            if (previousState == null) {
+                                // todo
+                                // initial set up.
+                            } else {
+                                currentState = booleans;
+                                updateStation1 (booleans);
+                                updateStation2 (booleans);
+                                updateStation3 (booleans);
+                                updateStation4 (booleans);
+                                updateStation5 (booleans);
+                                updateCar1(booleans);
+                                updateCar2(booleans);
+                            }
                             previousState = currentState;
-                            // hand
-
-                            // cars
                         }
                         @Override
                         public void onFailed(String msg) {
@@ -509,12 +509,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 2. 当前状态小车是回钩状态
     // 此时还要判断小车的位置, 小车在当前位置放下箱子
     private void updateCar1 (boolean[] booleans) {
-        currentState = booleans;
-        if (previousState == null) {
-            previousState = currentState;
-            return;
-        }
         // 更新方向和速度
+        // 根据小车现在经过的位置和之前经过的位置来决定小车的运动方向和速度, 后动效果,
+        // 如果可以根据挡板升起位置来判断小车的运动方向和速度的话, 可以实现前动.
         // 经过站1
         // 储料位
         if (currentState[Coil.car1AtStation1StoragePosition]) {
@@ -556,13 +553,13 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (currentState[Coil.car1HookOut] && previousState[Coil.car1HookIn]) {
             // 小车1此时应该没有箱子
             if (car1.getBox() != null) {
-                Log.e(TAG, "updateCar1: 小车1应该没有箱子，但有");
+                Log.e(TAG, "updateCar1: 小车1此时应该没有箱子，但有");
             }
             // 取箱的位置应该有挡板升起，所以判断小车1的当前位置是否在挡板升起处。
             // 如果是，该区域应该有一个箱子，小车1获得该箱子。
             // 如果不是，小车1继续移动。
             
-            // 站1储备位
+            // 站1储备位挡板升起,小车1到达站1储备位
             if (currentState[Coil.car1AtStation1StoragePosition] && currentState[Coil.station1StoragePositionBlocked]) {
                 if (workStationList.get(0).getStorageArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站1储备位应该有箱子，但没有");
@@ -571,7 +568,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 workStationList.get(0).getStorageArea().setBox(null);
             }
             
-            // 站1加工位
+            // 站1加工位挡板升起,小车1到达站1加工位
             if (currentState[Coil.car1AtStation1ProcessingPosition] && currentState[Coil.station1ProcessingPositionBlocked]) {
                 if (workStationList.get(0).getProcessingArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站1加工位应该有箱子，但没有");
@@ -580,7 +577,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 workStationList.get(0).getProcessingArea().setBox(null);
             }
 
-            // 站2储备位
+            // 站2储备位挡板升起, 小车1到达站2储备位
             if (currentState[Coil.car1AtStation2StoragePosition] && currentState[Coil.station2StoragePositionBlocked]) {
                 if (workStationList.get(1).getStorageArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站2储备位应该有箱子，但没有");
@@ -589,7 +586,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 workStationList.get(1).getStorageArea().setBox(null);
             }
 
-            // 站2加工位
+            // 站2加工位挡板升起, 小车1到达站2加工位
             if (currentState[Coil.car1AtStation2ProcessingPosition] && currentState[Coil.station2ProcessingPositionBlocked]) {
                 if (workStationList.get(1).getProcessingArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站2加工位应该有箱子，但没有");
@@ -598,7 +595,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 workStationList.get(1).getProcessingArea().setBox(null);
             }
 
-            // 站3储备位
+            // 站3储备位挡板升起, 小车1到达站3储备位
             if (currentState[Coil.car1AtStation3StoragePosition] && currentState[Coil.station3StoragePositionBlocked]) {
                 if (workStationList.get(2).getStorageArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站3储备位应该有箱子，但没有");
@@ -606,7 +603,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 car1.setBox(workStationList.get(2).getStorageArea().getBox());
                 workStationList.get(2).getStorageArea().setBox(null);
             }
-            // 站3加工位
+            // 站3加工位挡板升起, 小车1到达站3加工位
             if (currentState[Coil.car1AtStation3ProcessingPosition] && currentState[Coil.station3ProcessingPositionBlocked]) {
                 if (workStationList.get(2).getProcessingArea().getBox() == null) {
                     Log.e(TAG, "updateCar1: 工站3加工位应该有箱子，但没有");
@@ -615,38 +612,38 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 workStationList.get(2).getProcessingArea().setBox(null);
             }
         }
-        
-        // 回钩
-        // 上一次状态是出钩，当前状态是回钩，
+
+        // 上一次状态是出钩, 当前状态是回钩, 放下箱子
         if (currentState[Coil.car1HookIn] &&  previousState[Coil.car1HookOut]) {
             // 小车1此时应该有箱子
             if (car1.getBox() == null) {
                 Log.e(TAG, "updateCar1: 小车1应该有箱子，但没有。");
             }
-            // 小车1经过站1储备区
-            if (currentState[Coil.car1AtStation1StoragePosition]) {
+            // 小车1经过站1储备位, 站1储备位挡板升起
+            if (currentState[Coil.car1AtStation1StoragePosition] && currentState[Coil.station1StoragePositionBlocked]) {
                 workStationList.get(0).getStorageArea().setBox(car1.getBox());
             }
-            // 小车1经过站1加工区
-            if (currentState[Coil.car1AtStation1ProcessingPosition]) {
+            // 小车1经过站1加工位, 站1加工位挡板升起, 站1加工位获得箱子
+            if (currentState[Coil.car1AtStation1ProcessingPosition] && currentState[Coil.station1ProcessingPositionBlocked]) {
                 workStationList.get(0).getProcessingArea().setBox(car1.getBox());
             }
-            // 小车1经过站2储备区
-            if (currentState[Coil.car1AtStation2StoragePosition]) {
+            // 小车1经过站2储备位, 站2储备位挡板升起, 站2储备位获得箱子
+            if (currentState[Coil.car1AtStation2StoragePosition] && currentState[Coil.station2StoragePositionBlocked]) {
                 workStationList.get(1).getStorageArea().setBox(car1.getBox());
             }
-            // 小车1经过站2加工区
-            if (currentState[Coil.car1AtStation2ProcessingPosition]) {
+            // 小车1经过站2加工位, 站2加工位挡板升起, 站2加工位获得箱子
+            if (currentState[Coil.car1AtStation2ProcessingPosition] && currentState[Coil.station2ProcessingPositionBlocked]) {
                 workStationList.get(1).getProcessingArea().setBox(car1.getBox());
             }
-            // 小车1经过站3储备区
-            if (currentState[Coil.car1AtStation3StoragePosition]) {
+            // 小车1经过站3储备位, 站3储备位挡板升起, 站3储备位获得箱子
+            if (currentState[Coil.car1AtStation3StoragePosition] && currentState[Coil.station3StoragePositionBlocked]) {
                 workStationList.get(2).getStorageArea().setBox(car1.getBox());
             }
-            // 小车1经过站3加工区
-            if (currentState[Coil.car1AtStation3ProcessingPosition]) {
+            // 小车1经过站3加工位, 站3加工位挡板升起, 站3加工位获得箱子
+            if (currentState[Coil.car1AtStation3ProcessingPosition] && currentState[Coil.station3ProcessingPositionBlocked]) {
                 workStationList.get(2).getProcessingArea().setBox(car1.getBox());
             }
+            // 小车1放下箱子
             car1.setBox(null);
         }
         
@@ -1469,7 +1466,5 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public void onTouchEvent(SmartGLView smartGLView, TouchHelperEvent touchHelperEvent) {
 
     }
-
-
 }
 

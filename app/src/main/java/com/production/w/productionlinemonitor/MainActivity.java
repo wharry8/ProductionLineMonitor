@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initModbusInstance() {
+        // todo
+        // 1. enable change connection settings at runtime.
         ModbusReq.getInstance().setParam(new ModbusParam()
                 .setHost("192.168.0.105")
                 .setPort(502)
