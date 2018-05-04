@@ -55,12 +55,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     public static float glWidth;
     public static float unitHeight;
     public static float unitWidth;
-    public static float bodyHeight;
 
     Area preparationArea;
-    Area station1PreparationArea;
-    Area station1WorkingArea;
-    Area station1CompletionArea;
 
     Car car1;
     Car car2;
@@ -456,11 +452,16 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }, delay);
     }
-    public void run2() {
+
+    // 用于实际场景的动画效果
+    // 在一定的时间间隔内读取一次生产线的状态, 根据状态的变化做出相应的动画
+    // 目前的时间间隔是 0.2 秒
+    public void run2()
+    {
         previousReachIndex = 0;
         final Handler handler = new Handler();
         blockX = 2000;
-        final int delay = 2000;
+        final int delay = 200;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -470,6 +471,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
 //                            updateLight(booleans);
 //                            updateHand(booleans);
+                            currentState = booleans;
                             updateStation1 (booleans);
                             updateStation2 (booleans);
                             updateStation3 (booleans);
@@ -477,6 +479,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             updateStation5 (booleans);
                             updateCar1(booleans);
                             updateCar2(booleans);
+                            previousState = currentState;
                             // hand
 
                             // cars
@@ -489,6 +492,22 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }, delay);
     }
+    // 小车的动画, 由3个部分组成
+    // 1. 小车左右移动
+    // 2. 小车由回钩到出钩, 获得箱子
+    // 3. 小车由出钩到回钩, 放下箱子
+    // 小车左右移动, 根据上一个状态挡板升起位置和当前状态挡板升起位置来判断.
+    // 如果两次状态挡板升起位置一致, 那么小车保持静止,
+    // 如果上一个挡板升起位置在当前挡板升起位置的左边, 小车向右移动,
+    // 如果上一个挡板升起位置在当前挡板升起位置的右边, 小车向左移动.
+    // 小车由回钩到出钩, 判断条件是:
+    // 1. 上一个状态小车是回钩状态
+    // 2. 当前状态小车是出钩状态
+    // 此时还要判断小车的位置, 小车在当前的位置获得箱子
+    // 小车由出钩到回钩, 判断条件是:
+    // 1. 上一个状态小车是出钩状态
+    // 2. 当前状态小车是回钩状态
+    // 此时还要判断小车的位置, 小车在当前位置放下箱子
     private void updateCar1 (boolean[] booleans) {
         currentState = booleans;
         if (previousState == null) {
@@ -634,40 +653,46 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
     // 用于 run2() 函数, 更新小车的方向和速度.
     private void updateDirection (int index, int flag) {
-        // 如果小车没有移动, 调整速度为 0.
+        // 小车1
         if (index == 1) {
-            if (previousPosition == car1GetPosition(flag)) {
+            // 如果小车没有移动, 调整速度为 0.
+            if (car1PreviousPosition == car1GetPosition(flag)) {
                 // car1 didn't move
                 if (car1.getSpeed() != 0) {
                     car1.setSpeed(0);
                 }
                 return;
             }
-
             // car1 move to right
-            if (previousPosition < car1GetPosition(flag)) {
+            // 小车1上一个位置在当前位置的左边, 小车1向右移动
+            if (car1PreviousPosition < car1GetPosition(flag)) {
                 car1.setDirection(Constants.RIGHT);
             }
             // car1 move to left
-            if (previousPosition > car1GetPosition(flag)) {
+            // 小车1上一个位置在当前位置的右边, 小车1向左移动
+            if (car1PreviousPosition > car1GetPosition(flag)) {
                 car1.setDirection(Constants.LEFT);
             }
             // should have speed
             if (car1.getSpeed() == 0) {
                 car1.setSpeed(100);
             }
-            previousPosition = car1GetPosition(flag);
+            car1PreviousPosition = car1GetPosition(flag);
         }
+        // 小车2
         if (index == 2) {
+            // 如果小车2的位置没有改变, 速度设为0.
             if (car2PreviousPosition == car2GetPosition(flag)) {
                 if (car2.getSpeed() != 0) {
                     car2.setSpeed(0);
                 }
                 return;
             }
+            // 小车2上一个位置在当前位置的左边, 小车2向右移动
             if (car2PreviousPosition < car2GetPosition(flag)) {
                 car2.setDirection(Constants.RIGHT);
             }
+            // 小车2上一个位置在当前位置的右边,小车2向左移动
             if (car2PreviousPosition > car2GetPosition(flag)) {
                 car2.setDirection(Constants.LEFT);
             }
@@ -703,6 +728,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         return pos;
     }
+    // 判断当前信号所在的位置, 用来和上一个位置进行比较, 决定小车的方向和速度
     private int car1GetPosition (int flag) {
         int pos = 0;
         switch (flag) {
@@ -865,313 +891,31 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             car2.setBox(null);
         }
     }
-    private void updateStation2 (boolean[] booleans) {
-        WorkStation ws = workStationList.get(1);
-        // update light
-        if (booleans[Coil.station2Error]) {
-            ws.updateLight(Constants.DANGER);
-        }
-        if (booleans[Coil.station2Stopped]) {
-            ws.updateLight(Constants.WARNING);
-        }
-        if (booleans[Coil.station2Running]) {
-            ws.updateLight(Constants.SUCCESS);
-        }
-        // update hand
-        // 上下到取料位
-        if (booleans[Coil.station2VerticallyToFetchPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到等待位
-        if (booleans[Coil.station2VerticallyToWaitPosition]) {
-            ws.getHand().setStatus(Constants.handRising);
-        }
-        // 上下到左取料位
-        if (booleans[Coil.station2VerticallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到右取料位
-        if (booleans[Coil.station2VerticallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 横移到取料位
-        if (booleans[Coil.station2HorizontallyToFetchPosition]) {
-            // 判断是向左还是向右横移
-            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
-                // 当前机械手在右边，左移
-                ws.getHand().setStatus(Constants.handLeftShifting);
-            }
-            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
-                // 当前机械手在左边，右移
-                ws.getHand().setStatus(Constants.handRightShifting);
-            }
-        }
-        // 横移到左放料位
-        if (booleans[Coil.station2HorizontallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handLeftShifting);
-        }
-        // 横移到右放料位
-        if (booleans[Coil.station2HorizontallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handRightShifting);
-        }
+    // 工作台的动画由6个部分组成:
+    // 1. 箱子上升
+    // 2. 箱子下降
+    // 3. 获得箱子
+    // 4. 失去箱子
+    // 5. 机械手移动
+    // 6. 指示灯动画
+    // 箱子上升, (后动)判断的信号是:
+    // 1. 该位置上料盒到位
+    // 2. (可选) 该位置有料盒
+    // 箱子下降: (后动)判断的信号是:
+    // 1. 该位置的下料盒到位
+    // 2. (可选) 该位置有料盒
+    // 获得箱子:由小车动画负责执行, 小车在当前位置由出钩到回钩时放下箱子
+    // 失去箱子:由小车动画负责执行, 小车在当前位置由回钩到出钩时失去箱子
+    // 机械手移动
+    // 1. 机械手左右移动
+    // 2. 机械手上下移动
+    // 由于捕捉到的这些信号都是驱动信号, 所以, 当这些信号由 0 变 1 时, 开始做动画, 做完后进入等待状态
+    // 指示灯动画
+    // 指示灯的切换并不需要动画过程, 直接根据状态的变化切换即可.
 
-        // 箱子动作
-        // 后动： 加工位料盒上升
-        if (booleans[Coil.station2ProcessingPositionUp]) {
-           if (ws.getProcessingArea().getBox() != null) {
-               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
-           }
-        }
-        // 后动：加工位料盒下降
-        if (booleans[Coil.station2ProcessingPositionDown]) {
-            if (ws.getProcessingArea().getBox() != null) {
-                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-        // 后动：储备位料盒上升
-        if (booleans[Coil.station2StoragePositionUp]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
-            }
-        }
-        // 后动：储备位料盒下降
-        if (booleans[Coil.station2StoragePositionDown]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-    }
-    private void updateStation3 (boolean[] booleans) {
-        WorkStation ws = workStationList.get(2);
-        // update light
-        if (booleans[Coil.station3Error]) {
-            ws.updateLight(Constants.DANGER);
-        }
-        if (booleans[Coil.station3Stopped]) {
-            ws.updateLight(Constants.WARNING);
-        }
-        if (booleans[Coil.station3Running]) {
-            ws.updateLight(Constants.SUCCESS);
-        }
-        // update hand
-        // 上下到取料位
-        if (booleans[Coil.station3VerticallyToFetchPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到等待位
-        if (booleans[Coil.station3VerticallyToWaitPosition]) {
-            ws.getHand().setStatus(Constants.handRising);
-        }
-        // 上下到左取料位
-        if (booleans[Coil.station3VerticallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到右取料位
-        if (booleans[Coil.station3VerticallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 横移到取料位
-        if (booleans[Coil.station3HorizontallyToFetchPosition]) {
-            // 判断是向左还是向右横移
-            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
-                // 当前机械手在右边，左移
-                ws.getHand().setStatus(Constants.handLeftShifting);
-            }
-            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
-                // 当前机械手在左边，右移
-                ws.getHand().setStatus(Constants.handRightShifting);
-            }
-        }
-        // 横移到左放料位
-        if (booleans[Coil.station3HorizontallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handLeftShifting);
-        }
-        // 横移到右放料位
-        if (booleans[Coil.station3HorizontallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handRightShifting);
-        }
-
-        // 箱子动作
-        // 后动： 加工位料盒上升
-        if (booleans[Coil.station3ProcessingPositionUp]) {
-           if (ws.getProcessingArea().getBox() != null) {
-               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
-           }
-        }
-        // 后动：加工位料盒下降
-        if (booleans[Coil.station3ProcessingPositionDown]) {
-            if (ws.getProcessingArea().getBox() != null) {
-                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-        // 后动：储备位料盒上升
-        if (booleans[Coil.station3StoragePositionUp]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
-            }
-        }
-        // 后动：储备位料盒下降
-        if (booleans[Coil.station3StoragePositionDown]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-    }
-    private void updateStation4 (boolean[] booleans) {
-        WorkStation ws = workStationList.get(3);
-        // update light
-        if (booleans[Coil.station4Error]) {
-            ws.updateLight(Constants.DANGER);
-        }
-        if (booleans[Coil.station4Stopped]) {
-            ws.updateLight(Constants.WARNING);
-        }
-        if (booleans[Coil.station4Running]) {
-            ws.updateLight(Constants.SUCCESS);
-        }
-        // update hand
-        // 上下到取料位
-        if (booleans[Coil.station4VerticallyToFetchPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到等待位
-        if (booleans[Coil.station4VerticallyToWaitPosition]) {
-            ws.getHand().setStatus(Constants.handRising);
-        }
-        // 上下到左取料位
-        if (booleans[Coil.station4VerticallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到右取料位
-        if (booleans[Coil.station4VerticallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 横移到取料位
-        if (booleans[Coil.station4HorizontallyToFetchPosition]) {
-            // 判断是向左还是向右横移
-            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
-                // 当前机械手在右边，左移
-                ws.getHand().setStatus(Constants.handLeftShifting);
-            }
-            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
-                // 当前机械手在左边，右移
-                ws.getHand().setStatus(Constants.handRightShifting);
-            }
-        }
-        // 横移到左放料位
-        if (booleans[Coil.station4HorizontallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handLeftShifting);
-        }
-        // 横移到右放料位
-        if (booleans[Coil.station4HorizontallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handRightShifting);
-        }
-
-        // 箱子动作
-        // 后动： 加工位料盒上升
-        if (booleans[Coil.station4ProcessingPositionUp]) {
-           if (ws.getProcessingArea().getBox() != null) {
-               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
-           }
-        }
-        // 后动：加工位料盒下降
-        if (booleans[Coil.station4ProcessingPositionDown]) {
-            if (ws.getProcessingArea().getBox() != null) {
-                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-        // 后动：储备位料盒上升
-        if (booleans[Coil.station4StoragePositionUp]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
-            }
-        }
-        // 后动：储备位料盒下降
-        if (booleans[Coil.station4StoragePositionDown]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-    }
-    private void updateStation5 (boolean[] booleans) {
-        WorkStation ws = workStationList.get(4);
-        // update light
-        if (booleans[Coil.station3Error]) {
-            ws.updateLight(Constants.DANGER);
-        }
-        if (booleans[Coil.station3Stopped]) {
-            ws.updateLight(Constants.WARNING);
-        }
-        if (booleans[Coil.station3Running]) {
-            ws.updateLight(Constants.SUCCESS);
-        }
-        // update hand
-        // 上下到取料位
-        if (booleans[Coil.station3VerticallyToFetchPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到等待位
-        if (booleans[Coil.station3VerticallyToWaitPosition]) {
-            ws.getHand().setStatus(Constants.handRising);
-        }
-        // 上下到左取料位
-        if (booleans[Coil.station3VerticallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 上下到右取料位
-        if (booleans[Coil.station3VerticallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handDeclining);
-        }
-        // 横移到取料位
-        if (booleans[Coil.station3HorizontallyToFetchPosition]) {
-            // 判断是向左还是向右横移
-            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
-                // 当前机械手在右边，左移
-                ws.getHand().setStatus(Constants.handLeftShifting);
-            }
-            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
-                // 当前机械手在左边，右移
-                ws.getHand().setStatus(Constants.handRightShifting);
-            }
-        }
-        // 横移到左放料位
-        if (booleans[Coil.station3HorizontallyToLeftPutPosition]) {
-            ws.getHand().setStatus(Constants.handLeftShifting);
-        }
-        // 横移到右放料位
-        if (booleans[Coil.station3HorizontallyToRightPutPosition]) {
-            ws.getHand().setStatus(Constants.handRightShifting);
-        }
-
-        // 箱子动作
-        // 后动： 加工位料盒上升
-        if (booleans[Coil.station3ProcessingPositionUp]) {
-           if (ws.getProcessingArea().getBox() != null) {
-               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
-           }
-        }
-        // 后动：加工位料盒下降
-        if (booleans[Coil.station3ProcessingPositionDown]) {
-            if (ws.getProcessingArea().getBox() != null) {
-                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-        // 后动：储备位料盒上升
-        if (booleans[Coil.station3StoragePositionUp]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
-            }
-        }
-        // 后动：储备位料盒下降
-        if (booleans[Coil.station3StoragePositionDown]) {
-            if (ws.getStorageArea().getBox() != null) {
-                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
-            }
-        }
-    }
     private void updateStation1 (boolean[] booleans) {
         WorkStation ws = workStationList.get(0);
-        // update light
+        // 指示灯动画
         if (booleans[Coil.station1Error]) {
             ws.updateLight(Constants.DANGER);
         }
@@ -1181,25 +925,25 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (booleans[Coil.station1Running]) {
             ws.updateLight(Constants.SUCCESS);
         }
-        // update hand
+        // 机械手动画, 以下捕捉的是驱动信号, 要根据前后两次状态判断是否开始做动画
         // 上下到取料位
-        if (booleans[Coil.station1VerticallyToFetchPosition]) {
+        if (!previousState[Coil.station1VerticallyToFetchPosition] && currentState[Coil.station1VerticallyToFetchPosition]) {
             ws.getHand().setStatus(Constants.handDeclining);
         }
         // 上下到等待位
-        if (booleans[Coil.station1VerticallyToWaitPosition]) {
+        if (!previousState[Coil.station1VerticallyToWaitPosition] && currentState[Coil.station1VerticallyToWaitPosition]) {
             ws.getHand().setStatus(Constants.handRising);
         }
         // 上下到左取料位
-        if (booleans[Coil.station1VerticallyToLeftPutPosition]) {
+        if (!previousState[Coil.station1VerticallyToLeftPutPosition] && currentState[Coil.station1VerticallyToLeftPutPosition]) {
             ws.getHand().setStatus(Constants.handDeclining);
         }
         // 上下到右取料位
-        if (booleans[Coil.station1VerticallyToRightPutPosition]) {
+        if (!previousState[Coil.station1VerticallyToRightPutPosition] && currentState[Coil.station1VerticallyToRightPutPosition]) {
             ws.getHand().setStatus(Constants.handDeclining);
         }
         // 横移到取料位
-        if (booleans[Coil.station1HorizontallyToFetchPosition]) {
+        if (!previousState[Coil.station1HorizontallyToFetchPosition] && currentState[Coil.station1HorizontallyToFetchPosition]) {
             // 判断是向左还是向右横移
             if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
                 // 当前机械手在右边，左移
@@ -1211,40 +955,344 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
         // 横移到左放料位
-        if (booleans[Coil.station1HorizontallyToLeftPutPosition]) {
+        if (!previousState[Coil.station1HorizontallyToLeftPutPosition] && currentState[Coil.station1HorizontallyToLeftPutPosition]) {
             ws.getHand().setStatus(Constants.handLeftShifting);
         }
         // 横移到右放料位
-        if (booleans[Coil.station1HorizontallyToRightPutPosition]) {
+        if (!previousState[Coil.station1HorizontallyToRightPutPosition] && currentState[Coil.station1HorizontallyToRightPutPosition]) {
             ws.getHand().setStatus(Constants.handRightShifting);
         }
 
-        // 箱子动作
+        // 箱子的上升和下降, 到达信号, 只能采取后动
         // 后动： 加工位料盒上升
-        if (booleans[Coil.station1ProcessingPositionUp]) {
+        if (currentState[Coil.station1ProcessingPositionUp]) {
            if (ws.getProcessingArea().getBox() != null) {
                ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
            }
         }
         // 后动：加工位料盒下降
-        if (booleans[Coil.station1ProcessingPositionDown]) {
+        if (currentState[Coil.station1ProcessingPositionDown]) {
             if (ws.getProcessingArea().getBox() != null) {
                 ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
             }
         }
         // 后动：储备位料盒上升
-        if (booleans[Coil.station1StoragePositionUp]) {
+        if (currentState[Coil.station1StoragePositionUp]) {
             if (ws.getStorageArea().getBox() != null) {
                 ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
             }
         }
         // 后动：储备位料盒下降
-        if (booleans[Coil.station1StoragePositionDown]) {
+        if (currentState[Coil.station1StoragePositionDown]) {
             if (ws.getStorageArea().getBox() != null) {
                 ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
             }
         }
     }
+    private void updateStation2 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(1);
+        // update light
+        if (currentState[Coil.station2Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (currentState[Coil.station2Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (currentState[Coil.station2Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (!previousState[Coil.station2VerticallyToFetchPosition] && currentState[Coil.station2VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (!previousState[Coil.station2VerticallyToWaitPosition] && currentState[Coil.station2VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (!previousState[Coil.station2VerticallyToLeftPutPosition] && currentState[Coil.station2VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (!previousState[Coil.station2VerticallyToRightPutPosition] && currentState[Coil.station2VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (!previousState[Coil.station2HorizontallyToFetchPosition] && currentState[Coil.station2HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (!previousState[Coil.station2HorizontallyToLeftPutPosition] && currentState[Coil.station2HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (!previousState[Coil.station2HorizontallyToRightPutPosition] && currentState[Coil.station2HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (currentState[Coil.station2ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (currentState[Coil.station2ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (currentState[Coil.station2StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (currentState[Coil.station2StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation3 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(2);
+        // update light
+        if (currentState[Coil.station3Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (currentState[Coil.station3Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (currentState[Coil.station3Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (!previousState[Coil.station3VerticallyToFetchPosition] && currentState[Coil.station3VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (!previousState[Coil.station3VerticallyToWaitPosition] && currentState[Coil.station3VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (!previousState[Coil.station3VerticallyToLeftPutPosition] && currentState[Coil.station3VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (!previousState[Coil.station3VerticallyToRightPutPosition] && currentState[Coil.station3VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (!previousState[Coil.station3HorizontallyToFetchPosition] && currentState[Coil.station3HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (!previousState[Coil.station3HorizontallyToLeftPutPosition] && currentState[Coil.station3HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (!previousState[Coil.station3HorizontallyToRightPutPosition] && currentState[Coil.station3HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (currentState[Coil.station3ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (currentState[Coil.station3ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (currentState[Coil.station3StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (currentState[Coil.station3StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation4 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(3);
+        // update light
+        if (currentState[Coil.station4Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (currentState[Coil.station4Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (currentState[Coil.station4Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (!previousState[Coil.station4VerticallyToFetchPosition] && currentState[Coil.station4VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (!previousState[Coil.station4VerticallyToWaitPosition] && currentState[Coil.station4VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (!previousState[Coil.station4VerticallyToLeftPutPosition] && currentState[Coil.station4VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (!previousState[Coil.station4VerticallyToRightPutPosition] && currentState[Coil.station4VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (!previousState[Coil.station4HorizontallyToFetchPosition] && currentState[Coil.station4HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (!previousState[Coil.station4HorizontallyToLeftPutPosition] && currentState[Coil.station4HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (!previousState[Coil.station4HorizontallyToRightPutPosition] && currentState[Coil.station4HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (currentState[Coil.station4ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (currentState[Coil.station4ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (currentState[Coil.station4StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (currentState[Coil.station4StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+    private void updateStation5 (boolean[] booleans) {
+        WorkStation ws = workStationList.get(4);
+        // update light
+        if (currentState[Coil.station3Error]) {
+            ws.updateLight(Constants.DANGER);
+        }
+        if (currentState[Coil.station3Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        }
+        if (currentState[Coil.station3Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        }
+        // update hand
+        // 上下到取料位
+        if (!previousState[Coil.station5VerticallyToFetchPosition] && currentState[Coil.station5VerticallyToFetchPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到等待位
+        if (!previousState[Coil.station5VerticallyToWaitPosition] && currentState[Coil.station5VerticallyToWaitPosition]) {
+            ws.getHand().setStatus(Constants.handRising);
+        }
+        // 上下到左取料位
+        if (!previousState[Coil.station5VerticallyToLeftPutPosition] && currentState[Coil.station5VerticallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 上下到右取料位
+        if (!previousState[Coil.station5VerticallyToRightPutPosition] && currentState[Coil.station5VerticallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handDeclining);
+        }
+        // 横移到取料位
+        if (!previousState[Coil.station5HorizontallyToFetchPosition] && currentState[Coil.station5HorizontallyToFetchPosition]) {
+            // 判断是向左还是向右横移
+            if (ws.getHand().getInitY() == ws.getHand().getRightEndY()) {
+                // 当前机械手在右边，左移
+                ws.getHand().setStatus(Constants.handLeftShifting);
+            }
+            if (ws.getHand().getInitY() == ws.getHand().getLeftEndY()) {
+                // 当前机械手在左边，右移
+                ws.getHand().setStatus(Constants.handRightShifting);
+            }
+        }
+        // 横移到左放料位
+        if (!previousState[Coil.station5HorizontallyToLeftPutPosition] && currentState[Coil.station5HorizontallyToLeftPutPosition]) {
+            ws.getHand().setStatus(Constants.handLeftShifting);
+        }
+        // 横移到右放料位
+        if (!previousState[Coil.station5HorizontallyToRightPutPosition] && currentState[Coil.station5HorizontallyToRightPutPosition]) {
+            ws.getHand().setStatus(Constants.handRightShifting);
+        }
+
+        // 箱子动作
+        // 后动： 加工位料盒上升
+        if (currentState[Coil.station3ProcessingPositionUp]) {
+           if (ws.getProcessingArea().getBox() != null) {
+               ws.getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+           }
+        }
+        // 后动：加工位料盒下降
+        if (currentState[Coil.station3ProcessingPositionDown]) {
+            if (ws.getProcessingArea().getBox() != null) {
+                ws.getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+        // 后动：储备位料盒上升
+        if (currentState[Coil.station3StoragePositionUp]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+            }
+        }
+        // 后动：储备位料盒下降
+        if (currentState[Coil.station3StoragePositionDown]) {
+            if (ws.getStorageArea().getBox() != null) {
+                ws.getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+            }
+        }
+    }
+
     private void updateHand (boolean[] booleans) {
 
     }
