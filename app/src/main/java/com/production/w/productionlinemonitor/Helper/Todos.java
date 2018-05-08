@@ -6,9 +6,4 @@ package com.production.w.productionlinemonitor.Helper;
 
 public class Todos {
 
-    // todo
-    // 1. make size consistent.
-    // 2. add car2
-    // 3. improve interface, prepare to read from read production line.
-
 }

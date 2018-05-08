@@ -9,12 +9,14 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.production.w.productionlinemonitor.Helper.Coil;
 import com.production.w.productionlinemonitor.Helper.Constants;
+import com.production.w.productionlinemonitor.Helper.Destination;
 import com.production.w.productionlinemonitor.Model.Area;
 import com.production.w.productionlinemonitor.Model.AssemblyLine;
 import com.production.w.productionlinemonitor.Model.Box;
@@ -72,11 +74,14 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     int previousStatus[];
 
     // used by run1();
+    // used by updateCar1()
     int previousPosition;
-    int car2PreviousPosition;
     int car1PreviousPosition;
+    int car2PreviousPosition;
     boolean currentState[];
     boolean previousState[];
+
+    // used by updateCar1_v2()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +158,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 Log.e(TAG, "readCoil onFailed " + msg);
             }
         }, 1, Constants.CoilStart, Constants.CoilLen);
+        // todo
+        // 1. implement updateTime()
+        // 2. implement updateSpeed()
+
         updateTime();
         updateSpeed();
     }
@@ -219,6 +228,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         updateAnimation();
     }
 
+    // 按帧显示动画, 大概1秒30帧
     public void updateAnimation () {
         float deltaTime = renderer.getFrameDuration();
 
@@ -646,6 +656,216 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             // 小车1放下箱子
             car1.setBox(null);
         }
+        
+    }
+    // 小车左右移动逻辑
+    // 如果读取到小车经过某个位置, 修改小车的目的地.
+    // (小车的速度应该比实际生产线的小车略快, 因为在生产线上实际小车到达下一个位置时,
+    // 小车应该已经到达前一个位置,等待新的目的地).
+    // 如果小车已经到达了目的地, 并且当前目的地有挡块升起, 小车应该在这里停止.
+    // 需要额外的信号判断小车是否停止.
+
+    private void updateCar1_v2 () {
+        float precision = 1e-6f;
+
+        if (currentState[Coil.car1AtStartBlockPosition]) {
+            if (Math.abs(car1.getX() - Destination.initialPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.initialPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+                if (car1.getX() > Destination.initialPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+            }
+        }
+        if (currentState[Coil.car2AtEndPosition]) {
+            if (Math.abs(car2.getX() - Destination.finalPosition) < precision) {
+                car2.setSpeed(100);
+                if (car2.getX() < Destination.finalPosition) {
+                    car2.setDirection(Constants.RIGHT);
+                }
+                if (car2.getX() > Destination.finalPosition) {
+                    car2.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation1StoragePosition]) {
+            if (Math.abs(car1.getX() - Destination.station1StoragePosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station1StoragePosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station1StoragePosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation1ProcessingPosition]) {
+            if (Math.abs(car1.getX() - Destination.station1ProcessingPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station1ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station1ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation1CompletionPosition]) {
+            if (Math.abs(car1.getX() - Destination.station1CompletionPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station1CompletionPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station1CompletionPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation2StoragePosition]) {
+            if (Math.abs(car1.getX() - Destination.station2StoragePosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station2StoragePosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station2StoragePosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation2ProcessingPosition]) {
+            if (Math.abs(car1.getX() - Destination.station2ProcessingPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station2ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station2ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation2CompletionPosition]) {
+            if (Math.abs(car1.getX() - Destination.station2CompletionPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station2CompletionPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station2CompletionPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation3StoragePosition]) {
+            if (Math.abs(car1.getX() - Destination.station3StoragePosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station3StoragePosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station3StoragePosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+
+        if (currentState[Coil.car1AtStation3ProcessingPosition]) {
+            if (Math.abs(car1.getX() - Destination.station3ProcessingPosition) < precision) {
+                car1.setSpeed(100);
+                if (car1.getX() < Destination.station3ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station3ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+        if (currentState[Coil.car2AtStation3ProcessingPosition]) {
+            if (Math.abs(car2.getX() - Destination.station3ProcessingPosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station3ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station3ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+        if (currentState[Coil.car2AtStation3CompletionPosition]) {
+            if (Math.abs(car2.getX() - Destination.station3CompletionPosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station3CompletionPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station3CompletionPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+        if (currentState[Coil.car2AtStation4StoragePosition]) {
+            if (Math.abs(car2.getX() - Destination.station4StoragePosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station4StoragePosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station4StoragePosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+         if (currentState[Coil.car2AtStation4ProcessingPosition]) {
+            if (Math.abs(car2.getX() - Destination.station4ProcessingPosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station4ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station4ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+          if (currentState[Coil.car2AtStation4CompletionPosition]) {
+            if (Math.abs(car2.getX() - Destination.station4CompletionPosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station4CompletionPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station4CompletionPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+       if (currentState[Coil.car2AtStation5StoragePosition]) {
+            if (Math.abs(car2.getX() - Destination.station5StoragePosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station5StoragePosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station5StoragePosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+        if (currentState[Coil.car2AtStation5ProcessingPosition]) {
+            if (Math.abs(car2.getX() - Destination.station5ProcessingPosition) < precision) {
+                car2.setSpeed(100);
+                if (car1.getX() < Destination.station5ProcessingPosition) {
+                    car1.setDirection(Constants.RIGHT);
+                }
+                if (car1.getX() > Destination.station5ProcessingPosition) {
+                    car1.setDirection(Constants.LEFT);
+                }
+            }
+        }
+    }
+
+    private void updateCar1_v3 () {
         
     }
     // 用于 run2() 函数, 更新小车的方向和速度.
@@ -1395,6 +1615,29 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             ws.render(renderPassSprite);
             workStationList.add(ws);
         }
+        // set position
+        Destination.initialPosition = 0;
+        Destination.finalPosition = glWidth;
+
+        Destination.station1StoragePosition = workStationList.get(0).getStorageArea().x;
+        Destination.station1ProcessingPosition = workStationList.get(0).getProcessingArea().x;
+        Destination.station1CompletionPosition = workStationList.get(0).getCompletionArea().x;
+
+        Destination.station2StoragePosition = workStationList.get(1).getStorageArea().x;
+        Destination.station2ProcessingPosition = workStationList.get(1).getProcessingArea().x;
+        Destination.station2CompletionPosition = workStationList.get(1).getCompletionArea().x;
+
+        Destination.station3StoragePosition = workStationList.get(2).getStorageArea().x;
+        Destination.station3ProcessingPosition = workStationList.get(2).getProcessingArea().x;
+        Destination.station3CompletionPosition = workStationList.get(2).getCompletionArea().x;
+
+        Destination.station4StoragePosition = workStationList.get(3).getStorageArea().x;
+        Destination.station4ProcessingPosition = workStationList.get(3).getProcessingArea().x;
+        Destination.station4CompletionPosition = workStationList.get(3).getCompletionArea().x;
+
+        Destination.station5StoragePosition = workStationList.get(4).getStorageArea().x;
+        Destination.station5ProcessingPosition = workStationList.get(4).getProcessingArea().x;
+
 
         preparationArea = new Area();
         preparationArea.x = 0;
