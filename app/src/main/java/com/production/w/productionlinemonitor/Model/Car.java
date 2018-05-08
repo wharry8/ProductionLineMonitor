@@ -33,6 +33,8 @@ public class Car {
 
     Box box;
 
+    float destination;
+
     public Car(float x, float y, float width, float height, Texture texture, Sprite sprite) {
         this.x = x;
         this.y = y;
@@ -42,6 +44,24 @@ public class Car {
         this.sprite = sprite;
     }
 
+    public void move_v2 (float deltaTime) {
+        float precision = 5.f;
+        if (speed == 0) {
+            return ;
+        }
+        float newX = x + deltaTime * direction * speed;
+        if (Math.abs(newX - destination) < precision) {
+            speed = 0;
+            x = destination;
+            newX = x;
+        }
+        x = newX;
+        sprite.setPos(x, y);
+        if (box != null) {
+            box.setX(x);
+            box.update();
+        }
+    }
     public void move (float deltaTime, float blockX) {
 //        Log.e(TAG, "move: anyway: " + x);
         if (speed == 0) {
@@ -71,6 +91,14 @@ public class Car {
             box.setX(newX);
             box.update();
         }
+    }
+
+    public float getDestination() {
+        return destination;
+    }
+
+    public void setDestination(float destination) {
+        this.destination = destination;
     }
 
     public Texture getTexture() {

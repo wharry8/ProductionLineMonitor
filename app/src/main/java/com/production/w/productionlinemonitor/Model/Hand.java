@@ -44,7 +44,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
-                        status = Constants.handStatic;
+                        status = Constants.handLeftShifted;
                         initY = newY;
                     }
                     setY(newY);
@@ -60,7 +60,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
-                        status = Constants.handStatic;
+                        status = Constants.handRightShifted;
                         initY = newY;
                     }
                     setY(newY);
@@ -76,7 +76,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
-                        status = Constants.handStatic;
+                        status = Constants.handDeclined;
                     }
                     setHeight(newHeight);
                     sprite.resize((int)getWidth(), (int)getHeight());
@@ -91,7 +91,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
-                        status = Constants.handStatic;
+                        status = Constants.handRised;
                     }
                     setHeight(newHeight);
                     sprite.resize((int)getWidth(), (int)getHeight());
