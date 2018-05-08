@@ -924,7 +924,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
 
-
         // 小车1驱动到起始位
         if (currentState[Coil.car1AtStartBlockPosition]) {
             if (Math.abs(car1.getX() - Destination.initialPosition) < precision) {

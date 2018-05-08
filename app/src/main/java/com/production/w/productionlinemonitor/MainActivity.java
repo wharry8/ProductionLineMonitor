@@ -46,26 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initModbusInstance() {
-        // todo
-        // 1. enable change connection settings at runtime.
-        ModbusReq.getInstance().setParam(new ModbusParam()
-                .setHost("192.168.0.105")
-                .setPort(502)
-                .setEncapsulated(false)
-                .setKeepAlive(true)
-                .setTimeout(2000)
-                .setRetries(0))
-                .init(new OnRequestBack<String>() {
-                    @Override
-                    public void onSuccess(String s) {
-                        Log.d(TAG, "onSuccess " + s);
-                    }
 
-                    @Override
-                    public void onFailed(String msg) {
-                        Log.d(TAG, "onFailed " + msg);
-                    }
-                });
     }
     public void initNavigationDrawer() {
         mDrawerLayout = findViewById(R.id.drawer_layout);

@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.zgkxzx.modbus4And.requset.ModbusParam;
+import com.zgkxzx.modbus4And.requset.ModbusReq;
+import com.zgkxzx.modbus4And.requset.OnRequestBack;
+
 public class LoginActivity extends AppCompatActivity {
 
     private final String TAG = "LoginActivity";
@@ -61,8 +65,26 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "请输入正确的密码", Toast.LENGTH_LONG);
                     return;
                 }
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                 ModbusReq.getInstance().setParam(new ModbusParam()
+                .setHost(input_host)
+                .setPort(Integer.valueOf(input_port))
+                .setEncapsulated(false)
+                .setKeepAlive(true)
+                .setTimeout(2000)
+                .setRetries(0))
+                .init(new OnRequestBack<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Log.d(TAG, "onSuccess 连接服务器成功" + s);
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+                        Log.d(TAG, "onFailed 连接服务器失败" + msg);
+                    }
+                });
             }
         });
     }
