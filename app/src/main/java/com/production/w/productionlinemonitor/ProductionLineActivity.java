@@ -230,6 +230,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         updateAnimation();
     }
 
+    // 线程1
     // 按帧显示动画, 大概1秒30帧
     public void updateAnimation () {
         float deltaTime = renderer.getFrameDuration();
@@ -237,7 +238,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //        Log.e(TAG, "updateAnimation: car1: " + car1.getX() + "," + car1.getSpeed() + "," + car1.getDirection());
 
         // animation of cars.
-        car1.move(deltaTime, blockX);
+//        car1.move(deltaTime, blockX);
+        car1.move_v2(deltaTime);
+
+        // 工作站1
         if (workStationList.size() > 0 && workStationList.get(0).getProcessingArea().getBox() != null) {
             workStationList.get(0).getProcessingArea().getBox().update(deltaTime);
         }
@@ -245,6 +249,43 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             workStationList.get(0).getStorageArea().getBox().update(deltaTime);
         }
         workStationList.get(0).getHand().update(deltaTime);
+
+        // 工作站2
+        if (workStationList.size() > 1 && workStationList.get(1).getProcessingArea().getBox() != null) {
+            workStationList.get(1).getProcessingArea().getBox().update(deltaTime);
+        }
+        if (workStationList.size() > 1 && workStationList.get(1).getStorageArea().getBox() != null) {
+            workStationList.get(1).getStorageArea().getBox().update(deltaTime);
+        }
+        workStationList.get(1).getHand().update(deltaTime);
+
+        // 工作站3
+        if (workStationList.size() > 2 && workStationList.get(2).getProcessingArea().getBox() != null) {
+            workStationList.get(2).getProcessingArea().getBox().update(deltaTime);
+        }
+        if (workStationList.size() > 2 && workStationList.get(2).getStorageArea().getBox() != null) {
+            workStationList.get(2).getStorageArea().getBox().update(deltaTime);
+        }
+        workStationList.get(2).getHand().update(deltaTime);
+
+
+        // 工作站4
+        if (workStationList.size() > 3 && workStationList.get(3).getProcessingArea().getBox() != null) {
+            workStationList.get(3).getProcessingArea().getBox().update(deltaTime);
+        }
+        if (workStationList.size() > 3 && workStationList.get(3).getStorageArea().getBox() != null) {
+            workStationList.get(3).getStorageArea().getBox().update(deltaTime);
+        }
+        workStationList.get(3).getHand().update(deltaTime);
+
+        // 工作站5
+        if (workStationList.size() > 4 && workStationList.get(4).getProcessingArea().getBox() != null) {
+            workStationList.get(4).getProcessingArea().getBox().update(deltaTime);
+        }
+        if (workStationList.size() > 4 && workStationList.get(4).getStorageArea().getBox() != null) {
+            workStationList.get(4).getStorageArea().getBox().update(deltaTime);
+        }
+        workStationList.get(4).getHand().update(deltaTime);
 
 //        car2.move(deltaTime);
 
@@ -481,18 +522,17 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
 //                            updateLight(booleans);
 //                            updateHand(booleans);
+                            currentState = booleans;
                             if (previousState == null) {
                                 // todo
                                 // initial set up.
                             } else {
-                                currentState = booleans;
-                                updateStation1 (booleans);
-                                updateStation2 (booleans);
-                                updateStation3 (booleans);
-                                updateStation4 (booleans);
-                                updateStation5 (booleans);
-                                updateCar1(booleans);
-                                updateCar2(booleans);
+                                updateStation1_v2 ();
+                                updateStation2_v2 ();
+                                updateStation3_v2 ();
+                                updateStation4_v2 ();
+                                updateStation5_v2 ();
+                                updateCar_v2();
                             }
                             previousState = currentState;
                         }
@@ -667,7 +707,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 如果小车已经到达了目的地, 并且当前目的地有挡块升起, 小车应该在这里停止.
     // 需要额外的信号判断小车是否停止.
 
-    private void updateCar1_v2 () {
+    private void updateCar_v2 () {
         float precision = 1e-6f;
         int speed = 100;
 
@@ -1230,12 +1270,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 平移到取料位
         if (currentState[Coil.station5HorizontallyToFetchPosition]) {
-            if (hand.getInitY() == hand.getLeftEndY()) {
+            if (Float.compare(hand.getInitY(), hand.getLeftEndY()) == 0) {
                 if (hand.getStatus() != Constants.handRightShifted) {
                     hand.setStatus(Constants.handRightShifting);
                 }
             }
-            if (hand.getInitY() == hand.getRightEndY()) {
+            if (Float.compare(hand.getInitY(), hand.getRightEndY()) == 0) {
                 if (hand.getStatus() != Constants.handLeftShifted) {
                     hand.setStatus(Constants.handLeftShifting);
                 }

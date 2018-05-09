@@ -55,10 +55,9 @@ public class Car {
             x = destination;
             newX = x;
         }
-        x = newX;
-        sprite.setPos(x, y);
+        sprite.setPos(newX, y);
         if (box != null) {
-            box.setX(x);
+            box.setX(newX);
             box.update();
         }
     }
