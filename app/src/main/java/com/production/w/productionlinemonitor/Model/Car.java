@@ -35,6 +35,8 @@ public class Car {
 
     float destination;
 
+    boolean match;
+
     public Car(float x, float y, float width, float height, Texture texture, Sprite sprite) {
         this.x = x;
         this.y = y;
@@ -42,6 +44,8 @@ public class Car {
         this.height = height;
         this.texture = texture;
         this.sprite = sprite;
+
+        this.match = false;
     }
 
     public void move_v2 (float deltaTime) {
@@ -90,6 +94,14 @@ public class Car {
             box.setX(newX);
             box.update();
         }
+    }
+
+    public boolean isMatch() {
+        return match;
+    }
+
+    public void setMatch(boolean match) {
+        this.match = match;
     }
 
     public float getDestination() {

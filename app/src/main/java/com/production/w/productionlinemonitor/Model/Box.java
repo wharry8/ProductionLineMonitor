@@ -43,6 +43,27 @@ public class Box extends BaseModel {
        this.yOffset = 20;
    }
 
+   public void changeSize (int state) {
+       this.status = state;
+       switch (state) {
+           case Constants.BOX_RISED:
+               setWidth(upWidth);
+               setHeight(upHeight);
+               setY(initY + yOffset);
+               sprite.setPos(getX(), getY());
+               sprite.resize((int)getWidth(), (int)getHeight());
+               break;
+           case Constants.BOX_DECLINED:
+               setWidth(initWidth);
+               setHeight(initHeight);
+               setY(initY);
+               sprite.setPos(getX(), getY());
+               sprite.resize((int)getWidth(), (int)getHeight());
+               break;
+       }
+   }
+
+
    public void update () {
        sprite.setPos(super.getX(), super.getY());
        if (getX() >= Constants.glWidth - Constants.unitWidth / 2) {
@@ -185,5 +206,6 @@ public class Box extends BaseModel {
 
     public void setStatus(int status) {
         this.status = status;
+        changeSize(status);
     }
 }

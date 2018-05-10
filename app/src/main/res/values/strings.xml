@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">智能生产线监控</string>
 
+    <string name="db">mongodb://root:jj@ds237815.mlab.com:37815</string>
+
     <string name="main">主界面</string>
     <string name="productionLine">生产线</string>
     <string name="workers">工作站</string>

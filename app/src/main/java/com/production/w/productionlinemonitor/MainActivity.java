@@ -1,7 +1,11 @@
 package com.production.w.productionlinemonitor;
 
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import android.content.Intent;
 import android.icu.text.TimeZoneFormat;
+import android.os.AsyncTask;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 //        updateView();
         updateView2();
     }
+
+
 
     public void initModbusInstance() {
 

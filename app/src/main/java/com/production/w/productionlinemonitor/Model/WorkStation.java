@@ -12,7 +12,7 @@ import fr.arnaudguyon.smartgl.opengl.Texture;
 
 import static android.support.constraint.Constraints.TAG;
 
-/**
+/*
  * Created by w on 2018/5/2.
  */
 
@@ -28,6 +28,8 @@ public class WorkStation {
 
     private Context context;
 
+    boolean isMatch;
+
     // light
     // cnc
 
@@ -41,6 +43,7 @@ public class WorkStation {
         this.x = x;
         this.y = y;
         this.context = context;
+        this.isMatch = false;
     }
 
     public void init (float glWidth, float glHeight, float unitWidth, float unitHeight) {
@@ -169,6 +172,14 @@ public class WorkStation {
         hand = new Hand(handX, handY, handWidth, handHeight, texture, sprite);
 
         hand.setHorizontalDistance(unitHeight * 12 / 2);
+    }
+
+    public boolean isMatch() {
+        return isMatch;
+    }
+
+    public void setMatch(boolean match) {
+        isMatch = match;
     }
 
     public void updateLight (int status) {

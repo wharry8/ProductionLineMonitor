@@ -24,6 +24,9 @@ public class Hand extends BaseModel {
     private float rightEndY;
     private float leftEndY;
 
+
+    boolean isMatch;
+
     public Hand (float x, float y, float width, float height, Texture texture, Sprite sprite) {
         super(x, y, width, height, texture, sprite);
 
@@ -32,6 +35,7 @@ public class Hand extends BaseModel {
         this.initY = y;
         this.speed = 100;
         this.status = Constants.handStatic;
+        this.isMatch = false;
     }
     public void update (float deltaTime) {
         switch (status) {
@@ -100,6 +104,14 @@ public class Hand extends BaseModel {
             default:
                 break;
         }
+    }
+
+    public boolean isMatch() {
+        return isMatch;
+    }
+
+    public void setMatch(boolean match) {
+        isMatch = match;
     }
 
     public float getInitY() {
