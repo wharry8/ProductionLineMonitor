@@ -101,6 +101,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     OkHttpClient client;
     private int fake_index;
+    private int fake_need[];
+    private int fake_current[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,23 +117,56 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         updateView();
 
         initSmartGL();
-        run2();
+//        run2();
 //        new G().execute();
 //        fake_animation();
         fake_animation2();
     }
     private void fake_animation2 () {
+        fake_need = new int[200];
+
+        fake_need[0] = 0;
+        fake_need[1] = 1;
+        fake_need[2] = 1;
+        fake_need[3] = 2;
+        fake_need[4] = 1;
+        fake_need[5] = 2;
+        fake_need[6] = 2;
+        fake_need[7] = 2;
+        fake_need[8] = 2;
+        fake_need[9] = 2;
+        fake_need[10] = 2;
+        fake_need[11] = 2;
+        fake_need[12] = 2;
+        fake_need[13] = 2;
+        fake_need[14] = 1;
+        fake_need[15] = 6;
+        fake_need[16] = 1;
+        fake_need[17] = 1;
+        fake_need[18] = 6;
+        fake_need[19] = 6;
+
+        fake_current = new int[2000];
+        for (int i = 0; i < 20; ++i) {
+            fake_current[i] = 0;
+        }
+
         currentState = new boolean[10000];
+        previousState = new boolean[10000];
         fake_index = 0;
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (fake_index > 15) {
-                    return;
-                }
                 try {
-                    ++fake_index;
+                    if (fake_current[fake_index] >= fake_need[fake_index]) {
+                        ++fake_index;
+                        if (fake_index > 19) {
+                            return;
+                        }
+                    }
+
+                    ++fake_current[fake_index];
                     Log.e(TAG, "run: fake_index " + fake_index);
                     client = new OkHttpClient();
                     Request request = new Request.Builder()
@@ -149,30 +184,39 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //
                     for (int i = 0; i < jsonArray.length(); ++i) {
 //                        currentState[i] = jsonArray.getInt(i) == 0? false: true;
-                        try {
+//                        try {
                             currentState[i] = jsonArray.getBoolean(i);
-                        } catch (Exception e) {
-                            currentState[i] = jsonArray.getInt(i) == 0? false: true;
-                        }
+//                        } catch (Exception e) {
+//                            currentState[i] = jsonArray.getInt(i) == 0? false: true;
+//                        }
                     }
-                    Log.e(TAG, "signals: " +  fake_index);
 //                    Log.e(TAG, "toStart: " + fake_index + "," + currentState[Coil.car1AtStartPosition]);
 //                    Log.e(TAG, "toStart: " + fake_index + "," + currentState[Coil.car1AtStartBlockPosition]);
-                    Log.e(TAG, "toS3: " + fake_index + "," + currentState[Coil.car2AtStation3ProcessingPosition]);
+//                    Log.e(TAG, "toS3: " + fake_index + "," + currentState[Coil.car2AtStation3ProcessingPosition]);
+//                    Log.e(TAG, "hook in: " + fake_index + "," + currentState[Coil.car1HookOut]);
+
                     // get status
                             if (previousState == null) {
-                                previousState = currentState;
+                                Log.e(TAG, "run: haha index;" + fake_index);
+                                System.arraycopy(currentState, 0, previousState, 0, 10000);
+//                                previousState = new boolean[10000];
+//                                for (int i = 0; i < 10000; ++i) {
+//                                    previousState[i] = false;
+//                                }
                             }
-//                            Hand hand1 =  workStationList.get(0).getHand();
+//                    Log.e(TAG, "p out c in: " + fake_index + "," + previousState[Coil.car1HookOut] + "," + currentState[Coil.car1HookIn]);
+//                    Log.e(TAG, "p in c out: " + fake_index + "," + previousState[Coil.car1HookIn] + "," + currentState[Coil.car1HookOut]);
+                    Log.e(TAG, "backTos3: " + fake_index + "," + currentState[Coil.car2AtStation3ProcessingPosition]);
+                            Hand hand1 =  workStationList.get(0).getHand();
 //                            Hand hand2 =  workStationList.get(1).getHand();
 //                            Hand hand3 =  workStationList.get(2).getHand();
 //                            Hand hand4 =  workStationList.get(3).getHand();
 //                            Hand hand5 =  workStationList.get(4).getHand();
-//                            if (hand1.isMatch()) {
-//                                updateHand1();
-//                            } else {
-//                                syncHand1();
-//                            }
+                            if (hand1.isMatch()) {
+                                updateHand1();
+                            } else {
+                                syncHand1();
+                            }
 //
 //                            if (hand2.isMatch()) {
 //                                updateHand2();
@@ -213,10 +257,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             } else {
                                 syncCar2();
                             }
-                            previousState = currentState;
-
+//                            previousState = currentState;
+                            System.arraycopy(currentState, 0, previousState, 0, 10000);
                 } catch (Exception e) {
-                    Log.e(TAG, "doInBackground: " + e);
+                    Log.e(TAG, "doInBackground: " + e + ", index: " + fake_index);
                 }
             }
         }, 1000, 2000);
@@ -426,10 +470,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // animation of cars.
 //        car1.move(deltaTime, blockX);
-//        Log.e(TAG, "updateAnimation: car1 move, index: " + (fake_index) + ", destionation: " + car1.getDestination());
+        Log.e(TAG, "updateAnimation: car1 move, index: " + (fake_index) + ", destionation: " + car1.getDestination());
         car1.move_v2(deltaTime);
 //        Log.e(TAG, "updateAnimation: car2 move");
-        Log.e(TAG, "updateAnimation: car2 move, index: " + (fake_index) + ", destionation: " + car2.getDestination());
+//        Log.e(TAG, "updateAnimation: car2 move, index: " + (fake_index) + ", destionation: " + car2.getDestination());
         car2.move_v2(deltaTime);
 
         // 工作站1
@@ -1250,7 +1294,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 需要额外的信号判断小车是否停止.
 
     private void updateCar1_v2 () {
-        Log.e(TAG, "updateCar1_v2: running" );
+        Log.e(TAG, "updateCar1_v2: running, index: " + fake_index );
 
         float precision = 1e-6f;
         int speed = 100;
@@ -1348,6 +1392,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
             // 小车1在站1加工位放下箱子
             if (Float.compare(car1.getX(), Destination.station1ProcessingPosition) == 0) {
@@ -1357,6 +1402,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
             // 小车1在站2储备位放下箱子
             if (Float.compare(car1.getX(), Destination.station2StoragePosition) == 0) {
@@ -2139,6 +2185,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 站1机械臂完成同步, 执行动画
     private void updateHand1 () {
         Hand hand = workStationList.get(0).getHand();
+        // 上下到取料位
          if (currentState[Coil.station1VerticallyToFetchPosition]) {
             if (hand.getStatus() != Constants.handDeclined) {
                 hand.setStatus(Constants.handDeclining);
@@ -2159,7 +2206,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // 上下到等待位
         if (currentState[Coil.station1VerticallyToWaitPosition]) {
             if (hand.getStatus() != Constants.handRised) {
-                hand.setStatus(Constants.handRised);
+                hand.setStatus(Constants.handRising);
             }
         }
         // 平移到右放料位

@@ -66,7 +66,7 @@ public class Box extends BaseModel {
 
    public void update () {
        sprite.setPos(super.getX(), super.getY());
-       if (getX() >= Constants.glWidth - Constants.unitWidth / 2) {
+       if (getX() >= Constants.glWidth) {
            sprite.releaseResources();
        }
    }
