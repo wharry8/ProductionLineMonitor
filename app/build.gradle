@@ -31,4 +31,5 @@ dependencies {
     implementation files('libs/modbus4Android-1.2.jar')
     compile 'com.github.smart-fun:smartGL:1.1.7'
 
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
 }
