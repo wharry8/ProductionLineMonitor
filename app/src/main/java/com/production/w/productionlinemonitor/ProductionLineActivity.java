@@ -5,6 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -28,9 +30,16 @@ import com.production.w.productionlinemonitor.Model.WorkStation;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import fr.arnaudguyon.smartgl.opengl.RenderPassSprite;
@@ -40,6 +49,9 @@ import fr.arnaudguyon.smartgl.opengl.SmartGLViewController;
 import fr.arnaudguyon.smartgl.opengl.Sprite;
 import fr.arnaudguyon.smartgl.opengl.Texture;
 import fr.arnaudguyon.smartgl.touch.TouchHelperEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ProductionLineActivity extends AppCompatActivity implements SmartGLViewController {
 
@@ -87,6 +99,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     // used by updateCar1_v2()
 
+    OkHttpClient client;
+    private int fake_index;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // landscape mode.
@@ -101,6 +116,167 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         initSmartGL();
         run2();
+//        new G().execute();
+//        fake_animation();
+        fake_animation2();
+    }
+    private void fake_animation2 () {
+        currentState = new boolean[10000];
+        fake_index = 0;
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (fake_index > 15) {
+                    return;
+                }
+                try {
+                    ++fake_index;
+                    Log.e(TAG, "run: fake_index " + fake_index);
+                    client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            //                .url("http://127.0.0.1:3000/1")
+                            //                        .url("http://baidu.com")
+                            .url("http://10.0.2.2:3000/" + fake_index)
+                            .build();
+                    Response response = client.newCall(request).execute();
+
+//                    Log.e(TAG, "response: " + response.body().string());
+                    String jsonData = response.body().string();
+
+                    JSONObject jsonObject = new JSONObject(jsonData);
+                    JSONArray jsonArray = jsonObject.getJSONArray("status");
+//
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+//                        currentState[i] = jsonArray.getInt(i) == 0? false: true;
+                        try {
+                            currentState[i] = jsonArray.getBoolean(i);
+                        } catch (Exception e) {
+                            currentState[i] = jsonArray.getInt(i) == 0? false: true;
+                        }
+                    }
+                    Log.e(TAG, "signals: " +  fake_index);
+//                    Log.e(TAG, "toStart: " + fake_index + "," + currentState[Coil.car1AtStartPosition]);
+//                    Log.e(TAG, "toStart: " + fake_index + "," + currentState[Coil.car1AtStartBlockPosition]);
+                    Log.e(TAG, "toS3: " + fake_index + "," + currentState[Coil.car2AtStation3ProcessingPosition]);
+                    // get status
+                            if (previousState == null) {
+                                previousState = currentState;
+                            }
+//                            Hand hand1 =  workStationList.get(0).getHand();
+//                            Hand hand2 =  workStationList.get(1).getHand();
+//                            Hand hand3 =  workStationList.get(2).getHand();
+//                            Hand hand4 =  workStationList.get(3).getHand();
+//                            Hand hand5 =  workStationList.get(4).getHand();
+//                            if (hand1.isMatch()) {
+//                                updateHand1();
+//                            } else {
+//                                syncHand1();
+//                            }
+//
+//                            if (hand2.isMatch()) {
+//                                updateHand2();
+//                            } else {
+//                                syncHand2();
+//                            }
+//
+//                            if (hand3.isMatch()) {
+//                                updateHand3();
+//                            } else {
+//                                syncHand3();
+//                            }
+//
+//                            if (hand4.isMatch()) {
+//                                updateHand4();
+//                            } else {
+//                                syncHand4();
+//                            }
+//
+//                            if (hand5.isMatch()) {
+//                                updateHand5();
+//                            } else {
+//                                syncHand5();
+//                            }
+
+                            if (car1.isMatch()) {
+                                updateCar1_v2();
+                                updateStation1_v2 ();
+                                updateStation2_v2 ();
+                                updateStation3_v2 ();
+                            } else {
+                                syncCar1();
+                            }
+                            if (car2.isMatch()) {
+                                updateCar2_v2();
+                                updateStation4_v2 ();
+                                updateStation5_v2 ();
+                            } else {
+                                syncCar2();
+                            }
+                            previousState = currentState;
+
+                } catch (Exception e) {
+                    Log.e(TAG, "doInBackground: " + e);
+                }
+            }
+        }, 1000, 2000);
+    }
+    private void fake_animation () {
+        fake_index = 1;
+        Thread thread = new Thread() {
+            public void run () {
+                Looper.prepare();
+                int delay = 2000;
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (fake_index > 9) {
+                            return;
+                        }
+                         try {
+                           client = new OkHttpClient();
+                            Request request = new Request.Builder()
+            //                .url("http://127.0.0.1:3000/1")
+            //                        .url("http://baidu.com")
+                                    .url("http://10.0.2.2:3000/" + fake_index)
+                            .build();
+                            Response response = client.newCall(request).execute();
+                            ++fake_index;
+                            Log.e(TAG, "response: " + response.body().string());
+                        } catch (Exception e) {
+                            Log.e(TAG, "doInBackground: " + e);
+                        }
+                    }
+                }, delay);
+                Looper.loop();
+            }
+        };
+        thread.start();
+    }
+
+    class G extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+               client = new OkHttpClient();
+                Request request = new Request.Builder()
+//                .url("http://127.0.0.1:3000/1")
+//                        .url("http://baidu.com")
+                        .url("http://10.0.2.2:3000/" + fake_index)
+                .build();
+                Response response = client.newCall(request).execute();
+                ++fake_index;
+                Log.e(TAG, "response: " + response.body().string());
+            } catch (Exception e) {
+                Log.e(TAG, "doInBackground: " + e);
+            }
+            return null;
+        }
+    }
+
+    private void get(String url) throws IOException {
+
     }
 
     class ConncetToDB extends AsyncTask<String, String, String> {
@@ -243,13 +419,18 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 线程1
     // 按帧显示动画, 大概1秒30帧
     public void updateAnimation () {
+
         float deltaTime = renderer.getFrameDuration();
 
 //        Log.e(TAG, "updateAnimation: car1: " + car1.getX() + "," + car1.getSpeed() + "," + car1.getDirection());
 
         // animation of cars.
 //        car1.move(deltaTime, blockX);
+//        Log.e(TAG, "updateAnimation: car1 move, index: " + (fake_index) + ", destionation: " + car1.getDestination());
         car1.move_v2(deltaTime);
+//        Log.e(TAG, "updateAnimation: car2 move");
+        Log.e(TAG, "updateAnimation: car2 move, index: " + (fake_index) + ", destionation: " + car2.getDestination());
+        car2.move_v2(deltaTime);
 
         // 工作站1
         if (workStationList.size() > 0 && workStationList.get(0).getProcessingArea().getBox() != null) {
@@ -600,6 +781,17 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     // 小车2同步中
     private void syncCar2 () {
+        Log.e(TAG, "syncCar2: syncing car2, index: " + fake_index );
+
+        // 小车2回到起始位(站3加工位), 或者前往站4时, 开始同步
+        if (currentState[Coil.car2AtStation3ProcessingPosition]||
+                currentState[Coil.car2AtStation4StoragePosition]||
+                currentState[Coil.car2AtStation4ProcessingPosition]||
+                currentState[Coil.car2AtStation4CompletionPosition]
+                ) {
+            car2.setMatch(true);
+        }
+
         // 小车2是否有箱子
         // 小车2处于出钩状态, 应该有箱子, 如果没有, 生成一个箱子放上去
         if (currentState[Coil.car2HookOut]) {
@@ -608,6 +800,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 car2.setBox(box);
             }
         }
+
         // 小车2处于回钩状体, 应该没有箱子, 如果有, 将改箱子销毁
         if (currentState[Coil.car2HookIn]) {
             if (car2.getBox() != null) {
@@ -667,6 +860,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     // 小车1同步中
     private void syncCar1 () {
+        Log.e(TAG, "syncCar1: syncing");
         // 小车1是否有箱子
         // 小车1处于出钩状态, 如果此时小车1没有箱子, 生成一个箱子, 放上去
         if (currentState[Coil.car1HookOut]) {
@@ -1056,6 +1250,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 需要额外的信号判断小车是否停止.
 
     private void updateCar1_v2 () {
+        Log.e(TAG, "updateCar1_v2: running" );
 
         float precision = 1e-6f;
         int speed = 100;
@@ -1200,8 +1395,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 car1.setBox(null);
             }
         }
+        /*
          // 小车1驱动到起始位
-        if (currentState[Coil.car1AtStartBlockPosition]) {
+        if (currentState[Coil.car1AtStartBlockPosition] || currentState[Coil.car1AtStartPosition]) {
             if (Math.abs(car1.getX() - Destination.initialPosition) < precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.initialPosition) {
@@ -1216,13 +1412,16 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             // 小车2在站5加工位获取箱子
 
         }
+        */
         // 小车2放下箱子
 
 
         // 小车1驱动到起始位
-        if (currentState[Coil.car1AtStartBlockPosition]) {
-            if (Math.abs(car1.getX() - Destination.initialPosition) < precision) {
+        if (currentState[Coil.car1AtStartBlockPosition] || currentState[Coil.car1AtStartPosition]) {
+            Log.e(TAG, "updateCar1_v2: hello, car1x, " + car1.getX() + ", destination: " + Destination.initialPosition);
+            if (Math.abs(car1.getX() - Destination.initialPosition) > precision) {
                 car1.setSpeed(speed);
+                Log.e(TAG, "updateCar1_v2: car1speed: " + car1.getSpeed());
                 if (car1.getX() < Destination.initialPosition) {
                     car1.setDirection(Constants.RIGHT);
                 }
@@ -1234,7 +1433,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到下料位
         if (currentState[Coil.car2AtEndPosition]) {
-            if (Math.abs(car2.getX() - Destination.finalPosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.finalPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.finalPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1247,7 +1446,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站1储料位
         if (currentState[Coil.car1AtStation1StoragePosition]) {
-            if (Math.abs(car1.getX() - Destination.station1StoragePosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station1StoragePosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station1StoragePosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1260,7 +1459,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站1加工位
         if (currentState[Coil.car1AtStation1ProcessingPosition]) {
-            if (Math.abs(car1.getX() - Destination.station1ProcessingPosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station1ProcessingPosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station1ProcessingPosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1273,7 +1472,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站1完成位
         if (currentState[Coil.car1AtStation1CompletionPosition]) {
-            if (Math.abs(car1.getX() - Destination.station1CompletionPosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station1CompletionPosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station1CompletionPosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1286,7 +1485,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站2储备位
         if (currentState[Coil.car1AtStation2StoragePosition]) {
-            if (Math.abs(car1.getX() - Destination.station2StoragePosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station2StoragePosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station2StoragePosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1299,7 +1498,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站2加工位
         if (currentState[Coil.car1AtStation2ProcessingPosition]) {
-            if (Math.abs(car1.getX() - Destination.station2ProcessingPosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station2ProcessingPosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station2ProcessingPosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1312,7 +1511,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站2完成位
         if (currentState[Coil.car1AtStation2CompletionPosition]) {
-            if (Math.abs(car1.getX() - Destination.station2CompletionPosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station2CompletionPosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station2CompletionPosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1325,7 +1524,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站3储备位
         if (currentState[Coil.car1AtStation3StoragePosition]) {
-            if (Math.abs(car1.getX() - Destination.station3StoragePosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station3StoragePosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station3StoragePosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1338,7 +1537,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车1驱动到站3加工位
         if (currentState[Coil.car1AtStation3ProcessingPosition]) {
-            if (Math.abs(car1.getX() - Destination.station3ProcessingPosition) < precision) {
+            if (Math.abs(car1.getX() - Destination.station3ProcessingPosition) > precision) {
                 car1.setSpeed(speed);
                 if (car1.getX() < Destination.station3ProcessingPosition) {
                     car1.setDirection(Constants.RIGHT);
@@ -1351,6 +1550,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
     }
     private void updateCar2_v2 () {
+        Log.e(TAG, "updateCar2_v2: running car2, index: " + fake_index);
         float precision = 1e-6f;
         int speed = 100;
 
@@ -1471,7 +1671,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // 小车2驱动到站3加工位
         if (currentState[Coil.car2AtStation3ProcessingPosition]) {
-            if (Math.abs(car2.getX() - Destination.station3ProcessingPosition) < precision) {
+            Log.e(TAG, "updateCar2_v2: toS3");
+            if (Math.abs(car2.getX() - Destination.station3ProcessingPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station3ProcessingPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1484,7 +1685,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站3完成位
         if (currentState[Coil.car2AtStation3CompletionPosition]) {
-            if (Math.abs(car2.getX() - Destination.station3CompletionPosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station3CompletionPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station3CompletionPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1497,7 +1698,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站4储备位
         if (currentState[Coil.car2AtStation4StoragePosition]) {
-            if (Math.abs(car2.getX() - Destination.station4StoragePosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station4StoragePosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station4StoragePosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1510,7 +1711,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站4加工位
          if (currentState[Coil.car2AtStation4ProcessingPosition]) {
-            if (Math.abs(car2.getX() - Destination.station4ProcessingPosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station4ProcessingPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station4ProcessingPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1523,7 +1724,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站4完成位
         if (currentState[Coil.car2AtStation4CompletionPosition]) {
-            if (Math.abs(car2.getX() - Destination.station4CompletionPosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station4CompletionPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station4CompletionPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1536,7 +1737,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站5储备位
        if (currentState[Coil.car2AtStation5StoragePosition]) {
-            if (Math.abs(car2.getX() - Destination.station5StoragePosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station5StoragePosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station5StoragePosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -1549,7 +1750,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 小车2驱动到站5加工位
         if (currentState[Coil.car2AtStation5ProcessingPosition]) {
-            if (Math.abs(car2.getX() - Destination.station5ProcessingPosition) < precision) {
+            if (Math.abs(car2.getX() - Destination.station5ProcessingPosition) > precision) {
                 car2.setSpeed(speed);
                 if (car2.getX() < Destination.station5ProcessingPosition) {
                     car2.setDirection(Constants.RIGHT);
@@ -3082,7 +3283,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         car1.setSpeed(0);
         renderPassSprite.addSprite(car1Sprite);
 
-        float car2X = 900;
+        float car2X = Destination.station3ProcessingPosition;
         float car2Y = glHeight / 2;
         Sprite car2Sprite = new Sprite((int)carWidth, (int)carHeight);
         car2Sprite.setPivot(0.5f, 0.5f);
