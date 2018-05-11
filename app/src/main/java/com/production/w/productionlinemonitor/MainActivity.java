@@ -43,17 +43,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initNavigationDrawer();
-        initModbusInstance();
         bind();
 //        updateView();
         updateView2();
     }
 
-
-
-    public void initModbusInstance() {
-
-    }
+    // 初始化菜单栏
     public void initNavigationDrawer() {
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -92,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    // 绑定TextView
     public void bind() {
         tv_status = findViewById(R.id.pl_tv_status);
         tv_speed = findViewById(R.id.pl_tv_speed);
@@ -102,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         tv_up = findViewById(R.id.tv_up);
         tv_percent = findViewById(R.id.ws_tv_percent);
     }
+    // v1
     public void updateView() {
 
         boolean running = isRunning();
@@ -167,6 +164,8 @@ public class MainActivity extends AppCompatActivity {
             tv_percent.setText(R.string.defaultPercent);
         }
     }
+    // v2
+    // 更新ui
     public void updateView2 () {
         ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
@@ -179,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "readCoil onFailed " + msg);
             }
         }, 1, Constants.CoilStart, Constants.CoilLen);
-
         ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
@@ -193,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 1, Constants.RegisterStart, Constants.RegisterLen);
     }
-
+    // 更新状态
     public void updateStatus (boolean[] booleen) {
         boolean running = booleen[Coil.systemRunning];
         boolean stopped = booleen[Coil.systemError];
@@ -209,22 +207,29 @@ public class MainActivity extends AppCompatActivity {
             tv_status.setText(R.string.unknown);
         }
     }
+    // 更新目标产量
     public void updateTarget (short[] data) {
         short target = data[Register.systemTargetOutput];
         tv_target.setText(Integer.toString(target));
     }
+    // 更新当前产量
     public void updateCurrent (short[] data) {
         short current = data[Register.systemActualOutput];
         tv_current.setText(Integer.toString(current));
     }
+    // 更新已上料量
     public void updateUp () {
     }
+    // 更新完成率
     public void updatePercent () {
     }
+    // 更新速度
     public void updateSpeed () {
     }
+    // 更新系统运行时间
     public void updateSystemRunningTime () {
     }
+    // 更新整机运行时间
     public void updateMachineRunningTime () {
     }
 

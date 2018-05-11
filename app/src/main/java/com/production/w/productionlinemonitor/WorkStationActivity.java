@@ -45,6 +45,7 @@ public class WorkStationActivity extends AppCompatActivity {
         bind();
         updateView();
     }
+    // 初始化菜单栏
     public void initNavigationDrawer () {
 
         mDrawerLayout = findViewById(R.id.ws_drawer_layout);
@@ -85,7 +86,7 @@ public class WorkStationActivity extends AppCompatActivity {
                     }
                 });
     }
-
+    // 绑定textview
     public void bind() {
         tv_name = findViewById(R.id.ws_tv_name);
         tv_status = findViewById(R.id.ws_tv_status);
@@ -97,7 +98,7 @@ public class WorkStationActivity extends AppCompatActivity {
         tv_cnc_left_status = findViewById(R.id.ws_tv_cnc_left_status);
         tv_cnc_right_status = findViewById(R.id.ws_tv_cnc_right_status);
     }
-
+    // 更新ui
     public void updateView () {
 
         ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
@@ -128,14 +129,11 @@ public class WorkStationActivity extends AppCompatActivity {
                 Log.e(TAG, "readHoldingRegisters onFailed " + msg);
             }
         }, 1, Constants.RegisterStart, Constants.RegisterLen);
-        updateName();
         updateUpTime();
         updateRunTime();
         updatePercent();
     }
-
-    public void updateName () {
-    }
+    // 更新状态
     public void updateStatus (boolean[] booleans) {
         boolean running = false;
         boolean stopped = false;
@@ -178,10 +176,13 @@ public class WorkStationActivity extends AppCompatActivity {
             tv_status.setText(R.string.unknown);
         }
     }
+    // 更新开机时间(有必要?)
     public void updateUpTime () {
     }
+    // 更新运行时间
     public void updateRunTime () {
     }
+    // 更新目标产量
     public void updateTarget (short[] data) {
         int target = 0;
         switch (stationId) {
@@ -205,6 +206,7 @@ public class WorkStationActivity extends AppCompatActivity {
         }
         tv_target.setText(Integer.toString(target));
     }
+    // 更新当前状态
     public void updateCurrent (short[] data) {
         short current = 0;
 
@@ -230,13 +232,13 @@ public class WorkStationActivity extends AppCompatActivity {
         current = data[Register.station1ActualOutput];
         tv_current.setText(Integer.toString(current));
     }
-
+    // 更新百分比
     public void updatePercent () {
     }
-
+    // 更新左CNC的状态
     public void updateLeftCncStatus (boolean[] booleans) {
     }
-
+    // 更新右CNC的状态
     public void updateRightCncStatus (boolean[] booleans) {
     }
 }

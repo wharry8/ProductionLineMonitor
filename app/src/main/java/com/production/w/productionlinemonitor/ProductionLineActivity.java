@@ -460,10 +460,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         float deltaTime = renderer.getFrameDuration();
 
 //        Log.e(TAG, "updateAnimation: car1: " + car1.getX() + "," + car1.getSpeed() + "," + car1.getDirection());
-
-        // animation of cars.
 //        car1.move(deltaTime, blockX);
-        Log.e(TAG, "updateAnimation: car1 move, index: " + (fake_index) + ", destionation: " + car1.getDestination());
+//        Log.e(TAG, "updateAnimation: car1 move, index: " + (fake_index) + ", destionation: " + car1.getDestination());
         car1.move_v2(deltaTime);
 //        Log.e(TAG, "updateAnimation: car2 move");
 //        Log.e(TAG, "updateAnimation: car2 move, index: " + (fake_index) + ", destionation: " + car2.getDestination());
@@ -514,224 +512,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         workStationList.get(4).getHand().update(deltaTime);
 
-//        car2.move(deltaTime);
-
-        // animation of box up and down.
-
-        // animation of hand.
-
-    }
-
-    public void run() {
-        previousReachIndex = 0;
-        final Handler handler = new Handler();
-        blockX = 2000;
-        final int delay = 2000;
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                currentStatus = Signal.status[index];
-                Log.e(TAG, "run: " + (index - 1) + " -> " + index);
-//                Log.e(TAG, "run: speed: " + car1.getSpeed());
-//                Log.e(TAG, "run: car1x: " + car1.getX());
-//                Log.e(TAG, "run: blockx: " + blockX);
-//                boolean hasBox = car1.getBox() != null;
-//                if (hasBox) {
-//                    Log.e(TAG, "run: has box");
-//                } else {
-//                    Log.e(TAG, "run: no box");
-//                }
-                if (index < 26) {
-                    ++index;
-                }
-                int n = currentStatus.length;
-                for (int i = 0; i < n; ++i) {
-//                    Log.e(TAG, "run: " + i + "," + car1.getSpeed());
-                    if (previousStatus == null || previousStatus[i] != currentStatus[i]) {
-                        switch (i) {
-                            case 0:
-                                if (currentStatus[i] == 1) {
-                                    changeDirection(i);
-                                }
-                                // 到达上料挡停位
-                                break;
-                            case 1:
-                                if (currentStatus[i] == 1) {
-                                    changeDirection(i);
-                                    if (currentStatus[6] == 1 && car1.getBox() != null) {
-                                        workStationList.get(0).getStorageArea().setBox(car1.getBox());
-                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && workStationList.get(0).getStorageArea().getBox() != null) {
-                                        if (currentStatus[12] == 1) {
-                                            car1.setBox(workStationList.get(0).getStorageArea().getBox());
-                                            workStationList.get(0).getStorageArea().setBox(null);
-                                        }
-                                    }
-                                }
-                                // 到达站1储备位
-                                break;
-                            case 2:
-                                if (currentStatus[i] == 1) {
-                                    changeDirection(i);
-                                    if (currentStatus[4] == 1 && car1.getBox() != null) {
-                                        workStationList.get(0).getProcessingArea().setBox(car1.getBox());
-                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && workStationList.get(0).getProcessingArea().getBox() != null) {
-//                                        if (currentStatus[12] == 1) {
-//                                            car1.setBox(station1WorkingArea.getBox());
-//                                            station1WorkingArea.setBox(null);
-//                                        }
-                                    }
-                                }
-                                // 到达站1加工位
-                                break;
-                            case 3:
-                                if (currentStatus[i] == 1) {
-                                    changeDirection(i);
-                                }
-                                // 到达站1完成位
-                                break;
-                            case 4:
-                                if (currentStatus[i] == 1) {
-                                    blockX = workStationList.get(0).getProcessingArea().x;
-                                }
-                                // 站1加工位挡停到位
-                                break;
-                            case 5:
-                                // 站1加工位挡停回到原位
-                                break;
-                            case 6:
-                                if (currentStatus[i] == 1) {
-                                    blockX = workStationList.get(0).getStorageArea().x;
-                                }
-                                // 站1储备位挡停到位
-                                break;
-                            case 7:
-                                // 站1储备位回到原位
-                                break;
-                            case 8:
-                                if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
-                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
-                                    }
-                                }
-                                // 站1加工位上料盒到位
-                                break;
-                            case 9:
-                                if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
-                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
-                                    }
-                                }
-                                // 站1加工位下料盒到位
-                                break;
-                            case 10:
-                                if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
-                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_RISING);
-                                    }
-                                }
-                                // 站1储备位上料盒到位
-                                break;
-                            case 11:
-                                if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
-                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
-                                    }
-                                }
-                                // 站1储备位下料盒到位
-                                break;
-                            case 12:
-                                // 小车1出钩
-                                if (currentStatus[i] == 1) {
-                                    if (currentStatus[2] == 1 && currentStatus[4] == 1 && workStationList.get(0).getProcessingArea().getBox() != null && car1.getBox() == null) {
-                                        car1.setBox(workStationList.get(0).getProcessingArea().getBox());
-                                        workStationList.get(0).getProcessingArea().setBox(null);
-                                    } else {
-                                        float boxX = car1.getX();
-                                        float boxY = car1.getY();
-                                        float boxWidth = car1.getWidth();
-                                        float boxHeight = car1.getHeight() - 20;
-                                        Texture texture = new Texture(getApplicationContext(), R.drawable.box);
-                                        Sprite sprite = new Sprite((int) boxWidth, (int) boxHeight);
-                                        sprite.setPivot(0.5f, 0.5f);
-                                        sprite.setPos(boxX, boxY);
-                                        sprite.setTexture(texture);
-                                        Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
-                                        b.render(renderPassSprite);
-                                        car1.setBox(b);
-                                        Log.e(TAG, "run: carno. mark");
-                                    }
-                                }
-                                break;
-                            case 13:
-                                // 小车1回钩
-                                if (currentStatus[i] == 1) {
-                                    car1.setBox(null);
-                                }
-                                break;
-                            case 14:
-                                if (currentStatus[i] == 1) {
-                                    changeDirection(i);
-                                    blockX = glWidth;
-                                }
-                                break;
-                            case 15:
-                                if (currentStatus[i] == 1) {
-                                    blockX = 0;
-                                }
-                                break;
-                            case 16:
-                                break;
-
-                            case 17:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handRising);
-                                }
-                                break;
-                            case 18:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
-                                }
-                                break;
-                            case 19:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
-                                }
-                                break;
-                            case 20:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
-                                }
-                                break;
-                            case 21:
-                                if (currentStatus[i] == 1) {
-                                    if (workStationList.get(0).getHand().getInitY() == workStationList.get(0).getHand().getLeftEndY()) {
-                                        workStationList.get(0).getHand().setStatus(Constants.handRightShifting);
-                                    } else if (workStationList.get(0).getHand().getInitY() == workStationList.get(0).getHand().getRightEndY()) {
-                                        workStationList.get(0).getHand().setStatus(Constants.handLeftShifting);
-                                    } else {
-                                    }
-                                }
-                                break;
-                            case 22:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handLeftShifting);
-                                }
-                                break;
-                            case 23:
-                                if (currentStatus[i] == 1) {
-                                    workStationList.get(0).getHand().setStatus(Constants.handRightShifting);
-                                    Log.e(TAG, "run: reached.");
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                previousStatus = currentStatus;
-                handler.postDelayed(this, delay);
-            }
-        }, delay);
     }
 
     // 用于实际场景的动画效果
@@ -751,8 +531,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //                            updateHand(booleans);
                         currentState = booleans;
                         if (previousState == null) {
-                            // todo
-                            // initial set up.
+                             System.arraycopy(currentState, 0, previousState, 0, 10000);
                         } else {
                             Hand hand1 = workStationList.get(0).getHand();
                             Hand hand2 = workStationList.get(1).getHand();
@@ -805,9 +584,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 syncCar2();
                             }
                         }
-                        previousState = currentState;
+                        System.arraycopy(currentState, 0, previousState, 0, 10000);
                     }
-
                     @Override
                     public void onFailed(String msg) {
                         Log.e(TAG, "readCoil onFailed " + msg);
@@ -815,6 +593,33 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }, 1, Constants.CoilStart, Constants.CoilLen);
             }
         }, delay);
+    }
+    // 辅助函数
+    private void updateArea(Area area, int status) {
+        if (area.getBox() == null) {
+            // 生成与指定信号一致的箱子
+            Box box = generateBox(area.x, car1.getY(), status);
+            area.setBox(box);
+        } else {
+            if (area.getBox().getStatus() != status) {
+                area.getBox().setStatus(status);
+            }
+        }
+    }
+    // 辅助函数
+    // 生成指定坐标和状态的箱子
+    private Box generateBox(float x, float y, int status) {
+        float boxWidth = car1.getWidth();
+        float boxHeight = car1.getHeight() - 20;
+        Texture texture = new Texture(getApplicationContext(), R.drawable.box);
+        Sprite sprite = new Sprite((int) boxWidth, (int) boxHeight);
+        sprite.setPivot(0.5f, 0.5f);
+        sprite.setPos(x, y);
+        sprite.setTexture(texture);
+        Box b = new Box(x, y, boxWidth, boxHeight, texture, sprite);
+        b.changeSize(status);
+        b.render(renderPassSprite);
+        return b;
     }
     // 小车1同步中
     private void syncCar1() {
@@ -1092,36 +897,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             updateArea(area, Constants.BOX_DECLINED);
         }
     }
-
-    // 辅助函数
-    private void updateArea(Area area, int status) {
-        if (area.getBox() == null) {
-            // 生成与指定信号一致的箱子
-            Box box = generateBox(area.x, car1.getY(), status);
-            area.setBox(box);
-        } else {
-            if (area.getBox().getStatus() != status) {
-                area.getBox().setStatus(status);
-            }
-        }
-    }
-
-    // 辅助函数
-    // 生成指定坐标和状态的箱子
-    private Box generateBox(float x, float y, int status) {
-        float boxWidth = car1.getWidth();
-        float boxHeight = car1.getHeight() - 20;
-        Texture texture = new Texture(getApplicationContext(), R.drawable.box);
-        Sprite sprite = new Sprite((int) boxWidth, (int) boxHeight);
-        sprite.setPivot(0.5f, 0.5f);
-        sprite.setPos(x, y);
-        sprite.setTexture(texture);
-        Box b = new Box(x, y, boxWidth, boxHeight, texture, sprite);
-        b.changeSize(status);
-        b.render(renderPassSprite);
-        return b;
-    }
-
     // 以下是与执行v2动画相关的函数
     // 根据读取到的状态, 修改物体的速度大小,方向和目的地, 物体的移动在另一个线程执行
     // 小车1同步中
@@ -2358,7 +2133,219 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
     }
 
+
     // v1
+    public void run() {
+        previousReachIndex = 0;
+        final Handler handler = new Handler();
+        blockX = 2000;
+        final int delay = 2000;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                currentStatus = Signal.status[index];
+                Log.e(TAG, "run: " + (index - 1) + " -> " + index);
+//                Log.e(TAG, "run: speed: " + car1.getSpeed());
+//                Log.e(TAG, "run: car1x: " + car1.getX());
+//                Log.e(TAG, "run: blockx: " + blockX);
+//                boolean hasBox = car1.getBox() != null;
+//                if (hasBox) {
+//                    Log.e(TAG, "run: has box");
+//                } else {
+//                    Log.e(TAG, "run: no box");
+//                }
+                if (index < 26) {
+                    ++index;
+                }
+                int n = currentStatus.length;
+                for (int i = 0; i < n; ++i) {
+//                    Log.e(TAG, "run: " + i + "," + car1.getSpeed());
+                    if (previousStatus == null || previousStatus[i] != currentStatus[i]) {
+                        switch (i) {
+                            case 0:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达上料挡停位
+                                break;
+                            case 1:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                    if (currentStatus[6] == 1 && car1.getBox() != null) {
+                                        workStationList.get(0).getStorageArea().setBox(car1.getBox());
+                                    } else if (currentStatus[6] == 1 && car1.getBox() == null && workStationList.get(0).getStorageArea().getBox() != null) {
+                                        if (currentStatus[12] == 1) {
+                                            car1.setBox(workStationList.get(0).getStorageArea().getBox());
+                                            workStationList.get(0).getStorageArea().setBox(null);
+                                        }
+                                    }
+                                }
+                                // 到达站1储备位
+                                break;
+                            case 2:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                    if (currentStatus[4] == 1 && car1.getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().setBox(car1.getBox());
+                                    } else if (currentStatus[4] == 1 && car1.getBox() == null && workStationList.get(0).getProcessingArea().getBox() != null) {
+//                                        if (currentStatus[12] == 1) {
+//                                            car1.setBox(station1WorkingArea.getBox());
+//                                            station1WorkingArea.setBox(null);
+//                                        }
+                                    }
+                                }
+                                // 到达站1加工位
+                                break;
+                            case 3:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                }
+                                // 到达站1完成位
+                                break;
+                            case 4:
+                                if (currentStatus[i] == 1) {
+                                    blockX = workStationList.get(0).getProcessingArea().x;
+                                }
+                                // 站1加工位挡停到位
+                                break;
+                            case 5:
+                                // 站1加工位挡停回到原位
+                                break;
+                            case 6:
+                                if (currentStatus[i] == 1) {
+                                    blockX = workStationList.get(0).getStorageArea().x;
+                                }
+                                // 站1储备位挡停到位
+                                break;
+                            case 7:
+                                // 站1储备位回到原位
+                                break;
+                            case 8:
+                                if (currentStatus[i] == 1) {
+                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_RISING);
+                                    }
+                                }
+                                // 站1加工位上料盒到位
+                                break;
+                            case 9:
+                                if (currentStatus[i] == 1) {
+                                    if (workStationList.get(0).getProcessingArea().getBox() != null) {
+                                        workStationList.get(0).getProcessingArea().getBox().setStatus(Constants.BOX_DECLING);
+                                    }
+                                }
+                                // 站1加工位下料盒到位
+                                break;
+                            case 10:
+                                if (currentStatus[i] == 1) {
+                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
+                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_RISING);
+                                    }
+                                }
+                                // 站1储备位上料盒到位
+                                break;
+                            case 11:
+                                if (currentStatus[i] == 1) {
+                                    if (workStationList.get(0).getStorageArea().getBox() != null) {
+                                        workStationList.get(0).getStorageArea().getBox().setStatus(Constants.BOX_DECLING);
+                                    }
+                                }
+                                // 站1储备位下料盒到位
+                                break;
+                            case 12:
+                                // 小车1出钩
+                                if (currentStatus[i] == 1) {
+                                    if (currentStatus[2] == 1 && currentStatus[4] == 1 && workStationList.get(0).getProcessingArea().getBox() != null && car1.getBox() == null) {
+                                        car1.setBox(workStationList.get(0).getProcessingArea().getBox());
+                                        workStationList.get(0).getProcessingArea().setBox(null);
+                                    } else {
+                                        float boxX = car1.getX();
+                                        float boxY = car1.getY();
+                                        float boxWidth = car1.getWidth();
+                                        float boxHeight = car1.getHeight() - 20;
+                                        Texture texture = new Texture(getApplicationContext(), R.drawable.box);
+                                        Sprite sprite = new Sprite((int) boxWidth, (int) boxHeight);
+                                        sprite.setPivot(0.5f, 0.5f);
+                                        sprite.setPos(boxX, boxY);
+                                        sprite.setTexture(texture);
+                                        Box b = new Box(boxX, boxY, boxWidth, boxHeight, texture, sprite);
+                                        b.render(renderPassSprite);
+                                        car1.setBox(b);
+                                        Log.e(TAG, "run: carno. mark");
+                                    }
+                                }
+                                break;
+                            case 13:
+                                // 小车1回钩
+                                if (currentStatus[i] == 1) {
+                                    car1.setBox(null);
+                                }
+                                break;
+                            case 14:
+                                if (currentStatus[i] == 1) {
+                                    changeDirection(i);
+                                    blockX = glWidth;
+                                }
+                                break;
+                            case 15:
+                                if (currentStatus[i] == 1) {
+                                    blockX = 0;
+                                }
+                                break;
+                            case 16:
+                                break;
+
+                            case 17:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handRising);
+                                }
+                                break;
+                            case 18:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 19:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 20:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handDeclining);
+                                }
+                                break;
+                            case 21:
+                                if (currentStatus[i] == 1) {
+                                    if (workStationList.get(0).getHand().getInitY() == workStationList.get(0).getHand().getLeftEndY()) {
+                                        workStationList.get(0).getHand().setStatus(Constants.handRightShifting);
+                                    } else if (workStationList.get(0).getHand().getInitY() == workStationList.get(0).getHand().getRightEndY()) {
+                                        workStationList.get(0).getHand().setStatus(Constants.handLeftShifting);
+                                    } else {
+                                    }
+                                }
+                                break;
+                            case 22:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handLeftShifting);
+                                }
+                                break;
+                            case 23:
+                                if (currentStatus[i] == 1) {
+                                    workStationList.get(0).getHand().setStatus(Constants.handRightShifting);
+                                    Log.e(TAG, "run: reached.");
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                previousStatus = currentStatus;
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
+    }
     private int car2GetPosition(int flag) {
         int pos = 0;
         switch (flag) {

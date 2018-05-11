@@ -29,6 +29,7 @@ public class WorkStationListActivity extends AppCompatActivity {
         initNavigationDrawer();
         init();
     }
+    // 更新菜单栏
     public void initNavigationDrawer () {
 
         mDrawerLayout = findViewById(R.id.wsl_drawer_layout);
@@ -69,6 +70,7 @@ public class WorkStationListActivity extends AppCompatActivity {
                 });
 
     }
+    // 初始化列表
     public void init () {
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 

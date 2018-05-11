@@ -76,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(String s) {
                         Log.d(TAG, "onSuccess 连接服务器成功" + s);
-
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                     }
