@@ -50,13 +50,13 @@ public class Car {
 
     public void move_v2 (float deltaTime) {
         float precision = 5.f;
-        Log.e(TAG, "move_v2: speed: " + speed);
-        Log.e(TAG, "move_v2: x: " + getX());
+//        Log.e(TAG, "move_v2: speed: " + speed);
+//        Log.e(TAG, "move_v2: x: " + getX());
         if (speed == 0) {
             return ;
         }
         float newX = x + deltaTime * direction * speed;
-        Log.e(TAG, "move_v2: newx: " + newX);
+//        Log.e(TAG, "move_v2: newx: " + newX);
         if (Math.abs(newX - destination) < precision) {
             speed = 0;
             x = destination;

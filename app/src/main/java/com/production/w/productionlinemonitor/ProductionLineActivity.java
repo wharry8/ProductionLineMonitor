@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.production.w.productionlinemonitor.Model.Box;
 import com.production.w.productionlinemonitor.Model.Car;
 import com.production.w.productionlinemonitor.Model.Hand;
 import com.production.w.productionlinemonitor.Model.WorkStation;
+import com.zgkxzx.modbus4And.requset.ModbusParam;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
@@ -49,8 +51,10 @@ import fr.arnaudguyon.smartgl.opengl.SmartGLViewController;
 import fr.arnaudguyon.smartgl.opengl.Sprite;
 import fr.arnaudguyon.smartgl.opengl.Texture;
 import fr.arnaudguyon.smartgl.touch.TouchHelperEvent;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ProductionLineActivity extends AppCompatActivity implements SmartGLViewController {
@@ -112,6 +116,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_production_line);
 
+//        initModbus();
         initNavigationDrawer();
         bind();
         updateView();
@@ -119,14 +124,49 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         initSmartGL();
 //        run2();
 //        fake_animation();
-        fake_animation2();
+//        fake_animation2();
+//        run2();
+//        run3();
+
+        /*
+        // works
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                final boolean[] booleans = new boolean[3];
+                writeToDB(booleans);
+            }
+        }, 1000);
+        */
     }
+    private void initModbus() {
+        ModbusReq.getInstance().setParam(new ModbusParam()
+                .setHost("192.168.0.5")
+                .setPort(8010)
+                .setEncapsulated(false)
+                .setKeepAlive(true)
+                .setTimeout(2000)
+                .setRetries(0))
+                .init(new OnRequestBack<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Log.e(TAG, "onSuccess 连接服务器成功" + s);
+                    }
+                    @Override
+                    public void onFailed(String msg) {
+                        Log.e(TAG, "onFailed 连接服务器失败" + msg);
+                    }
+                });
+    }
+
     // 初始化菜单栏
     public void initNavigationDrawer() {
 
         mDrawerLayout = findViewById(R.id.pl_drawer_layout);
 
         NavigationView navigationView = findViewById(R.id.pl_nav_view);
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -186,7 +226,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // todo
         // 1. implement updateTime()
         // 2. implement updateSpeed()
-
         updateTime();
         updateSpeed();
     }
@@ -214,12 +253,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
     // 更新运行时间
     public void updateTime() {
-
     }
     // 更新速度
     public void updateSpeed() {
-
     }
+
     // 绑定 textview
     public void bind() {
         tv_name = findViewById(R.id.pl_tv_name);
@@ -309,8 +347,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                     Request request = new Request.Builder()
                             // 使用虚拟机运行时, 虚拟机的地址与电脑的地址是不一样的
 //                             .url("http://127.0.0.1:3000/" + fake_index)
+
 //                             10.0.2.2 是虚拟机转发到电脑 127.0.0.1 的地址
-                            .url("http://10.0.2.2:3000/" + fake_index)
+//                            .url("http://10.0.2.2:3000/" + fake_index)
+                                .url("http://192.168.0.101:3000/" + fake_index)
+//                            .url("http://192.168.42.145:3000/" + fake_index)
                             .build();
                     Response response = client.newCall(request).execute();
 
@@ -514,6 +555,109 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     }
 
+    private void writeToDB(boolean[] booleans) {
+        Log.e(TAG, "writeToDB: hi");
+        if (client == null) {
+            client = new OkHttpClient();
+        }
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        try {
+            JSONObject signal = new JSONObject();
+            try {
+                String status = Arrays.toString(booleans);
+                signal.put("status", status);
+                RequestBody body = RequestBody.create(JSON, signal.toString());
+                Request request = new Request.Builder()
+                        .url("http://192.168.0.101:3000/")
+                        .post(body)
+                        .build();
+                Response response = client.newCall(request).execute();
+                String resBody = response.body().string();
+            } catch (Exception e) {
+                Log.e(TAG, "writeToDB: fail inner: " + e);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "writeToDB: fail outer");
+        }
+    }
+    private void run3() {
+        Timer timer = new Timer();
+        int delay = 1000;
+        int period = 1000;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+                    @Override
+                    public void onSuccess(boolean[] booleans) {
+                        Log.e(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
+                        writeToDB(booleans);
+                         currentState = booleans;
+                        if (previousState == null) {
+                            System.arraycopy(currentState, 0, Constants.CoilStart, 0, Constants.CoilLen);
+                        } else {
+                            Hand hand1 = workStationList.get(0).getHand();
+                            Hand hand2 = workStationList.get(1).getHand();
+                            Hand hand3 = workStationList.get(2).getHand();
+                            Hand hand4 = workStationList.get(3).getHand();
+                            Hand hand5 = workStationList.get(4).getHand();
+                            if (hand1.isMatch()) {
+                                updateHand1();
+                            } else {
+                                syncHand1();
+                            }
+
+                            if (hand2.isMatch()) {
+                                updateHand2();
+                            } else {
+                                syncHand2();
+                            }
+
+                            if (hand3.isMatch()) {
+                                updateHand3();
+                            } else {
+                                syncHand3();
+                            }
+
+                            if (hand4.isMatch()) {
+                                updateHand4();
+                            } else {
+                                syncHand4();
+                            }
+
+                            if (hand5.isMatch()) {
+                                updateHand5();
+                            } else {
+                                syncHand5();
+                            }
+
+                            if (car1.isMatch()) {
+                                updateCar1_v2();
+                                updateStation1_v2();
+                                updateStation2_v2();
+                                updateStation3_v2();
+                            } else {
+                                syncCar1();
+                            }
+                            if (car2.isMatch()) {
+                                updateCar2_v2();
+                                updateStation4_v2();
+                                updateStation5_v2();
+                            } else {
+                                syncCar2();
+                            }
+                        }
+                        System.arraycopy(currentState, 0, Constants.CoilStart, 0, Constants.CoilLen);
+                    }
+                    @Override
+                    public void onFailed(String msg) {
+                        Log.e(TAG, "readCoil onFailed " + msg);
+                    }
+                }, 1, Constants.CoilStart, Constants.CoilLen);
+            }
+        },delay, period);
+
+    }
     // 用于实际场景的动画效果
     // 在一定的时间间隔内读取一次生产线的状态, 根据状态的变化做出相应的动画
     // 目前的时间间隔是 0.2 秒
@@ -590,7 +734,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                     public void onFailed(String msg) {
                         Log.e(TAG, "readCoil onFailed " + msg);
                     }
-                }, 1, Constants.CoilStart, Constants.CoilLen);
+                }, 1, 1, 100);
             }
         }, delay);
     }
@@ -3191,6 +3335,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         glWidth = mSmartGLView.getWidth();
         unitHeight = glHeight / 2 / 18;
         unitWidth = glWidth / 11 / 4;
+        unitWidth += 20;
+        unitHeight += 10;
         Constants.glWidth = glWidth;
         Constants.glHeight = glHeight;
         Constants.unitWidth = unitWidth;

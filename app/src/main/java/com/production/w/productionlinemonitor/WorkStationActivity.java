@@ -1,6 +1,8 @@
 package com.production.w.productionlinemonitor;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +35,22 @@ public class WorkStationActivity extends AppCompatActivity {
 
     private int stationId;
 
+    private int current;
+    private int target;
+    private boolean leftCNCWorking;
+    private boolean rightCNCWorking;
+    private float percent;
+
+    private int period;
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            updateView();
+            handler.postDelayed(this, period);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +61,16 @@ public class WorkStationActivity extends AppCompatActivity {
 
         initNavigationDrawer();
         bind();
-        updateView();
+//        updateView();
+        handler.postDelayed(runnable, period);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
+    }
+
     // 初始化菜单栏
     public void initNavigationDrawer () {
 
@@ -100,7 +126,6 @@ public class WorkStationActivity extends AppCompatActivity {
     }
     // 更新ui
     public void updateView () {
-
         ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
             public void onSuccess(boolean[] booleen) {
@@ -184,7 +209,6 @@ public class WorkStationActivity extends AppCompatActivity {
     }
     // 更新目标产量
     public void updateTarget (short[] data) {
-        int target = 0;
         switch (stationId) {
             case 1:
                 target = data[Register.station1TargetOutput];
@@ -208,8 +232,6 @@ public class WorkStationActivity extends AppCompatActivity {
     }
     // 更新当前状态
     public void updateCurrent (short[] data) {
-        short current = 0;
-
         switch (stationId) {
             case 1:
                 current = data[Register.station1ActualOutput];
@@ -234,11 +256,65 @@ public class WorkStationActivity extends AppCompatActivity {
     }
     // 更新百分比
     public void updatePercent () {
+        if (target != 0) {
+            percent = current / target * 100.0f;
+        } else {
+            percent = 0f;
+        }
+        tv_percent.setText(Float.toString(percent));
     }
     // 更新左CNC的状态
     public void updateLeftCncStatus (boolean[] booleans) {
+        switch (stationId){
+            case 1:
+                leftCNCWorking = booleans[Coil.station1LeftCNCWorking];
+                break;
+            case 2:
+                leftCNCWorking = booleans[Coil.station2LeftCNCWorking];
+                break;
+            case 3:
+                leftCNCWorking = booleans[Coil.station3LeftCNCWorking];
+                break;
+            case 4:
+                leftCNCWorking = booleans[Coil.station4LeftCNCWorking];
+                break;
+            case 5:
+                leftCNCWorking = booleans[Coil.station5LeftCNCWorking];
+                break;
+            default:
+                break;
+        }
+        if (leftCNCWorking) {
+            tv_cnc_left_status.setText("运行");
+        } else {
+            tv_cnc_left_status.setText("停止");
+        }
     }
     // 更新右CNC的状态
     public void updateRightCncStatus (boolean[] booleans) {
+         switch (stationId){
+            case 1:
+                rightCNCWorking = booleans[Coil.station1RightCNCWorking];
+                break;
+            case 2:
+                rightCNCWorking = booleans[Coil.station2RightCNCWorking];
+                break;
+            case 3:
+                rightCNCWorking = booleans[Coil.station3RightCNCWorking];
+                break;
+            case 4:
+                rightCNCWorking = booleans[Coil.station4RightCNCWorking];
+                break;
+            case 5:
+                rightCNCWorking = booleans[Coil.station5RightCNCWorking];
+                break;
+            default:
+                break;
+        }
+        if (rightCNCWorking) {
+             tv_cnc_right_status.setText("运行");
+        } else {
+            tv_cnc_right_status.setText("停止");
+        }
     }
 }

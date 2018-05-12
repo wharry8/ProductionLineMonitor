@@ -36,5 +36,5 @@
 
     <string name="host">192.168.0.5</string>
     <string name="password">123</string>
-    <string name="port">8888</string>
+    <string name="port">8010</string>
 </resources>

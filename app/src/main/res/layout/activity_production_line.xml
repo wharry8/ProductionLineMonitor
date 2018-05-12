@@ -221,6 +221,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        android:translationZ="1dp"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_view">
 

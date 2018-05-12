@@ -1,11 +1,13 @@
 package com.production.w.productionlinemonitor;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import android.content.Intent;
 import android.icu.text.TimeZoneFormat;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,11 +19,14 @@ import android.widget.TextView;
 import com.production.w.productionlinemonitor.Helper.Coil;
 import com.production.w.productionlinemonitor.Helper.Constants;
 import com.production.w.productionlinemonitor.Helper.Register;
+import com.production.w.productionlinemonitor.Model.Hand;
 import com.zgkxzx.modbus4And.requset.ModbusParam;
 import com.zgkxzx.modbus4And.requset.ModbusReq;
 import com.zgkxzx.modbus4And.requset.OnRequestBack;
 
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +42,20 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_up;
     private TextView tv_percent;
 
+    private int target;
+    private int current;
+    private float percent;
+
+    private int period = 1000;
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            updateView2();
+            handler.postDelayed(this, period);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +64,14 @@ public class MainActivity extends AppCompatActivity {
         initNavigationDrawer();
         bind();
 //        updateView();
-        updateView2();
+//        updateView2();
+        handler.postDelayed(runnable, period);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
     }
 
     // 初始化菜单栏
@@ -164,10 +190,15 @@ public class MainActivity extends AppCompatActivity {
             tv_percent.setText(R.string.defaultPercent);
         }
     }
+
     // v2
     // 更新ui
     public void updateView2 () {
-        ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+            updateUp();
+            updateSpeed();
+            updatePercent();
+
+          ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
             public void onSuccess(boolean[] booleen) {
                 updateStatus(booleen);
@@ -209,22 +240,32 @@ public class MainActivity extends AppCompatActivity {
     }
     // 更新目标产量
     public void updateTarget (short[] data) {
-        short target = data[Register.systemTargetOutput];
+        target = data[Register.systemTargetOutput];
         tv_target.setText(Integer.toString(target));
     }
     // 更新当前产量
     public void updateCurrent (short[] data) {
-        short current = data[Register.systemActualOutput];
+        current = data[Register.systemActualOutput];
         tv_current.setText(Integer.toString(current));
     }
     // 更新已上料量
     public void updateUp () {
+        tv_up.setText("未知");
     }
     // 更新完成率
     public void updatePercent () {
+        if (target != 0) {
+            percent = current / target * 100;
+        } else {
+            percent = 0f;
+        }
+        tv_percent.setText(Float.toString(percent));
     }
     // 更新速度
     public void updateSpeed () {
+        // todo
+        // 完成该函数
+        // 知道启动时间之后, 根据当前时间获取已经运行的时间, 以分钟为单位
     }
     // 更新系统运行时间
     public void updateSystemRunningTime () {

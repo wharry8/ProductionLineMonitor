@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                 // 3. 尝试连接
                 // 4. 成功则进入，失败则返回
 
+                /*
                 Log.e(TAG, "onClick: 1");
                 if (!input_host.equals(getString(R.string.host))) {
                     Toast.makeText(getApplicationContext(), "请输入正确的服务器地址", Toast.LENGTH_LONG);
@@ -65,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "请输入正确的密码", Toast.LENGTH_LONG);
                     return;
                 }
+                */
                  ModbusReq.getInstance().setParam(new ModbusParam()
                 .setHost(input_host)
                 .setPort(Integer.valueOf(input_port))
@@ -79,7 +81,6 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                     }
-
                     @Override
                     public void onFailed(String msg) {
                         Log.d(TAG, "onFailed 连接服务器失败" + msg);
