@@ -84,6 +84,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onFailed(String msg) {
                         Log.d(TAG, "onFailed 连接服务器失败" + msg);
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
                     }
                 });
 

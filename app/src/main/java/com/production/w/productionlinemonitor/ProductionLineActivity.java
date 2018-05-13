@@ -37,8 +37,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.attribute.PosixFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -109,6 +111,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     private int fake_need[];
     private int fake_current[];
 
+    private long groupId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // landscape mode.
@@ -116,8 +120,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_production_line);
 
-//        initModbus();
-        initNavigationDrawer();
+        initModbus();
+//        initNavigationDrawer();
         bind();
         updateView();
 
@@ -128,17 +132,17 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //        run2();
 //        run3();
 
-        /*
         // works
+        groupId = new Date().getTime();
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 final boolean[] booleans = new boolean[3];
+                Log.d(TAG, "run: " + Arrays.toString(booleans));
                 writeToDB(booleans);
             }
         }, 1000);
-        */
     }
     private void initModbus() {
         ModbusReq.getInstance().setParam(new ModbusParam()
@@ -566,13 +570,18 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             try {
                 String status = Arrays.toString(booleans);
                 signal.put("status", status);
+                signal.put("timestamp", new Date().toString());
+                signal.put("groupId", Long.toString(groupId));
+                Log.e(TAG, "writeToDB: data to post: " + signal.toString());
                 RequestBody body = RequestBody.create(JSON, signal.toString());
                 Request request = new Request.Builder()
-                        .url("http://192.168.0.101:3000/")
+//                        .url("http://192.168.0.101:3000/")
+                        .url("http://10.0.2.2:3000/")
                         .post(body)
                         .build();
                 Response response = client.newCall(request).execute();
                 String resBody = response.body().string();
+                Log.e(TAG, "writeToDB: response body: " + resBody);
             } catch (Exception e) {
                 Log.e(TAG, "writeToDB: fail inner: " + e);
             }
@@ -583,7 +592,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     private void run3() {
         Timer timer = new Timer();
         int delay = 1000;
-        int period = 1000;
+        int period = 100;
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -591,7 +600,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                     @Override
                     public void onSuccess(boolean[] booleans) {
                         Log.e(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
-                        writeToDB(booleans);
+//                        writeToDB(booleans);
                          currentState = booleans;
                         if (previousState == null) {
                             System.arraycopy(currentState, 0, Constants.CoilStart, 0, Constants.CoilLen);
@@ -786,6 +795,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (currentState[Coil.car1AtStartBlockPosition]) {
             car1.setMatch(true);
         }
+
         // 获取到小车1开始从驱动到站1加工位/站1储备位/站1完成位, 可以开始同步
         if (
                 currentState[Coil.car1AtStation1StoragePosition]
@@ -820,16 +830,19 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // 补充信号
         if (currentState[Coil.station1StoragePositionDown]) {
             Area area = workStationList.get(0).getStorageArea();
-            if (area.getBox() == null) {
-                // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
-                Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
-                area.setBox(box);
-            } else {
-                // 如果当前位置已经有箱子
-                // 如果箱子的状态是升起的
-                // 修改箱子的状态为降下的
-                if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
-                    area.getBox().setStatus(Constants.BOX_DECLINED);
+            // 判断是否有箱子
+            if (currentState[Coil.station1StoragePositionHasBox]) {
+                if (area.getBox() == null) {
+                    // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
+                    Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
+                    area.setBox(box);
+                } else {
+                    // 如果当前位置已经有箱子
+                    // 如果箱子的状态是升起的
+                    // 修改箱子的状态为降下的
+                    if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
+                        area.getBox().setStatus(Constants.BOX_DECLINED);
+                    }
                 }
             }
         }
@@ -853,17 +866,19 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站1加工位料盒已经降下
         if (currentState[Coil.station1ProcessingPositionDown]) {
-            Area area = workStationList.get(0).getProcessingArea();
-            if (area.getBox() == null) {
-                // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
-                Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
-                area.setBox(box);
-            } else {
-                // 如果当前位置已经有箱子
-                // 如果箱子的状态是升起的
-                // 修改箱子的状态为降下的
-                if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
-                    area.getBox().setStatus(Constants.BOX_DECLINED);
+            if (currentState[Coil.station1ProcessingPositionHasBox]) {
+                Area area = workStationList.get(0).getProcessingArea();
+                if (area.getBox() == null) {
+                    // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
+                    Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
+                    area.setBox(box);
+                } else {
+                    // 如果当前位置已经有箱子
+                    // 如果箱子的状态是升起的
+                    // 修改箱子的状态为降下的
+                    if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
+                        area.getBox().setStatus(Constants.BOX_DECLINED);
+                    }
                 }
             }
         }
@@ -892,17 +907,19 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站2储备位料盒已经降下
         if (currentState[Coil.station2StoragePositionDown]) {
-            Area area = workStationList.get(1).getStorageArea();
-            if (area.getBox() == null) {
-                // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
-                Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
-                area.setBox(box);
-            } else {
-                // 如果当前位置已经有箱子
-                // 如果箱子的状态是升起的
-                // 修改箱子的状态为降下的
-                if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
-                    area.getBox().setStatus(Constants.BOX_DECLINED);
+            if (currentState[Coil.station2StoragePositionHasBox]) {
+                Area area = workStationList.get(1).getStorageArea();
+                if (area.getBox() == null) {
+                    // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
+                    Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
+                    area.setBox(box);
+                } else {
+                    // 如果当前位置已经有箱子
+                        // 如果箱子的状态是升起的
+                        // 修改箱子的状态为降下的
+                    if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
+                        area.getBox().setStatus(Constants.BOX_DECLINED);
+                    }
                 }
             }
         }
@@ -926,17 +943,19 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站2加工位料盒已经降下
         if (currentState[Coil.station2ProcessingPositionDown]) {
-            Area area = workStationList.get(1).getProcessingArea();
-            if (area.getBox() == null) {
-                // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
-                Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
-                area.setBox(box);
-            } else {
-                // 如果当前位置已经有箱子
-                // 如果箱子的状态是升起的
-                // 修改箱子的状态为降下的
-                if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
-                    area.getBox().setStatus(Constants.BOX_DECLINED);
+            if (currentState[Coil.station2ProcessingPositionHasBox]) {
+                Area area = workStationList.get(1).getProcessingArea();
+                if (area.getBox() == null) {
+                    // 如果当前位置没有箱子, 生成一个下降状态的箱子, 放在此处
+                    Box box = generateBox(area.x, car1.getY(), Constants.BOX_DECLINED);
+                    area.setBox(box);
+                } else {
+                    // 如果当前位置已经有箱子
+                        // 如果箱子的状态是升起的
+                        // 修改箱子的状态为降下的
+                    if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
+                        area.getBox().setStatus(Constants.BOX_DECLINED);
+                    }
                 }
             }
         }
@@ -948,8 +967,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站3储备位料盒已经降下
         if (currentState[Coil.station3StoragePositionDown]) {
-            Area area = workStationList.get(2).getStorageArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station3StoragePositionHasBox]) {
+                Area area = workStationList.get(2).getStorageArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
         // 站3加工位有料
         // 站3加工位料盒已经升起
@@ -959,8 +980,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站3加工位料盒已经降下
         if (currentState[Coil.station3ProcessingPositionDown]) {
-            Area area = workStationList.get(2).getProcessingArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station3ProcessingPositionHasBox]) {
+                Area area = workStationList.get(2).getProcessingArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
     }
     // 小车2同步中
@@ -1001,8 +1024,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站4储备位有降下的箱子
         if (currentState[Coil.station4StoragePositionDown]) {
-            Area area = workStationList.get(3).getStorageArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station4StoragePositionHasBox]) {
+                Area area = workStationList.get(3).getStorageArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
 
         // 站4加工位
@@ -1013,8 +1038,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站4加工位有降下的箱子
         if (currentState[Coil.station4ProcessingPositionDown]) {
-            Area area = workStationList.get(3).getProcessingArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station4ProcessingPositionHasBox]) {
+                Area area = workStationList.get(3).getProcessingArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
 
         // 站5储备位
@@ -1025,8 +1052,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站5储备位有降下的箱子
         if (currentState[Coil.station5StoragePositionDown]) {
-            Area area = workStationList.get(4).getProcessingArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station5StoragePositionHasBox]) {
+                Area area = workStationList.get(4).getProcessingArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
 
         // 站5加工位
@@ -1037,8 +1066,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
         // 站5加工位有降下的箱子
         if (currentState[Coil.station5ProcessingPositionDown]) {
-            Area area = workStationList.get(4).getProcessingArea();
-            updateArea(area, Constants.BOX_DECLINED);
+            if (currentState[Coil.station5ProcessingPositionHasBox]) {
+                Area area = workStationList.get(4).getProcessingArea();
+                updateArea(area, Constants.BOX_DECLINED);
+            }
         }
     }
     // 以下是与执行v2动画相关的函数

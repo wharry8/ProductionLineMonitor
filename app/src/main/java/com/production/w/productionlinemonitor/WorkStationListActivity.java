@@ -83,7 +83,7 @@ public class WorkStationListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(new String[]{"winter", "autumn", "summer", "spring"}, getApplicationContext());
+        mAdapter = new MyAdapter(new String[]{"工站1", "工站2", "工站3", "工站4", "工站5"}, getApplicationContext());
         mRecyclerView.setAdapter(mAdapter);
     }
 }
