@@ -78,6 +78,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="1号工作站"
+                            android:background="@drawable/border"
                             android:textAlignment="center" />
 
                         <TextView
@@ -85,6 +86,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="2号工作站"
+                            android:background="@drawable/border"
                             android:textAlignment="center" />
 
                         <TextView
@@ -92,6 +94,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="3号工作站"
+                            android:background="@drawable/border"
                             android:textAlignment="center" />
 
                         <TextView
@@ -99,6 +102,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="4号工作站"
+                            android:background="@drawable/border"
                             android:textAlignment="center" />
 
                         <TextView
@@ -106,6 +110,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="5号工作站"
+                            android:background="@drawable/border"
                             android:textAlignment="center" />
                     </TableRow>
 
@@ -113,91 +118,132 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <TextView
-                            android:id="@+id/pl_tv_cnc1_left"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
-
-                        <TextView
-                            android:id="@+id/pl_tv_cnc2_left"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
-
-                        <TextView
-                            android:id="@+id/pl_tv_cnc3_left"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
-
-                        <TextView
-                            android:id="@+id/pl_tv_cnc4_left"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
-
-                        <TextView
-                            android:id="@+id/pl_tv_cnc5_left"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:id="@+id/pl_tv_cnc1_right"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/pl_tv_cnc2_right"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
+                            <TextView
+                                android:id="@+id/pl_tv_cnc1_left"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
 
-                        <TextView
-                            android:id="@+id/pl_tv_cnc3_right"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
+                            <TextView
+                                android:id="@+id/pl_tv_cnc1_right"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+                        </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/pl_tv_cnc4_right"
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
+                            android:orientation="horizontal">
 
-                        <TextView
-                            android:id="@+id/pl_tv_cnc5_right"
+                            <TextView
+                                android:id="@+id/pl_tv_cnc2_left"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc2_right"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:text="@string/cncNormal"
-                            android:textAlignment="center" />
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc3_left"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc3_right"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc4_left"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc4_right"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc5_left"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+
+                            <TextView
+                                android:id="@+id/pl_tv_cnc5_right"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/cncNormal"
+                                android:background="@drawable/border"
+                                android:textAlignment="center" />
+                        </LinearLayout>
+
                     </TableRow>
 
                 </TableLayout>

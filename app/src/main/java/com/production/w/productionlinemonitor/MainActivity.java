@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.icu.text.TimeZoneFormat;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

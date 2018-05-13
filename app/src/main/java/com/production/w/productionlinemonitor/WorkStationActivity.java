@@ -1,8 +1,10 @@
 package com.production.w.productionlinemonitor;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.support.annotation.VisibleForTesting;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +34,8 @@ public class WorkStationActivity extends AppCompatActivity {
     private TextView tv_percent;
     private TextView tv_cnc_left_status;
     private TextView tv_cnc_right_status;
+    private ConstraintLayout cl_left_cnc_container;
+    private ConstraintLayout cl_right_cnc_container;
 
     private int stationId;
 
@@ -54,6 +58,7 @@ public class WorkStationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_work_station);
 
         Intent intent = getIntent();
@@ -62,7 +67,12 @@ public class WorkStationActivity extends AppCompatActivity {
         initNavigationDrawer();
         bind();
 //        updateView();
+        updateName();
         handler.postDelayed(runnable, period);
+    }
+    private void updateName () {
+        String name = "";
+        tv_name.setText(Integer.toString(stationId) + "号工作站");
     }
 
     @Override
@@ -122,6 +132,8 @@ public class WorkStationActivity extends AppCompatActivity {
         tv_percent = findViewById(R.id.ws_tv_percent);
         tv_cnc_left_status = findViewById(R.id.ws_tv_cnc_left_status);
         tv_cnc_right_status = findViewById(R.id.ws_tv_cnc_right_status);
+        cl_left_cnc_container = findViewById(R.id.ws_left_cnc_container);
+        cl_right_cnc_container = findViewById(R.id.ws_right_cnc_container);
     }
     // 更新ui
     public void updateView () {
@@ -284,9 +296,11 @@ public class WorkStationActivity extends AppCompatActivity {
                 break;
         }
         if (leftCNCWorking) {
-            tv_cnc_left_status.setText("运行");
+            tv_cnc_left_status.setText(R.string.cncNormal);
+            cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
         } else {
-            tv_cnc_left_status.setText("停止");
+            tv_cnc_left_status.setText(R.string.cncStopped);
+            cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
         }
     }
     // 更新右CNC的状态
@@ -311,9 +325,11 @@ public class WorkStationActivity extends AppCompatActivity {
                 break;
         }
         if (rightCNCWorking) {
-             tv_cnc_right_status.setText("运行");
+             tv_cnc_right_status.setText(R.string.cncNormal);
+            cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
         } else {
-            tv_cnc_right_status.setText("停止");
+            tv_cnc_right_status.setText(R.string.cncStopped);
+            cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
         }
     }
 }

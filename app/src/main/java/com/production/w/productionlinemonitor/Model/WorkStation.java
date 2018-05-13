@@ -57,18 +57,18 @@ public class WorkStation {
     private void initLight (float glWidth, float glHeight, float unitWidth, float unitHeight) {
         float lightWidth = 25;
         float lightHeight = 25;
-        float lightTopX = x;
+        float lightTopX = x+2;
         float lightTopY = getPlatformTopY(glWidth, glHeight, unitWidth, unitHeight) - getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 - lightHeight / 2;
         lightTop = new Light(lightTopX, lightTopY, lightWidth, lightHeight);
         lightTop.init(context, Constants.STOPPED);
 
-        float lighMiddleX = x;
+        float lighMiddleX = x+2;
         float lightMiddleY = glHeight / 2;
         lightMiddle = new Light(lighMiddleX, lightMiddleY, lightWidth, lightHeight);
         lightMiddle.init(context, Constants.STOPPED);
 
 
-        float lightBottomX = x;
+        float lightBottomX = x+2;
         float lightBottomY = getPlatformBottomY(glWidth, glHeight, unitWidth, unitHeight) + getPlatformHeight(glWidth, glHeight, unitWidth, unitHeight) / 2 + lightHeight / 2;
         lightBottom = new Light(lightBottomX, lightBottomY, lightWidth, lightHeight);
         lightBottom.init(context, Constants.STOPPED);

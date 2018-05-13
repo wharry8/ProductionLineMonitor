@@ -113,6 +113,16 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     private long groupId;
 
+    int period = 1000;
+    Handler udpateViewHandler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            updateView();
+            udpateViewHandler.postDelayed(this, period);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // landscape mode.
@@ -123,7 +133,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         initModbus();
 //        initNavigationDrawer();
         bind();
-        updateView();
+        udpateViewHandler.postDelayed(runnable, period);
 
         initSmartGL();
 //        run2();
@@ -251,10 +261,29 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
     // 更新CNC状态信息
     public void updateCncStatus(boolean[] booleans) {
-        // todo
-        // 1. find mappings.
-        // 2. read status and display.
+        _updateCncStatus(leftCncList.get(0), booleans[Coil.station1LeftCNCWorking]);
+        _updateCncStatus(leftCncList.get(0), booleans[Coil.station1RightCNCWorking]);
+
+        _updateCncStatus(leftCncList.get(1), booleans[Coil.station2LeftCNCWorking]);
+        _updateCncStatus(leftCncList.get(1), booleans[Coil.station2RightCNCWorking]);
+
+        _updateCncStatus(leftCncList.get(2), booleans[Coil.station3LeftCNCWorking]);
+        _updateCncStatus(leftCncList.get(2), booleans[Coil.station3RightCNCWorking]);
+
+        _updateCncStatus(leftCncList.get(3), booleans[Coil.station4LeftCNCWorking]);
+        _updateCncStatus(leftCncList.get(3), booleans[Coil.station4RightCNCWorking]);
+
+        _updateCncStatus(leftCncList.get(4), booleans[Coil.station5LeftCNCWorking]);
+        _updateCncStatus(leftCncList.get(4), booleans[Coil.station5RightCNCWorking]);
     }
+    public void _updateCncStatus(TextView tv, boolean working) {
+        if (working) {
+            tv.setText(R.string.cncNormal);
+        } else {
+            tv.setText(R.string.cncStopped);
+        }
+    }
+
     // 更新运行时间
     public void updateTime() {
     }
