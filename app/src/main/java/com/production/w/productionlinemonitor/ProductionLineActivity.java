@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.provider.SyncStateContract;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -131,7 +132,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         setContentView(R.layout.activity_production_line);
 
         initModbus();
-//        initNavigationDrawer();
+        initNavigationDrawer();
         bind();
         udpateViewHandler.postDelayed(runnable, period);
 
@@ -140,23 +141,23 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //        fake_animation();
 //        fake_animation2();
 //        run2();
-//        run3();
 
         // works
         groupId = new Date().getTime();
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final boolean[] booleans = new boolean[3];
-                Log.d(TAG, "run: " + Arrays.toString(booleans));
-                writeToDB(booleans);
-            }
-        }, 1000);
+        run3();
+//        Timer timer = new Timer();
+//        timer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                final boolean[] booleans = new boolean[3];
+//                Log.d(TAG, "run: " + Arrays.toString(booleans));
+//                writeToDB(booleans);
+//            }
+//        }, 1000);
     }
     private void initModbus() {
         ModbusReq.getInstance().setParam(new ModbusParam()
-                .setHost("192.168.0.5")
+                .setHost("192.168.1.100")
                 .setPort(8010)
                 .setEncapsulated(false)
                 .setKeepAlive(true)
@@ -622,6 +623,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         Timer timer = new Timer();
         int delay = 1000;
         int period = 100;
+        currentState = new boolean[500];
+        previousState = new boolean[500];
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -632,18 +635,24 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //                        writeToDB(booleans);
                          currentState = booleans;
                         if (previousState == null) {
-                            System.arraycopy(currentState, 0, Constants.CoilStart, 0, Constants.CoilLen);
-                        } else {
-                            Hand hand1 = workStationList.get(0).getHand();
+                            System.arraycopy(currentState, 0, previousState, 0, 500);
+                        }
+                        Log.e(TAG, "onSuccess: ca1 to start Position: " + currentState[Coil.car1AtStartPosition] + "," + currentState[Coil.car1AtStartBlockPosition]);
+                        Log.e(TAG, "onSuccess: ca1 to s2 processiong position: " + currentState[Coil.car1AtStation2ProcessingPosition]);
+                        Log.e(TAG, "onSuccess: ca1 to s2 processiong position: " + currentState[Coil.car1AtStation2ProcessingPosition]);
+                        Log.e(TAG, "onSuccess: hand2 rightShifting:" + currentState[Coil.station2HorizontallyToRightPutPosition]);
+                        Log.e(TAG, "onSuccess: hand4 rightShifting:" + currentState[Coil.station4HorizontallyToRightPutPosition]);
+
+//                            Hand hand1 = workStationList.get(0).getHand();
                             Hand hand2 = workStationList.get(1).getHand();
-                            Hand hand3 = workStationList.get(2).getHand();
+//                            Hand hand3 = workStationList.get(2).getHand();
                             Hand hand4 = workStationList.get(3).getHand();
-                            Hand hand5 = workStationList.get(4).getHand();
-                            if (hand1.isMatch()) {
-                                updateHand1();
-                            } else {
-                                syncHand1();
-                            }
+//                            Hand hand5 = workStationList.get(4).getHand();
+//                            if (hand1.isMatch()) {
+//                                updateHand1();
+//                            } else {
+//                                syncHand1();
+//                            }
 
                             if (hand2.isMatch()) {
                                 updateHand2();
@@ -651,23 +660,23 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                                 syncHand2();
                             }
 
-                            if (hand3.isMatch()) {
-                                updateHand3();
-                            } else {
-                                syncHand3();
-                            }
+//                            if (hand3.isMatch()) {
+//                                updateHand3();
+//                            } else {
+//                                syncHand3();
+//                            }
 
                             if (hand4.isMatch()) {
                                 updateHand4();
                             } else {
                                 syncHand4();
                             }
-
-                            if (hand5.isMatch()) {
-                                updateHand5();
-                            } else {
-                                syncHand5();
-                            }
+//
+//                            if (hand5.isMatch()) {
+//                                updateHand5();
+//                            } else {
+//                                syncHand5();
+//                            }
 
                             if (car1.isMatch()) {
                                 updateCar1_v2();
@@ -684,8 +693,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             } else {
                                 syncCar2();
                             }
-                        }
-                        System.arraycopy(currentState, 0, Constants.CoilStart, 0, Constants.CoilLen);
+                        System.arraycopy(currentState, 0, previousState, 0, 500);
                     }
                     @Override
                     public void onFailed(String msg) {
@@ -821,15 +829,15 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
         // 获取到小车1回到起始位的信号, 可以开始同步
-        if (currentState[Coil.car1AtStartBlockPosition]) {
+        if (currentState[Coil.car1AtStartBlockPosition] || currentState[Coil.car1AtStartPosition]) {
             car1.setMatch(true);
         }
 
         // 获取到小车1开始从驱动到站1加工位/站1储备位/站1完成位, 可以开始同步
         if (
-                currentState[Coil.car1AtStation1StoragePosition]
-                        || currentState[Coil.car1AtStation1ProcessingPosition]
-                        || currentState[Coil.car1AtStation1CompletionPosition]
+                currentState[Coil.car1AtStation2StoragePosition]
+                        || currentState[Coil.car1AtStation2ProcessingPosition]
+                        || currentState[Coil.car1AtStation2CompletionPosition]
                 ) {
             car1.setMatch(true);
         }
@@ -1673,6 +1681,16 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
             }
         }
+        if (currentState[Coil.station2Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        } else if (currentState[Coil.station2Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        } else if (currentState[Coil.station2Error]) {
+            ws.updateLight(Constants.DANGER);
+        } else {
+            ws.updateLight(Constants.STOPPED);
+        }
+        /*
         Hand hand = ws.getHand();
         // 上下到取料位
         if (currentState[Coil.station2VerticallyToFetchPosition]) {
@@ -1723,6 +1741,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
             }
         }
+        */
     }
      // 站3同步中
     private void updateStation3_v2() {
@@ -1827,6 +1846,16 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
             }
         }
+        if (currentState[Coil.station2Running]) {
+            ws.updateLight(Constants.SUCCESS);
+        } else if (currentState[Coil.station2Stopped]) {
+            ws.updateLight(Constants.WARNING);
+        } else if (currentState[Coil.station2Error]) {
+            ws.updateLight(Constants.DANGER);
+        } else {
+            ws.updateLight(Constants.STOPPED);
+        }
+        /*
         Hand hand = ws.getHand();
         // 上下到取料位
         if (currentState[Coil.station4VerticallyToFetchPosition]) {
@@ -1877,6 +1906,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
             }
         }
+        */
     }
     // 站5同步中
     private void updateStation5_v2() {

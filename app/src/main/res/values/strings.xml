@@ -11,8 +11,8 @@
     <string name="navigationDrawerHeader">智能生产线监控</string>
 
     <!--MainActivity-->
-    <string name="normal">正常</string>
-    <string name="stopped">关机</string>
+    <string name="normal">运行</string>
+    <string name="stopped">停机</string>
     <string name="error">异常</string>
     <string name="unknown">未知</string>
 
@@ -24,8 +24,8 @@
     <string name="defaultUp">0</string>
     <string name="defaultPercent">0.00%</string>
 
-    <string name="cncNormal">正常</string>
-    <string name="cncStopped">关机</string>
+    <string name="cncNormal">运行</string>
+    <string name="cncStopped">停机</string>
     <string name="cncError">异常</string>
 
     <string name="workStationNormal">正常</string>
