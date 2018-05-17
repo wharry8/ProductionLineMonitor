@@ -48,6 +48,14 @@ public class Car {
         this.match = false;
     }
 
+    public void setPos (float x) {
+        this.x = x;
+        sprite.setPos(x, y);
+        if (box != null) {
+            box.setX(x);
+            box.update();
+        }
+    }
     public void move_v2 (float deltaTime) {
         float precision = 5.f;
 //        Log.e(TAG, "move_v2: speed: " + speed);

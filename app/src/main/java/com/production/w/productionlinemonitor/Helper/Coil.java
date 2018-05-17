@@ -5,6 +5,8 @@ package com.production.w.productionlinemonitor.Helper;
  */
 
 public class Coil {
+    // todo
+    // 根据最新的映射更新信号
     // used by real animation
     // 生产线运行状态
     public static final int systemRunning = 7;
@@ -73,6 +75,8 @@ public class Coil {
     // 输送线结束
 
     // 小车位置信号
+    // todo
+    // 根据最新的表格跟新小车位置信号
     public static final int car1AtStartPosition = 70;
     public static final int car1AtStartBlockPosition = 71;
 
@@ -110,6 +114,10 @@ public class Coil {
     // 小车出钩,回钩信号结束
 
     // 挡块信号
+    // todo
+    // 更新地址, 目前的地址是假的
+    public static final int startPositionBlocked = 1;
+
     public static final int station1ProcessingPositionBlocked = 101;
     public static final int station1ProcessingPositionNotBlocked = 103;
 
@@ -171,7 +179,111 @@ public class Coil {
     // 挡块\料盒上下信号结束
 
     // 分界线
-    // 机械手相关信号
+    // 机械手到位信号, 主要用于同步
+    public static final int hand1AtMiddleTop = 1;
+    public static final int hand1AtMiddleBottom = 1;
+    public static final int hand1AtRightTop = 1;
+    public static final int hand1AtRightBottom = 1;
+    public static final int hand1AtLeftTop = 1;
+    public static final int hand1AtLeftBottom = 1;
+
+    public static final int hand1FirstTimeToRight1 = 2952;
+    public static final int hand1FirstTimeToRight2 = 2943;
+    public static final int hand1ToRight1 = 2952;
+    public static final int hand1ToRight2 = 2944;
+
+    public static final int hand1FirstTimeToMiddle1 = 2952;
+    public static final int hand1FirstTimeToMiddle2 = 2943;
+    public static final int Hand1FirstTimeToMiddle3 = 64;
+
+    public static final int hand1ToMiddle1 = 2952;
+    public static final int hand1ToMiddle2 = 2943;
+    public static final int hand1ToMiddle3 = 64;
+
+    public static final int hand2AtMiddleTop = 1;
+    public static final int hand2AtMiddleBottom = 1;
+    public static final int hand2AtRightTop = 1;
+    public static final int hand2AtRightBottom = 1;
+    public static final int hand2AtLeftTop = 1;
+    public static final int hand2AtLeftBottom = 1;
+
+    public static final int hand2FirstTimeToRight1 = 2952;
+    public static final int hand2FirstTimeToRight2 = 2943;
+    public static final int hand2ToRight1 = 2952;
+    public static final int hand2ToRight2 = 2944;
+
+    public static final int hand2FirstTimeToMiddle1 = 2952;
+    public static final int hand2FirstTimeToMiddle2 = 2943;
+    public static final int Hand2FirstTimeToMiddle3 = 64;
+
+    public static final int hand2ToMiddle1 = 2952;
+    public static final int hand2ToMiddle2 = 2943;
+    public static final int hand2ToMiddle3 = 64;
+
+
+    public static final int hand3AtMiddleTop = 1;
+    public static final int hand3AtMiddleBottom = 1;
+    public static final int hand3AtRightTop = 1;
+    public static final int hand3AtRightBottom = 1;
+    public static final int hand3AtLeftTop = 1;
+    public static final int hand3AtLeftBottom = 1;
+
+    public static final int hand3FirstTimeToRight1 = 2952;
+    public static final int hand3FirstTimeToRight2 = 2943;
+    public static final int hand3ToRight1 = 2952;
+    public static final int hand3ToRight2 = 2944;
+
+    public static final int hand3FirstTimeToMiddle1 = 2952;
+    public static final int hand3FirstTimeToMiddle2 = 2943;
+    public static final int Hand3FirstTimeToMiddle3 = 64;
+
+    public static final int hand3ToMiddle1 = 2952;
+    public static final int hand3ToMiddle2 = 2943;
+    public static final int hand3ToMiddle3 = 64;
+
+    public static final int hand4AtMiddleTop = 1;
+    public static final int hand4AtMiddleBottom = 1;
+    public static final int hand4AtRightTop = 1;
+    public static final int hand4AtRightBottom = 1;
+    public static final int hand4AtLeftTop = 1;
+    public static final int hand4AtLeftBottom = 1;
+
+    public static final int hand4FirstTimeToRight1 = 2952;
+    public static final int hand4FirstTimeToRight2 = 2943;
+    public static final int hand4ToRight1 = 2952;
+    public static final int hand4ToRight2 = 2944;
+
+    public static final int hand4FirstTimeToMiddle1 = 2952;
+    public static final int hand4FirstTimeToMiddle2 = 2943;
+    public static final int hand4FirstTimeToMiddle3 = 64;
+
+    public static final int hand4ToMiddle1 = 2952;
+    public static final int hand4ToMiddle2 = 2943;
+    public static final int hand4ToMiddle3 = 64;
+
+
+    public static final int hand5AtMiddleTop = 1;
+    public static final int hand5AtMiddleBottom = 1;
+    public static final int hand5AtRightTop = 1;
+    public static final int hand5AtRightBottom = 1;
+    public static final int hand5AtLeftTop = 1;
+    public static final int hand5AtLeftBottom = 1;
+
+    public static final int hand5FirstTimeToRight1 = 2952;
+    public static final int hand5FirstTimeToRight2 = 2943;
+    public static final int hand5ToRight1 = 2952;
+    public static final int hand5ToRight2 = 2944;
+
+    public static final int hand5FirstTimeToMiddle1 = 2952;
+    public static final int hand5FirstTimeToMiddle2 = 2943;
+    public static final int Hand5FirstTimeToMiddle3 = 64;
+
+    public static final int hand5ToMiddle1 = 2952;
+    public static final int hand5ToMiddle2 = 2943;
+    public static final int hand5ToMiddle3 = 64;
+
+    // 机械手到位信号结束
+    // 机械手相关信号 (目前无法使用)
 
     public static final int station1VerticallyToWaitPosition = 210;
     public static final int station1VerticallyToFetchPosition = 211;

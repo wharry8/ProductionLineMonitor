@@ -23,6 +23,16 @@ public class Constants {
     public static final int handLeftShifted = 8;
     public static final int handRightShifted = 9;
 
+    // hand position
+    public static final int HAND_LEFT_TOP = 1;
+    public static final int HAND_LEFT_BOTTOM = 2;
+    public static final int HAND_MIDDLE_TOP = 3;
+    public static final int HAND_MIDDLE_BOTTOM = 4;
+    public static final int HAND_RIGHT_TOP = 5;
+    public static final int HAND_RIGHT_BOTTOM = 6;
+
+    // hand position end
+
 
     public static final int BOX_RISING = 1;
     public static final int BOX_RISED = 2;

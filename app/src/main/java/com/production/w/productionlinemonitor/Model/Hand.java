@@ -23,7 +23,7 @@ public class Hand extends BaseModel {
     private float downHeight;
     private float rightEndY;
     private float leftEndY;
-
+    private float middleY;
 
     boolean isMatch;
 
@@ -33,9 +33,24 @@ public class Hand extends BaseModel {
         this.initHeight = height;
         this.downHeight = height - 20;
         this.initY = y;
+        this.middleY = y;
         this.speed = 100;
         this.status = Constants.handStatic;
         this.isMatch = false;
+    }
+    public void updatePosition (int position) {
+        float newy = 0.f;
+        if (position == Constants.HAND_LEFT_BOTTOM || position == Constants.HAND_LEFT_TOP) {
+            newy = leftEndY;
+        }
+        if (position == Constants.HAND_RIGHT_BOTTOM || position == Constants.HAND_RIGHT_TOP) {
+            newy = rightEndY;
+        }
+        if (position == Constants.HAND_MIDDLE_BOTTOM || position == Constants.HAND_MIDDLE_TOP) {
+            newy = middleY;
+        }
+        setY(newy);
+        sprite.setPos(getX(), getY());
     }
     public void update (float deltaTime) {
         switch (status) {
@@ -104,6 +119,10 @@ public class Hand extends BaseModel {
             default:
                 break;
         }
+    }
+
+    public float getMiddleY() {
+        return middleY;
     }
 
     public boolean isMatch() {
