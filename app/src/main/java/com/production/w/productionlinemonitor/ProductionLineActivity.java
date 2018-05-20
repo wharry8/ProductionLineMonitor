@@ -145,7 +145,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // works
         groupId = new Date().getTime();
-        run3();
+//        run3();
 //        Timer timer = new Timer();
 //        timer.schedule(new TimerTask() {
 //            @Override
@@ -620,7 +620,86 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             Log.e(TAG, "writeToDB: fail outer");
         }
     }
+
     // v3
+    private void run4 () {
+        Timer timer = new Timer();
+        int delay = 1000;
+        int period = 100;
+        currentState = new boolean[500];
+        previousState = new boolean[500];
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
+                    @Override
+                    public void onSuccess(boolean[] booleans) {
+                        Log.e(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
+                         currentState = booleans;
+                        if (previousState == null) {
+                            System.arraycopy(currentState, 0, previousState, 0, 500);
+                        }
+                        if (car1.isMatch()) {
+                            updateCar1_v3();
+                            updateS1();
+                            updateS2();
+                            updateS3();
+                        } else {
+                            syncCar1_v3();
+                            syncS1();
+                            syncS2();
+                            syncS3();
+                        }
+                        if (car2.isMatch()) {
+                            updateCar2_v3();
+                            updateS4();
+                            updateS5();
+                        } else {
+                            syncCar2_v3();
+                            syncS4();
+                            syncS5();
+                        }
+                        Hand hand1 = workStationList.get(0).getHand();
+                        Hand hand2 = workStationList.get(1).getHand();
+                        Hand hand3 = workStationList.get(2).getHand();
+                        Hand hand4 = workStationList.get(3).getHand();
+                        Hand hand5 = workStationList.get(4).getHand();
+
+//                        if (hand1.isMatch()) {
+//                            syncHand1_v3();
+//                        } else {
+//                            updateHand1_v3();
+//                        }
+//                        if (hand2.isMatch()) {
+//                            syncHand2_v3();
+//                        } else {
+//                            updateHand2_v3();
+//                        }
+//                        if (hand3.isMatch()) {
+//                            syncHand3_v3();
+//                        } else {
+//                            updateHand3_v3();
+//                        }
+                        if (hand4.isMatch()) {
+                            syncHand4_v3();
+                        } else {
+                            updateHand4_v3();
+                        }
+//                        if (hand5.isMatch()) {
+//                            syncHand5_v3();
+//                        } else {
+//                            updateHand5_v3();
+//                        }
+                        System.arraycopy(currentState, 0, previousState, 0, 500);
+                    }
+                    @Override
+                    public void onFailed(String msg) {
+                        Log.e(TAG, "readCoil onFailed " + msg);
+                    }
+                }, 1, Constants.CoilStart, Constants.CoilLen);
+            }
+        },delay, period);
+    }
     private void syncCar1_v3 () {
         // 当遇到某个到位信号时,将该位置作为小车的初始位置,完成同步
         // 上料位
@@ -1193,15 +1272,15 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
     private void syncS1 () {
     }
-    private void udpateS1 () {
+    private void updateS1 () {
     }
     private void syncS2 () {
     }
-    private void udpateS2 () {
+    private void updateS2 () {
     }
     private void syncS3 () {
     }
-    private void udpateS3 () {
+    private void updateS3 () {
     }
     private void syncS4 () {
         // 站4储备位
@@ -1231,7 +1310,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
     }
-    private void udpateS4 () {
+    private void updateS4 () {
         updateStation4_v2();
     }
     private void syncS5 () {
@@ -1263,7 +1342,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
     }
-    private void udpateS5 () {
+    private void updateS5 () {
         updateStation5_v2();
     }
 
@@ -1323,7 +1402,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (currentState[Coil.hand4ToMiddle1] &&
                 currentState[Coil.hand4ToMiddle2] &&
                 currentState[Coil.hand4ToMiddle3]) {
-            if (Math.abs(hand.getY() - hand.getRightEndY()) <= precision) {
+            // 首先应该判断当前机械手是在左边还是在右边
+            // 然后才决定机械手是左移还是右移
+            // 目前默认机械手不会在左边
+            // todo
+            // 加入机械手左移右移的判断
+            if (Math.abs(hand.getY() - hand.getMiddleY()) > precision) {
                 hand.setStatus(Constants.handLeftShifting);
             }
         }
@@ -1332,7 +1416,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (currentState[Coil.hand4FirstTimeToMiddle1] &&
                 currentState[Coil.hand4FirstTimeToMiddle2] &&
                 currentState[Coil.hand4FirstTimeToMiddle3]) {
-            if (Math.abs(hand.getY() - hand.getRightEndY()) <= precision) {
+            if (Math.abs(hand.getY() - hand.getMiddleY()) > precision) {
                 hand.setStatus(Constants.handLeftShifting);
             }
         }
@@ -1340,14 +1424,14 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // 第二次和之后
         if (currentState[Coil.hand4ToRight1] &&
                 currentState[Coil.hand4ToRight2]) {
-            if (Math.abs(hand.getY() - hand.getRightEndY()) <= precision) {
+            if (Math.abs(hand.getY() - hand.getRightEndY()) > precision) {
                 hand.setStatus(Constants.handRightShifting);
             }
         }
         // 第一次
         if (currentState[Coil.hand4FirstTimeToRight1] &&
                 currentState[Coil.hand4FirstTimeToRight2]) {
-            if (Math.abs(hand.getY() - hand.getRightEndY()) <= precision) {
+            if (Math.abs(hand.getY() - hand.getRightEndY()) > precision) {
                 hand.setStatus(Constants.handRightShifting);
             }
         }
