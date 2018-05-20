@@ -5,21 +5,21 @@ package com.production.w.productionlinemonitor.Helper;
  */
 
 public class Register {
-    public static int systemTargetOutput = 4536;
-    public static int systemActualOutput = 4526;
+    public static int systemTargetOutput = 36;
+    public static int systemActualOutput = 26;
 
-    public static int station1TargetOutput = 4510;
-    public static int station1ActualOutput = 4510;
+    public static int station1TargetOutput = 10;
+    public static int station1ActualOutput = 0;
 
-    public static int station2TargetOutput = 4512;
-    public static int station2ActualOutput = 4502;
+    public static int station2TargetOutput = 12;
+    public static int station2ActualOutput = 2;
 
-    public static int station3TargetOutput = 4514;
-    public static int station3ActualOutput = 4504;
+    public static int station3TargetOutput = 14;
+    public static int station3ActualOutput = 4;
 
-    public static int station4TargetOutput = 4516;
-    public static int station4ActualOutput = 4506;
+    public static int station4TargetOutput = 16;
+    public static int station4ActualOutput = 6;
 
-    public static int station5TargetOutput = 4518;
-    public static int station5ActualOutput = 4508;
+    public static int station5TargetOutput = 18;
+    public static int station5ActualOutput = 8;
 }

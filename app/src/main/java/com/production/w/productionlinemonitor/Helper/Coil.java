@@ -77,32 +77,32 @@ public class Coil {
     // 小车位置信号
     // todo
     // 根据最新的表格跟新小车位置信号
-    public static final int car1AtStartPosition = 70;
-    public static final int car1AtStartBlockPosition = 71;
+    public static final int car1AtStartPosition = 41;
+    public static final int car1AtStartBlockPosition = 41;
 
-    public static final int car1AtStation1StoragePosition = 72;
-    public static final int car1AtStation1ProcessingPosition = 73;
-    public static final int car1AtStation1CompletionPosition = 74;
+    public static final int car1AtStation1StoragePosition = 42;
+    public static final int car1AtStation1ProcessingPosition = 43;
+    public static final int car1AtStation1CompletionPosition = 44;
 
-    public static final int car1AtStation2StoragePosition = 75;
-    public static final int car1AtStation2ProcessingPosition = 76;
-    public static final int car1AtStation2CompletionPosition = 77;
+    public static final int car1AtStation2StoragePosition = 45;
+    public static final int car1AtStation2ProcessingPosition = 46;
+    public static final int car1AtStation2CompletionPosition = 47;
 
-    public static final int car1AtStation3StoragePosition = 78;
-    public static final int car1AtStation3ProcessingPosition = 79;
+    public static final int car1AtStation3StoragePosition = 48;
+    public static final int car1AtStation3ProcessingPosition = 49;
 
-    public static final int car2AtStation3ProcessingPosition = 80;
-    public static final int car2AtStation3CompletionPosition = 81;
+    public static final int car2AtStation3ProcessingPosition = 50;
+    public static final int car2AtStation3CompletionPosition = 51;
 
-    public static final int car2AtStation4StoragePosition = 82;
-    public static final int car2AtStation4ProcessingPosition = 83;
-    public static final int car2AtStation4CompletionPosition = 84;
+    public static final int car2AtStation4StoragePosition = 52;
+    public static final int car2AtStation4ProcessingPosition = 53;
+    public static final int car2AtStation4CompletionPosition = 54;
 
-    public static final int car2AtStation5StoragePosition = 85;
-    public static final int car2AtStation5ProcessingPosition = 86;
+    public static final int car2AtStation5StoragePosition = 55;
+    public static final int car2AtStation5ProcessingPosition = 56;
 
-    public static final int car2AtEndArea = 87;
-    public static final int car2AtEndPosition = 87;
+    public static final int car2AtEndArea = 57;
+    public static final int car2AtEndPosition = 57;
     // 小车位置信号结束
 
     // 小车出钩,回钩信号
@@ -116,7 +116,7 @@ public class Coil {
     // 挡块信号
     // todo
     // 更新地址, 目前的地址是假的
-    public static final int startPositionBlocked = 1;
+    public static final int startPositionBlocked = 201;
 
     public static final int station1ProcessingPositionBlocked = 101;
     public static final int station1ProcessingPositionNotBlocked = 103;
@@ -248,17 +248,17 @@ public class Coil {
     public static final int hand4AtLeftTop = 1;
     public static final int hand4AtLeftBottom = 1;
 
-    public static final int hand4FirstTimeToRight1 = 2952;
-    public static final int hand4FirstTimeToRight2 = 2943;
-    public static final int hand4ToRight1 = 2952;
-    public static final int hand4ToRight2 = 2944;
+    public static final int hand4FirstTimeToRight1 = 482;
+    public static final int hand4FirstTimeToRight2 = 473;
+    public static final int hand4ToRight1 = 482;
+    public static final int hand4ToRight2 = 474;
 
-    public static final int hand4FirstTimeToMiddle1 = 2952;
-    public static final int hand4FirstTimeToMiddle2 = 2943;
+    public static final int hand4FirstTimeToMiddle1 = 482;
+    public static final int hand4FirstTimeToMiddle2 = 473;
     public static final int hand4FirstTimeToMiddle3 = 64;
 
-    public static final int hand4ToMiddle1 = 2952;
-    public static final int hand4ToMiddle2 = 2943;
+    public static final int hand4ToMiddle1 = 482;
+    public static final int hand4ToMiddle2 = 474;
     public static final int hand4ToMiddle3 = 64;
 
 

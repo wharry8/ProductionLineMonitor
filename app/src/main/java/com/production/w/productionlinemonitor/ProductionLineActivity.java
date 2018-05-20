@@ -1157,9 +1157,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // 同步小车2
     // 捕捉到小车2到达某个位置时, 完成同步
     private void syncCar2_v3 () {
-        // todo
-        // 修改 carXat 类型信号的地址
-
         sync_car2_hook_in();
         sync_car2_hook_out();
 
@@ -1679,16 +1676,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 // 如果当前位置已经有箱子
                 // 如果箱子的状态是降下的
                 // 修改箱子的状态为升起
-                // todo
-                // Box 类对应的更新函数需要修改
                 if (area.getBox().getStatus() != Constants.BOX_RISED) {
                     area.getBox().setStatus(Constants.BOX_RISED);
                 }
             }
         }
         // 站1储料位料盒已经降下
-        // todo
-        // 补充信号
         if (currentState[Coil.station1StoragePositionDown]) {
             Area area = workStationList.get(0).getStorageArea();
             // 判断是否有箱子
@@ -1752,15 +1745,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             if (area.getBox() == null) {
                 // 如果当前位置没有箱子, 生成一个升起状态的箱子, 放在此处
                 Box box = generateBox(area.x, car1.getY(), Constants.BOX_RISED);
-                // todo
-                // 这里 area 是引用还是 copy?
                 area.setBox(box);
             } else {
                 // 如果当前位置已经有箱子
                 // 如果箱子的状态是降下的
                 // 修改箱子的状态为升起
-                // todo
-                // Box 类对应的更新函数需要修改
                 if (area.getBox().getStatus() != Constants.BOX_RISED) {
                     area.getBox().setStatus(Constants.BOX_RISED);
                 }
@@ -2457,8 +2446,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         // 料盒上升
         // 料盒上升由小车动作控制
         // 在小车放下料盒时, 设置料盒的方向和速度
-        // todo
-        // 小车放下箱子时, 同时让箱子升起
 
         // 料盒下降
         WorkStation ws = workStationList.get(0);
