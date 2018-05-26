@@ -14,20 +14,21 @@ public class Coil {
     public static final int systemError = 9;
 
     // cnc 状态
-    public static final int station1LeftCNCWorking = 1;
-    public static final int station1RightCNCWorking = 1;
+    // 是否屏蔽
+    public static final int station1LeftCNCWorking = 70;
+    public static final int station1RightCNCWorking = 71;
 
-    public static final int station2LeftCNCWorking = 1;
-    public static final int station2RightCNCWorking = 2;
+    public static final int station2LeftCNCWorking = 72;
+    public static final int station2RightCNCWorking = 73;
 
-    public static final int station3LeftCNCWorking = 1;
-    public static final int station3RightCNCWorking = 3;
+    public static final int station3LeftCNCWorking = 74;
+    public static final int station3RightCNCWorking = 75;
 
-    public static final int station4LeftCNCWorking = 1;
-    public static final int station4RightCNCWorking = 4;
+    public static final int station4LeftCNCWorking = 76;
+    public static final int station4RightCNCWorking = 77;
 
-    public static final int station5LeftCNCWorking = 1;
-    public static final int station5RightCNCWorking = 5;
+    public static final int station5LeftCNCWorking = 78;
+    public static final int station5RightCNCWorking = 79;
 
     // 工站运行状态
     public static final int station1Running = 10;
@@ -77,7 +78,7 @@ public class Coil {
     // 小车位置信号
     // todo
     // 根据最新的表格跟新小车位置信号
-    public static final int car1AtStartPosition = 41;
+    public static final int car1AtStartPosition =  40;
     public static final int car1AtStartBlockPosition = 41;
 
     public static final int car1AtStation1StoragePosition = 42;
@@ -220,6 +221,9 @@ public class Coil {
     public static final int hand2ToMiddle2 = 2943;
     public static final int hand2ToMiddle3 = 64;
 
+    public static final int newHand2ToRight = 384;
+    public static final int newHand2ToMiddle = 372;
+    public static final int hand2Waiting = 371;
 
     public static final int hand3AtMiddleTop = 1;
     public static final int hand3AtMiddleBottom = 1;
@@ -253,13 +257,17 @@ public class Coil {
     public static final int hand4ToRight1 = 482;
     public static final int hand4ToRight2 = 474;
 
+    public static final int newHand4ToRight = 464;
+    public static final int newHand4ToMiddle = 452;
+    public static final int waiting = 451;
+
     public static final int hand4FirstTimeToMiddle1 = 482;
     public static final int hand4FirstTimeToMiddle2 = 473;
-    public static final int hand4FirstTimeToMiddle3 = 64;
+    public static final int hand4FirstTimeToMiddle3 = 536;
 
     public static final int hand4ToMiddle1 = 482;
     public static final int hand4ToMiddle2 = 474;
-    public static final int hand4ToMiddle3 = 64;
+    public static final int hand4ToMiddle3 = 536;
 
 
     public static final int hand5AtMiddleTop = 1;

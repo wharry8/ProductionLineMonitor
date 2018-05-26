@@ -124,7 +124,7 @@
                         android:layout_weight="1">
 
                         <TextView
-                            android:id="@+id/ws_tv_target"
+                            android:id="@+id/ma_tv_target"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
@@ -295,7 +295,7 @@
                         android:layout_weight="1">
 
                         <TextView
-                            android:id="@+id/ws_tv_current"
+                            android:id="@+id/ma_tv_current"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"

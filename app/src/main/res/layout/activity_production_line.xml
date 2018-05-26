@@ -29,11 +29,10 @@
                     android:textAlignment="center" />
 
                 <TextView
-                    android:id="@+id/pl_tv_status"
+                    android:id="@+id/pl_tv_status_special"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/normal"
                     android:textAlignment="center" />
             </LinearLayout>
 

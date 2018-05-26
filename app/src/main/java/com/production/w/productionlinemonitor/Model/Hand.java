@@ -1,12 +1,17 @@
 package com.production.w.productionlinemonitor.Model;
 
+import android.util.Log;
+
 import com.production.w.productionlinemonitor.Helper.Constants;
+import com.production.w.productionlinemonitor.Helper.HandPosition;
 import com.production.w.productionlinemonitor.ProductionLineActivity;
 
 import javax.net.ssl.SSLProtocolException;
 
 import fr.arnaudguyon.smartgl.opengl.Sprite;
 import fr.arnaudguyon.smartgl.opengl.Texture;
+
+import static android.support.constraint.Constraints.TAG;
 
 /**
  * Created by w on 4/25/2018.
@@ -25,11 +30,13 @@ public class Hand extends BaseModel {
     private float leftEndY;
     private float middleY;
 
+    public int previousPosition;
+
     boolean isMatch;
 
     public Hand (float x, float y, float width, float height, Texture texture, Sprite sprite) {
         super(x, y, width, height, texture, sprite);
-
+        this.previousPosition = HandPosition.Middle;
         this.initHeight = height;
         this.downHeight = height - 20;
         this.initY = y;
@@ -44,17 +51,23 @@ public class Hand extends BaseModel {
             newy = leftEndY;
         }
         if (position == Constants.HAND_RIGHT_BOTTOM || position == Constants.HAND_RIGHT_TOP) {
+            this.previousPosition = HandPosition.Right;
             newy = rightEndY;
         }
         if (position == Constants.HAND_MIDDLE_BOTTOM || position == Constants.HAND_MIDDLE_TOP) {
+            this.previousPosition = HandPosition.Middle;
             newy = middleY;
         }
         setY(newy);
+        initY = newy;
         sprite.setPos(getX(), getY());
     }
     public void update (float deltaTime) {
         switch (status) {
             case Constants.handLeftShifting:
+                if (Float.compare(initY, this.middleY) == 0) {
+                    return;
+                }
                 if (getY() > initY - horizontalDistance) {
                     float newY = getY() - speed * deltaTime;
                     boolean ok = false;
@@ -63,6 +76,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
+//                        this.previousPosition = HandPosition.Middle;
                         status = Constants.handLeftShifted;
                         initY = newY;
                     }
@@ -71,6 +85,9 @@ public class Hand extends BaseModel {
                 }
                 break;
             case Constants.handRightShifting:
+                if (Float.compare(initY, this.rightEndY) == 0) {
+                    return;
+                }
                 if (getY() < initY + horizontalDistance) {
                     float newY = getY() + speed * deltaTime;
                     boolean ok = false;
@@ -79,6 +96,7 @@ public class Hand extends BaseModel {
                         ok = true;
                     }
                     if (ok) {
+//                        this.previousPosition = HandPosition.Right;
                         status = Constants.handRightShifted;
                         initY = newY;
                     }
@@ -179,6 +197,18 @@ public class Hand extends BaseModel {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public void setMiddleY(float middleY) {
+        this.middleY = middleY;
+    }
+
+    public int getPreviousPosition() {
+        return previousPosition;
+    }
+
+    public void setPreviousPosition(int previousPosition) {
+        this.previousPosition = previousPosition;
     }
 
     public int getSpeed() {

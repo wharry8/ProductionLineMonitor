@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
         tv_speed = findViewById(R.id.pl_tv_speed);
         tv_system_running_time = findViewById(R.id.tv_system_running_time);
         tv_machine_running_time = findViewById(R.id.tv_machine_running_time);
-        tv_target = findViewById(R.id.ws_tv_target);
-        tv_current = findViewById(R.id.ws_tv_current);
+        tv_target = findViewById(R.id.ma_tv_target);
+        tv_current = findViewById(R.id.ma_tv_current);
         tv_up = findViewById(R.id.tv_up);
         tv_percent = findViewById(R.id.ws_tv_percent);
     }
@@ -196,16 +196,15 @@ public class MainActivity extends AppCompatActivity {
     // v2
     // 更新ui
     public void updateView2 () {
-            updateUp();
-            updateSpeed();
-            updatePercent();
+           updateUp();
+           updateSpeed();
+           updatePercent();
 
           ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
             public void onSuccess(boolean[] booleen) {
                 updateStatus(booleen);
             }
-
             @Override
             public void onFailed(String msg) {
                 Log.e(TAG, "readCoil onFailed " + msg);
@@ -214,8 +213,12 @@ public class MainActivity extends AppCompatActivity {
         ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
             @Override
             public void onSuccess(short[] data) {
+                Log.e(TAG, "onSuccess:register: " + Arrays.toString(data));
+                Log.e(TAG, "onSuccess: start update target");
                 updateTarget(data);
+                Log.e(TAG, "onSuccess: start update current");
                 updateCurrent(data);
+                Log.e(TAG, "onSuccess: finish update current");
             }
 
             @Override
@@ -225,10 +228,10 @@ public class MainActivity extends AppCompatActivity {
         }, 1, Constants.RegisterStart, Constants.RegisterLen);
     }
     // 更新状态
-    public void updateStatus (boolean[] booleen) {
-        boolean running = booleen[Coil.systemRunning];
-        boolean stopped = booleen[Coil.systemError];
-        boolean error = booleen[Coil.systemError];
+    public void updateStatus (boolean[] booleans) {
+        boolean running = booleans[Coil.systemRunning];
+        boolean stopped = booleans[Coil.systemError];
+        boolean error = booleans[Coil.systemError];
 
         if (running) {
             tv_status.setText(R.string.normal);
@@ -241,14 +244,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // 更新目标产量
-    public void updateTarget (short[] data) {
-        target = data[Register.systemTargetOutput];
-        tv_target.setText(Integer.toString(target));
+    public void updateTarget (final short[] data) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "updateTarget: inside updateTarget." );
+                target = data[Register.systemTargetOutput];
+                Log.e(TAG, "updateTarget: inside updateTarget 2." );
+                Log.e(TAG, "updateTarget: " + target );
+                tv_target.setText(Integer.toString(target));
+                Log.e(TAG, "updateTarget: inside updateTarget 3." );
+            }
+        });
     }
     // 更新当前产量
-    public void updateCurrent (short[] data) {
-        current = data[Register.systemActualOutput];
-        tv_current.setText(Integer.toString(current));
+    public void updateCurrent (final short[] data) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "updateCurrent: " );
+                current = data[Register.systemActualOutput];
+                Log.e(TAG, "updateCurrent: " );
+                tv_current.setText(Integer.toString(current));
+            }
+        });
     }
     // 更新已上料量
     public void updateUp () {

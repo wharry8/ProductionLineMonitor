@@ -63,6 +63,7 @@ public class WorkStationActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         stationId = intent.getIntExtra(WorkStationListActivity.EXTRA_ID, 1);
+        Log.e(TAG, "onCreate: stationId: " + stationId);
 
         initNavigationDrawer();
         bind();
@@ -79,6 +80,12 @@ public class WorkStationActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.postDelayed(runnable, period);
     }
 
     // 初始化菜单栏
@@ -140,7 +147,7 @@ public class WorkStationActivity extends AppCompatActivity {
         ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
             public void onSuccess(boolean[] booleen) {
-                Log.d(TAG, "readCoil onSuccess " + Arrays.toString(booleen));
+                Log.d(TAG, "onSuccess: ok");
                 updateStatus(booleen);
                 updateLeftCncStatus(booleen);
                 updateRightCncStatus(booleen);
@@ -170,47 +177,52 @@ public class WorkStationActivity extends AppCompatActivity {
         updatePercent();
     }
     // 更新状态
-    public void updateStatus (boolean[] booleans) {
-        boolean running = false;
-        boolean stopped = false;
-        boolean error = false;
+    public void updateStatus (final boolean[] booleans) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean running = false;
+                boolean stopped = false;
+                boolean error = false;
 
-        switch (stationId) {
-            case 1:
-                running = booleans[Coil.station1Running];
-                stopped = booleans[Coil.station1Stopped];
-                error = booleans[Coil.station1Error];
-                break;
-            case 2:
-                running = booleans[Coil.station2Running];
-                stopped = booleans[Coil.station2Stopped];
-                error = booleans[Coil.station2Error];
-                break;
-            case 3:
-                running = booleans[Coil.station3Running];
-                stopped = booleans[Coil.station3Stopped];
-                error = booleans[Coil.station3Error];
-                break;
-            case 4:
-                running = booleans[Coil.station4Running];
-                stopped = booleans[Coil.station4Stopped];
-                error = booleans[Coil.station4Error];
-                break;
-            case 5:
-                running = booleans[Coil.station5Running];
-                stopped = booleans[Coil.station5Stopped];
-                error = booleans[Coil.station5Error];
-                break;
-        }
-        if (running) {
-            tv_status.setText(R.string.workStationNormal);
-        } else if (stopped) {
-            tv_status.setText(R.string.workStationStopped);
-        } else if (error) {
-            tv_status.setText(R.string.workStationError);
-        } else {
-            tv_status.setText(R.string.unknown);
-        }
+                switch (stationId) {
+                    case 1:
+                        running = booleans[Coil.station1Running];
+                        stopped = booleans[Coil.station1Stopped];
+                        error = booleans[Coil.station1Error];
+                        break;
+                    case 2:
+                        running = booleans[Coil.station2Running];
+                        stopped = booleans[Coil.station2Stopped];
+                        error = booleans[Coil.station2Error];
+                        break;
+                    case 3:
+                        running = booleans[Coil.station3Running];
+                        stopped = booleans[Coil.station3Stopped];
+                        error = booleans[Coil.station3Error];
+                        break;
+                    case 4:
+                        running = booleans[Coil.station4Running];
+                        stopped = booleans[Coil.station4Stopped];
+                        error = booleans[Coil.station4Error];
+                        break;
+                    case 5:
+                        running = booleans[Coil.station5Running];
+                        stopped = booleans[Coil.station5Stopped];
+                        error = booleans[Coil.station5Error];
+                        break;
+                }
+                if (running) {
+                    tv_status.setText(R.string.workStationNormal);
+                } else if (stopped) {
+                    tv_status.setText(R.string.workStationStopped);
+                } else if (error) {
+                    tv_status.setText(R.string.workStationError);
+                } else {
+                    tv_status.setText(R.string.unknown);
+                }
+            }
+        });
     }
     // 更新开机时间(有必要?)
     public void updateUpTime () {
@@ -219,51 +231,60 @@ public class WorkStationActivity extends AppCompatActivity {
     public void updateRunTime () {
     }
     // 更新目标产量
-    public void updateTarget (short[] data) {
-        switch (stationId) {
-            case 1:
-                target = data[Register.station1TargetOutput];
-                break;
-            case 2:
-                target = data[Register.station2TargetOutput];
-                break;
-            case 3:
-                target = data[Register.station3TargetOutput];
-                break;
-            case 4:
-                target = data[Register.station4TargetOutput];
-                break;
-            case 5:
-                target = data[Register.station5TargetOutput];
-                break;
-            default:
-                break;
-        }
-        tv_target.setText(Integer.toString(target));
+    public void updateTarget (final short[] data) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch (stationId) {
+                    case 1:
+                        target = data[Register.station1TargetOutput];
+                        break;
+                    case 2:
+                        target = data[Register.station2TargetOutput];
+                        break;
+                    case 3:
+                        target = data[Register.station3TargetOutput];
+                        break;
+                    case 4:
+                        target = data[Register.station4TargetOutput];
+                        break;
+                    case 5:
+                        target = data[Register.station5TargetOutput];
+                        break;
+                    default:
+                        break;
+                }
+                tv_target.setText(Integer.toString(target));
+            }
+        });
     }
     // 更新当前状态
-    public void updateCurrent (short[] data) {
-        switch (stationId) {
-            case 1:
-                current = data[Register.station1ActualOutput];
-                break;
-            case 2:
-                current = data[Register.station2ActualOutput];
-                break;
-            case 3:
-                current = data[Register.station3ActualOutput];
-                break;
-            case 4:
-                current = data[Register.station4ActualOutput];
-                break;
-            case 5:
-                current = data[Register.station5ActualOutput];
-                break;
-            default:
-                break;
-        }
-        current = data[Register.station1ActualOutput];
-        tv_current.setText(Integer.toString(current));
+    public void updateCurrent (final short[] data) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch (stationId) {
+                    case 1:
+                        current = data[Register.station1ActualOutput];
+                        break;
+                    case 2:
+                        current = data[Register.station2ActualOutput];
+                        break;
+                    case 3:
+                        current = data[Register.station3ActualOutput];
+                        break;
+                    case 4:
+                        current = data[Register.station4ActualOutput];
+                        break;
+                    case 5:
+                        current = data[Register.station5ActualOutput];
+                        break;
+                    default:
+                        break;
+                }
+                tv_current.setText(Integer.toString(current));
+            }
+        });
     }
     // 更新百分比
     public void updatePercent () {
@@ -275,61 +296,72 @@ public class WorkStationActivity extends AppCompatActivity {
         tv_percent.setText(Float.toString(percent));
     }
     // 更新左CNC的状态
-    public void updateLeftCncStatus (boolean[] booleans) {
-        switch (stationId){
-            case 1:
-                leftCNCWorking = booleans[Coil.station1LeftCNCWorking];
-                break;
-            case 2:
-                leftCNCWorking = booleans[Coil.station2LeftCNCWorking];
-                break;
-            case 3:
-                leftCNCWorking = booleans[Coil.station3LeftCNCWorking];
-                break;
-            case 4:
-                leftCNCWorking = booleans[Coil.station4LeftCNCWorking];
-                break;
-            case 5:
-                leftCNCWorking = booleans[Coil.station5LeftCNCWorking];
-                break;
-            default:
-                break;
-        }
-        if (leftCNCWorking) {
-            tv_cnc_left_status.setText(R.string.cncNormal);
-            cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-        } else {
-            tv_cnc_left_status.setText(R.string.cncStopped);
-            cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-        }
+    public void updateLeftCncStatus (final boolean[] booleans) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch (stationId){
+                    case 1:
+                        leftCNCWorking = booleans[Coil.station1LeftCNCWorking];
+                        break;
+                    case 2:
+                        leftCNCWorking = booleans[Coil.station2LeftCNCWorking];
+                        break;
+                    case 3:
+                        leftCNCWorking = booleans[Coil.station3LeftCNCWorking];
+                        break;
+                    case 4:
+                        leftCNCWorking = booleans[Coil.station4LeftCNCWorking];
+                        break;
+                    case 5:
+                        leftCNCWorking = booleans[Coil.station5LeftCNCWorking];
+                        break;
+                    default:
+                        break;
+                }
+                if (!leftCNCWorking) {
+                    tv_cnc_left_status.setText(R.string.cncNormal);
+                    cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                } else {
+                    tv_cnc_left_status.setText(R.string.cncStopped);
+                    cl_left_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+                }
+            }
+        });
     }
     // 更新右CNC的状态
-    public void updateRightCncStatus (boolean[] booleans) {
-         switch (stationId){
-            case 1:
-                rightCNCWorking = booleans[Coil.station1RightCNCWorking];
-                break;
-            case 2:
-                rightCNCWorking = booleans[Coil.station2RightCNCWorking];
-                break;
-            case 3:
-                rightCNCWorking = booleans[Coil.station3RightCNCWorking];
-                break;
-            case 4:
-                rightCNCWorking = booleans[Coil.station4RightCNCWorking];
-                break;
-            case 5:
-                rightCNCWorking = booleans[Coil.station5RightCNCWorking];
-                break;
-            default:
-                break;
-        }
-        if (rightCNCWorking) {
-             tv_cnc_right_status.setText(R.string.cncNormal);
-            cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-        } else {
-            tv_cnc_right_status.setText(R.string.cncStopped);
-            cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-        }
+    public void updateRightCncStatus (final boolean[] booleans) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                switch (stationId){
+                    case 1:
+                        rightCNCWorking = booleans[Coil.station1RightCNCWorking];
+                        break;
+                    case 2:
+                        rightCNCWorking = booleans[Coil.station2RightCNCWorking];
+                        break;
+                    case 3:
+                        rightCNCWorking = booleans[Coil.station3RightCNCWorking];
+                        break;
+                    case 4:
+                        rightCNCWorking = booleans[Coil.station4RightCNCWorking];
+                        break;
+                    case 5:
+                        rightCNCWorking = booleans[Coil.station5RightCNCWorking];
+                        break;
+                    default:
+                        break;
+                }
+                if (!rightCNCWorking) {
+                    tv_cnc_right_status.setText(R.string.cncNormal);
+                    cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                } else {
+                    tv_cnc_right_status.setText(R.string.cncStopped);
+                    cl_right_cnc_container.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+                }
+            }
+        });
     }
 }

@@ -8,10 +8,10 @@ public class Constants {
     public static final int LEFT = -1;
     public static final int RIGHT = 1;
     public static final int CoilStart = 0;
-    public static final int CoilLen = 500;
+    public static final int CoilLen = 600;
 
-    public static final int RegisterStart = 0;
-    public static final int RegisterLen = 500;
+    public static final int RegisterStart = 100;
+    public static final int RegisterLen = 100;
 
     public static final int handRising = 1;
     public static final int handDeclining = 2;
@@ -22,6 +22,9 @@ public class Constants {
     public static final int handDeclined = 7;
     public static final int handLeftShifted = 8;
     public static final int handRightShifted = 9;
+
+    public static int previousHand4Position = HandPosition.Middle ;
+    public static int previousHand2Position = HandPosition.Middle;
 
     // hand position
     public static final int HAND_LEFT_TOP = 1;

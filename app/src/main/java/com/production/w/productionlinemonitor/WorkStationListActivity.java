@@ -27,7 +27,6 @@ public class WorkStationListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_work_station_list);
-
         initNavigationDrawer();
         init();
     }
@@ -62,9 +61,7 @@ public class WorkStationListActivity extends AppCompatActivity {
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         } else {
-
                         }
-
                         // Add code here to update the UI based on the item selected
                         // For example, swap UI fragments here
                         return true;
