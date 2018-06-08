@@ -254,6 +254,9 @@ public class WorkStationActivity extends AppCompatActivity {
                     default:
                         break;
                 }
+                if (target < 0) {
+                    target = (1 << 15) + (1 << 15) + target;
+                }
                 tv_target.setText(Integer.toString(target));
             }
         });
@@ -281,6 +284,9 @@ public class WorkStationActivity extends AppCompatActivity {
                         break;
                     default:
                         break;
+                }
+                if (current < 0) {
+                    current = (1 << 15) + (1 << 15) + current;
                 }
                 tv_current.setText(Integer.toString(current));
             }

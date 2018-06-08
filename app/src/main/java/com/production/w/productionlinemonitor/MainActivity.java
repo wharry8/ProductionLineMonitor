@@ -76,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacks(runnable);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.postDelayed(runnable, period);
+    }
+
     // 初始化菜单栏
     public void initNavigationDrawer() {
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -199,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
            updateUp();
            updateSpeed();
            updatePercent();
-
           ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
             @Override
             public void onSuccess(boolean[] booleen) {
@@ -226,6 +231,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "readHoldingRegisters onFailed " + msg);
             }
         }, 1, Constants.RegisterStart, Constants.RegisterLen);
+          ModbusReq.getInstance().readHoldingRegisters(new OnRequestBack<short[]>() {
+            @Override
+            public void onSuccess(short[] data) {
+                updateSystemRunningTime(data);
+            }
+
+            @Override
+            public void onFailed(String msg) {
+            }
+        }, 1, Register.time1, 2);
     }
     // 更新状态
     public void updateStatus (boolean[] booleans) {
@@ -243,13 +258,14 @@ public class MainActivity extends AppCompatActivity {
             tv_status.setText(R.string.unknown);
         }
     }
+
     // 更新目标产量
     public void updateTarget (final short[] data) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Log.e(TAG, "updateTarget: inside updateTarget." );
-                target = data[Register.systemTargetOutput];
+                target = convertShortToInt(data[Register.systemTargetOutput]);
                 Log.e(TAG, "updateTarget: inside updateTarget 2." );
                 Log.e(TAG, "updateTarget: " + target );
                 tv_target.setText(Integer.toString(target));
@@ -257,13 +273,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     // 更新当前产量
     public void updateCurrent (final short[] data) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Log.e(TAG, "updateCurrent: " );
-                current = data[Register.systemActualOutput];
+//                current = data[Register.systemActualOutput];
+                current = convertShortToInt(data[Register.systemActualOutput]);
                 Log.e(TAG, "updateCurrent: " );
                 tv_current.setText(Integer.toString(current));
             }
@@ -289,7 +307,26 @@ public class MainActivity extends AppCompatActivity {
         // 知道启动时间之后, 根据当前时间获取已经运行的时间, 以分钟为单位
     }
     // 更新系统运行时间
-    public void updateSystemRunningTime () {
+    public void updateSystemRunningTime (short[] data) {
+        // TODO
+        // 这似乎是浮点数?
+        int part1 = convertShortToInt(data[0]);
+        int part2 = convertShortToInt(data[1]);
+        int seconds = part1 + part2;
+        int days = seconds % (3600 * 24);
+        seconds /= (3600 * 24);
+        int hours = seconds % (3600);
+        seconds /= 3600;
+        int mins = seconds % 60;
+        seconds /= 60;
+        tv_system_running_time.setText(days + "天" + hours + "时" + mins + "分" + seconds + "秒");
+    }
+    int convertShortToInt (short x) {
+        if (x >= 0 && x < (1 << 15)) {
+            return x;
+        } else {
+            return (1 << 15) + (x + (1 << 15));
+        }
     }
     // 更新整机运行时间
     public void updateMachineRunningTime () {

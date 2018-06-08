@@ -144,8 +144,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBottom="@+id/iv_product"
-                            android:layout_alignStart="@+id/ws_tv_target"
-                            android:layout_marginBottom="14dp"
+                            android:layout_alignStart="@+id/ma_tv_target"
+                            android:layout_marginBottom="7dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
                             android:text="预设产量" />
@@ -315,8 +315,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignBottom="@+id/iv_product_filled"
-                            android:layout_alignStart="@+id/ws_tv_current"
-                            android:layout_marginBottom="14dp"
+                            android:layout_alignStart="@+id/ma_tv_current"
+                            android:layout_marginBottom="13dp"
                             android:layout_weight="1"
                             android:gravity="center_vertical"
                             android:text="当前产量" />

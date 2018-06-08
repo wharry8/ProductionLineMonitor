@@ -145,7 +145,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 
         // works
         groupId = new Date().getTime();
-        udpateViewHandler.postDelayed(runnable, period);
+//        udpateViewHandler.postDelayed(runnable, period);
         run4();
 //        run3();
 //        Timer timer = new Timer();
@@ -641,7 +641,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // v3
     private void run4 () {
         Timer timer = new Timer();
-        int delay = 1000;
+        int delay = 400;
         int period = 100;
         currentState = new boolean[600];
         previousState = new boolean[600];
@@ -651,6 +651,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 ModbusReq.getInstance().readCoil(new OnRequestBack<boolean[]>() {
                     @Override
                     public void onSuccess(boolean[] booleans) {
+                        // update view
+                        updateStatus(booleans);
+                        updateCncStatus(booleans);
+                        updateTime();
+                        updateSpeed();
+                        // update view end
                         Log.e(TAG, "readCoil onSuccess " + Arrays.toString(booleans));
                          currentState = booleans;
                         if (previousState == null) {
@@ -707,6 +713,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                             updateHand2_v4();
 //                            Log.e(TAG, "onSuccess: updateHand4 leave");
                         }
+//                        if (hand4.isMatch()) {
+//                            syncHand4_v4();
+//                        } else {
+//                            updateHand4_v4();
+//                        }
 //                        if (hand5.isMatch()) {
 //                            syncHand5_v3();
 //                        } else {
@@ -975,12 +986,13 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         if (previousState[Coil.car2HookOut] && currentState[Coil.car2HookIn]) {
             if (car2.getBox() == null) {
                 Log.e(TAG, "updateCar1_v2: 小车2由出钩到回钩, 此时应该有箱子, 但没有");
-
             }
             // 小车2在下料位放下箱子, 与其他工站不同的是，此时需要释放小车
             if (Float.compare(car2.getX(), Destination.finalPosition) == 0) {
-                car2.getBox().getSprite().releaseResources();
-                car2.setBox(null);
+                if (Float.compare(car2.getBox().getX(), car2.getX()) == 0) {
+                    car2.getBox().getSprite().releaseResources();
+                    car2.setBox(null);
+                }
             }
             // 小车2在站3加工位放下箱子
             if (Float.compare(car2.getX(), Destination.station3ProcessingPosition) == 0) {
@@ -1067,10 +1079,11 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
     private void update_car1_hook_out () {
         // 小车1获取箱子
-        if (previousState[Coil.car1HookIn] && currentState[Coil.car1HookOut]) {
+        if (/*previousState[Coil.car1HookIn] &&*/ currentState[Coil.car1HookOut]) {
             // 小车1此时应该没有箱子
             if (car1.getBox() != null) {
                 Log.e(TAG, "updateCar1: 小车1此时应该没有箱子，但有");
+                return;
             }
             // 当前位置应该有一个箱子
             // 当前在起始位
@@ -1116,6 +1129,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 car1.setBox(area.getBox());
                 area.setBox(null);
+                car1.getBox().setStatus(Constants.BOX_DECLINED);
             }
             // 当前在站2加工位
             if (Float.compare(car1.getX(), Destination.station2ProcessingPosition) == 0) {
@@ -1125,7 +1139,18 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 car1.setBox(area.getBox());
                 area.setBox(null);
+                car1.getBox().setStatus(Constants.BOX_DECLINED);
             }
+            // 当前在站2完成位
+            if (Float.compare(car1.getX(), Destination.station2CompletionPosition) == 0) {
+                Area area = workStationList.get(1).getCompletionArea();
+                if (area.getBox() == null) {
+                }
+                car1.setBox(area.getBox());
+                area.setBox(null);
+                car1.getBox().setStatus(Constants.BOX_DECLINED);
+            }
+
             // 当前在站3储备位
             if (Float.compare(car1.getX(), Destination.station3StoragePosition) == 0) {
                 Area area = workStationList.get(2).getStorageArea();
@@ -1149,9 +1174,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
     private void update_car1_hook_in () {
         // 小车1放下箱子
-        if (previousState[Coil.car1HookOut] && currentState[Coil.car1HookIn]) {
+        if (/*previousState[Coil.car1HookOut] &&*/ currentState[Coil.car1HookIn]) {
             if (car1.getBox() == null) {
                 Log.e(TAG, "updateCar1_v2: 小车1由出钩到回钩, 应该有箱子, 但没有");
+                return;
             }
             // 小车1在站1储备位放下箱子
             if (Float.compare(car1.getX(), Destination.station1StoragePosition) == 0) {
@@ -1173,6 +1199,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 car1.setBox(null);
                 area.getBox().setStatus(Constants.BOX_RISING);
             }
+
             // 小车1在站2储备位放下箱子
             if (Float.compare(car1.getX(), Destination.station2StoragePosition) == 0) {
                 Area area = workStationList.get(1).getStorageArea();
@@ -1181,6 +1208,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
             // 小车1在站2加工位放下箱子
             if (Float.compare(car1.getX(), Destination.station2ProcessingPosition) == 0) {
@@ -1190,7 +1218,18 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
+            // 小车1在站2完成位放下箱子
+            if (Float.compare(car1.getX(), Destination.station2CompletionPosition) == 0) {
+                Area area = workStationList.get(1).getCompletionArea();
+                if (area.getBox() != null) {
+                }
+                area.setBox(car1.getBox());
+                car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_DECLINED);
+            }
+
             // 小车1在站3储备位放下箱子
             if (Float.compare(car1.getX(), Destination.station3StoragePosition) == 0) {
                 Area area = workStationList.get(2).getStorageArea();
@@ -1199,6 +1238,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
             // 小车1在站3加工位放下箱子
             if (Float.compare(car1.getX(), Destination.station3ProcessingPosition) == 0) {
@@ -1208,6 +1248,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 }
                 area.setBox(car1.getBox());
                 car1.setBox(null);
+                area.getBox().setStatus(Constants.BOX_RISING);
             }
         }
     }
@@ -1536,12 +1577,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         Hand hand = workStationList.get(3).getHand();
         if (currentState[Coil.newHand4ToRight]) {
             hand.updatePosition(Constants.HAND_MIDDLE_TOP);
-            Constants.previousHand4Position = HandPosition.Right;
+            hand.previousPosition = HandPosition.Right;
             hand.setMatch(true);
         }
         if (currentState[Coil.newHand4ToMiddle]) {
             hand.setMatch(true);
-            Constants.previousHand4Position = HandPosition.Middle;
+            hand.previousPosition = HandPosition.Middle;
             hand.updatePosition(Constants.HAND_RIGHT_TOP);
         }
     }
@@ -1549,14 +1590,14 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         Log.e(TAG, "syncHand2_v4: enter");
         Hand hand = workStationList.get(1).getHand();
         if (currentState[Coil.newHand2ToRight]) {
-            hand.updatePosition(Constants.HAND_MIDDLE_TOP);
             hand.previousPosition = HandPosition.Right;
+            hand.updatePosition(Constants.HAND_MIDDLE_TOP);
             hand.setMatch(true);
         }
         if (currentState[Coil.newHand2ToMiddle]) {
-            hand.setMatch(true);
             hand.previousPosition = HandPosition.Middle;
             hand.updatePosition(Constants.HAND_RIGHT_TOP);
+            hand.setMatch(true);
         }
     }
 
@@ -2740,7 +2781,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
      // 站2同步中
     private void updateStation2_v2() {
-
         // 料盒上升和下降
         // 料盒上升
         // 料盒上升由小车动作控制
@@ -2757,9 +2797,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
             }
         }
         if (currentState[Coil.station2ProcessingPositionDown]) {
+            Log.e(TAG, "updateStation2_v2: down1 " + new Date().toLocaleString());
             if (ws.getProcessingArea().getBox() != null) {
                 Box box = ws.getProcessingArea().getBox();
+                Log.e(TAG, "updateStation2_v2: down2 " + new Date().toLocaleString());
                 if (box.getStatus() != Constants.BOX_DECLINED) {
+                    Log.e(TAG, "updateStation2_v2: down3 " + new Date().toLocaleString());
                     box.setStatus(Constants.BOX_DECLING);
                 }
             }
@@ -4513,6 +4556,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     @Override
     protected void onResume() {
         super.onResume();
+        run4();
     }
 
     @Override
@@ -4646,3 +4690,4 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     }
 }
 
+// 不能继续写下去了

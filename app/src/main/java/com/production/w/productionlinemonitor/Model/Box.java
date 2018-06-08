@@ -39,7 +39,7 @@ public class Box extends BaseModel {
        this.initY = y;
 
        this.status = Constants.BOX_DECLINED;
-       this.speed = 10;
+       this.speed = 60;
        this.yOffset = 20;
    }
 
