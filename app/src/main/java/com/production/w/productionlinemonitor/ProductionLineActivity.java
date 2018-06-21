@@ -133,7 +133,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_production_line);
 
-        initModbus();
+//        initModbus();
         initNavigationDrawer();
         bind();
 
@@ -641,8 +641,8 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     // v3
     private void run4 () {
         Timer timer = new Timer();
-        int delay = 400;
-        int period = 100;
+        int delay = 100;
+        int period = 200;
         currentState = new boolean[600];
         previousState = new boolean[600];
         timer.schedule(new TimerTask() {
@@ -792,7 +792,6 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         update_car1_hook_out();
 
         // 根据挡块的位置判断
-
         // 上料挡停位挡块升起
         if (currentState[Coil.startPositionBlocked]) {
             ok = true;
@@ -851,19 +850,32 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 _updateSpeedAndDirection(1, Destination.station2ProcessingPosition);
             }
             if (currentState[Coil.car1AtStation2CompletionPosition]) {
+                if (workStationList.get(1).getStorageArea().getBox() != null && workStationList.get(1).getProcessingArea().getBox() != null) {
+                    car1.setBox(workStationList.get(1).getProcessingArea().getBox());
+                    workStationList.get(1).getProcessingArea().setBox(null);
+                    if (car1.getBox().getStatus() != Constants.BOX_DECLINED) {
+                        car1.getBox().setStatus(Constants.BOX_DECLINED);
+                    }
+                }
                 _updateSpeedAndDirection(1, Destination.station2CompletionPosition);
             }
             if (currentState[Coil.car1AtStation3StoragePosition]) {
                 _updateSpeedAndDirection(1, Destination.station3StoragePosition);
             }
             if (currentState[Coil.car1AtStation3ProcessingPosition]) {
+                if (Float.compare(car1.getX(), Destination.station2CompletionPosition) == 0 &&
+                        workStationList.get(1).getCompletionArea().getBox() != null &&
+                        car1.getBox() == null) {
+                    car1.setBox(workStationList.get(1).getCompletionArea().getBox());
+                    workStationList.get(1).getCompletionArea().setBox(null);
+                }
                 _updateSpeedAndDirection(1, Destination.station3ProcessingPosition);
             }
         }
     }
     // helper function for v3 animation
     private void _updateSpeedAndDirection (int id, float destination) {
-        int speed = 100;
+        int speed = 200;
         float precision = 5;
         if (id == 1) {
             // car1
@@ -912,7 +924,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     private void update_car2_hook_out () {
         Log.e(TAG, "update_car2_hook_out: enter, x: " + car2.getX() + ", destination: " + Destination.station3ProcessingPosition);
         // 小车2获取箱子
-        if (previousState[Coil.car2HookIn] && currentState[Coil.car2HookOut]) {
+        if (/*previousState[Coil.car2HookIn] &&*/ currentState[Coil.car2HookOut]) {
             if (car2.getBox() != null) {
                 Log.e(TAG, "updateCar1_v2: 小车2由回钩到出钩, 此时应该没有箱子, 但有");
             }
@@ -1078,6 +1090,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         }
     }
     private void update_car1_hook_out () {
+
+        if (car1.getDestination() < car1.getX()) {
+            return;
+        }
         // 小车1获取箱子
         if (/*previousState[Coil.car1HookIn] &&*/ currentState[Coil.car1HookOut]) {
             // 小车1此时应该没有箱子
@@ -1137,6 +1153,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 if (area.getBox() == null) {
                     Log.e(TAG, "updateCar1_v2: 小车1在站2加工位由回钩到出钩, 此处应该有箱子, 但没有");
                 }
+                if (workStationList.get(1).getCompletionArea().getBox() != null) {
+                    return;
+                }
                 car1.setBox(area.getBox());
                 area.setBox(null);
                 car1.getBox().setStatus(Constants.BOX_DECLINED);
@@ -1165,6 +1184,10 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
                 Area area = workStationList.get(2).getProcessingArea();
                 if (area.getBox() == null) {
                     Log.e(TAG, "updateCar1_v2: 小车1在站3加工位由回钩到出钩, 此处应该有箱子, 但没有");
+                    return;
+                }
+                if (area.getBox().getStatus() != Constants.BOX_DECLINED) {
+                    return;
                 }
                 car1.setBox(area.getBox());
                 area.setBox(null);
@@ -1591,12 +1614,12 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
         Hand hand = workStationList.get(1).getHand();
         if (currentState[Coil.newHand2ToRight]) {
             hand.previousPosition = HandPosition.Right;
-            hand.updatePosition(Constants.HAND_MIDDLE_TOP);
+            hand.updatePosition(Constants.HAND_RIGHT_TOP);
             hand.setMatch(true);
         }
         if (currentState[Coil.newHand2ToMiddle]) {
             hand.previousPosition = HandPosition.Middle;
-            hand.updatePosition(Constants.HAND_RIGHT_TOP);
+            hand.updatePosition(Constants.HAND_MIDDLE_TOP);
             hand.setMatch(true);
         }
     }
@@ -1609,14 +1632,29 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //        Log.e(TAG, "updateHand4_v4: right: " + currentState[Coil.newHand4ToRight] + ", initY: " + hand.getInitY() + ", middleY: " + hand.getRightEndY());
 //        Log.e(TAG, "updateHand4_v4: pos: " + Constants.previousHand4Position + ", waiting: " + currentState[Coil.waiting] + ", middleY: " + hand.getRightEndY() + ", initY:" + hand.getInitY());
 //        Log.e(TAG, "updateHand2_v4: toright waiting: " + currentState[Coil.hand2Waiting] + ",pos:" + hand.getPreviousPosition());
-        Log.e(TAG, "updateHand2_v4: waiting: " + currentState[Coil.hand2Waiting] + ",middle:" + currentState[Coil.newHand2ToMiddle] + ", right:" + currentState[Coil.newHand2ToRight] + ",pos:" + hand.getPreviousPosition());
+        if (currentState[Coil.newHand2ToMiddle]) {
+//            if (Float.compare(hand.getY(), hand.getMiddleY()) != 0) {
+                hand.updatePosition(Constants.HAND_MIDDLE_TOP);
+//            }
+            Log.e(TAG, "updateHand2_v4: to middl at: " + new Date().toLocaleString());
+            return;
+        }
+
+        if (currentState[Coil.newHand2ToRight]) {
+//            if (Float.compare(hand.getY(), hand.getRightEndY()) != 0) {
+                hand.updatePosition(Constants.HAND_RIGHT_TOP);
+//            }
+            return;
+        }
         if (currentState[Coil.hand2Waiting] &&
                 hand.getPreviousPosition() == HandPosition.Middle &&
                 !currentState[Coil.newHand2ToMiddle]
 //                Float.compare(hand.getInitY(), hand.getMiddleY()) == 0 &&
 //                !currentState[Coil.newHand4ToMiddle]
                 ) {
+            Log.e(TAG, "updateHand2_v4: right shift: " + new Date().toLocaleString());
             hand.setStatus(Constants.handRightShifting);
+            return;
         }
         if (currentState[Coil.hand2Waiting] &&
                 hand.getPreviousPosition() == HandPosition.Right &&
@@ -1625,18 +1663,9 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
 //                !currentState[Coil.newHand4ToMiddle]
                 ) {
             hand.setStatus(Constants.handLeftShifting);
-        }
-        if (currentState[Coil.newHand2ToMiddle]) {
-//            if (Float.compare(hand.getY(), hand.getMiddleY()) != 0) {
-                hand.updatePosition(Constants.HAND_MIDDLE_TOP);
-//            }
+            return;
         }
 
-        if (currentState[Coil.newHand2ToRight]) {
-//            if (Float.compare(hand.getY(), hand.getRightEndY()) != 0) {
-                hand.updatePosition(Constants.HAND_RIGHT_TOP);
-//            }
-        }
 //        if (!currentState[Coil.newHand4ToRight] && currentState[Coil.waiting] && Float.compare(hand.getInitY(), hand.getRightEndY()) == 0) {
 //            if (Float.compare(hand.getInitY(), hand.getMiddleY()) != 0) {
 //                hand.setStatus(Constants.handLeftShifting);
@@ -4556,7 +4585,7 @@ public class ProductionLineActivity extends AppCompatActivity implements SmartGL
     @Override
     protected void onResume() {
         super.onResume();
-        run4();
+//        run4();
     }
 
     @Override

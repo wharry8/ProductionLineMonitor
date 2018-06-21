@@ -52,20 +52,21 @@ public class LoginActivity extends AppCompatActivity {
                 // 3. 尝试连接
                 // 4. 成功则进入，失败则返回
 
-                /*
-                Log.e(TAG, "onClick: 1");
                 if (!input_host.equals(getString(R.string.host))) {
-                    Toast.makeText(getApplicationContext(), "请输入正确的服务器地址", Toast.LENGTH_LONG);
+                    Toast.makeText(getApplicationContext(), "请输入正确的服务器地址", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "onClick: host not match");
+                    return;
                 }
                 if (!input_port.equals(getString(R.string.port))) {
-                    Toast.makeText(getApplicationContext(), "请输入正确的端口", Toast.LENGTH_LONG);
+                    Toast.makeText(getApplicationContext(), "请输入正确的端口", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "onClick: port not match");
                     return;
                 }
                 if (!input_password.equals(getString(R.string.password))) {
-                    Toast.makeText(getApplicationContext(), "请输入正确的密码", Toast.LENGTH_LONG);
+                    Toast.makeText(getApplicationContext(), "请输入正确的密码", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "onClick: password not match");
                     return;
                 }
-                */
                  ModbusReq.getInstance().setParam(new ModbusParam()
                 .setHost(input_host)
                 .setPort(Integer.valueOf(input_port))
@@ -82,10 +83,9 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onFailed(String msg) {
-                        Log.d(TAG, "onFailed 连接服务器失败" + msg);
-                        Toast.makeText(LoginActivity.this, "can't connect to server.", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
+                        Log.d(TAG, "onFailed 连接服务器失败" + msg);
                     }
                 });
             }

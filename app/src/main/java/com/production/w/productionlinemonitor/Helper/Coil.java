@@ -78,7 +78,7 @@ public class Coil {
     // 小车位置信号
     // todo
     // 根据最新的表格跟新小车位置信号
-    public static final int car1AtStartPosition =  40;
+    public static final int car1AtStartPosition =  58;
     public static final int car1AtStartBlockPosition = 41;
 
     public static final int car1AtStation1StoragePosition = 42;
